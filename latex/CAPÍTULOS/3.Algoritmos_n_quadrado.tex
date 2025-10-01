@@ -1,0 +1,914 @@
+\chapter{Algoritmos com complexidades de tempo $O(n^2)$}
+
+Neste capítulo apresentamos algoritmos de ordenação cujos números de operações de comparações são da forma $cn^2$, onde $n$ é o número de elementos a serem ordenados no multiconjunto e $c$ é um número real positivo.
+
+\section{Bubble sort}
+\textbf{Descrição:} O Bubble Sort compara e troca elementos adjacentes repetidamente até que a lista esteja ordenada.
+
+\begin{exmp}
+Considere ordenar $A = [5, 1, 4, 2, 8]$ usando Bubble Sort:
+
+\begin{enumerate}
+    \item Primeira passagem: comparações e trocas:
+    \[
+    [5,1,4,2,8] \rightarrow [1,5,4,2,8] \rightarrow [1,4,5,2,8] \rightarrow [1,4,2,5,8] \rightarrow [1,4,2,5,8]
+    \]
+
+    \item Segunda passagem:
+    \[
+    [1,4,2,5,8] \rightarrow [1,4,2,5,8] \rightarrow [1,2,4,5,8] \rightarrow [1,2,4,5,8]
+    \]
+
+    \item Terceira passagem:
+    \[
+    [1,2,4,5,8] \text{ (não há trocas, fim da ordenação)}
+    \]
+
+\end{enumerate}
+Vetor final: $[1,2,4,5,8]$.
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{bubbleSort(values: array of any, n: integer)}
+
+\For{$i\gets 1$ \KwTo $n-1$}{
+    \For{$j\gets 1$ \KwTo $n-i-1$}{
+       \If{$values[j] > values[j+1]$}{
+          $swap(values[j], values[j+1]$)
+       }
+    }
+  }
+\caption{Bubble sort.}
+\label{lab:alg-bubbleSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Bubble sort em C},captionpos=t]
+void bubbleSort(int values[], int n){
+    for(int i = 0; i < n - 1; i++){
+        for(int j = 0; j < n - i - 1; j++){
+            if (values[j] > values[j + 1]){
+                swap(values[j], values[j + 1]);
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+Para tratar o caso do vetor estar inicialmente ordenado, e assim não precisar ordená-lo, podemos usar a seguinte versão: 
+\begin{lstlisting}[language=C,caption={Bubble sort otimizado em C},captionpos=t]
+void bubbleSort(int values[], int n){
+    bool swapped = true;
+    for(int i = 0; i < n - 1; i++){
+        swapped = false;
+        for(int j = 0; j < n - i - 1; j++){
+            if (values[j] > values[j + 1]){
+                swap(values[j], values[j + 1]);
+                swapped = true;
+            }
+        }
+        if (swapped == false) break;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Bubble sort otimizado em Python},captionpos=t]
+def bubbleSort(values, n):
+    for i in range(0,n):
+        swapped = False  
+        for j in range(0,n-i-1):
+            if values[j] > values[j+1]:
+                values[j],values[j+1] = values[j+1], values[j]
+                swapped = True
+        if not swapped: break
+\end{lstlisting}
+
+\noindent{Vale a pena executar o bubble sort sobre  diferentes vetores de entrada para diferentes valores de n. Para calcular os números de operaçoes de comparação e de troca, sugiro que você inclua no \textbf{código de teste} as variáveis count\_comp e count\_swap. Com estes valores você poderia desenhar uns gráficos.}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-bubbleSort}}
+
+Consideramos que o vetor $values$ tem comprimento $n$.
+O \textit{loop} externo itera sobre o vetor, e o \textit{loop} interno compara elementos adjacentes e os trocam se necessário. Assumimos que qualquer operação de comparação ou troca é feita em tempo constante (isto é, $O(1)$).
+
+O \textit{loop} interno realiza $n-i-1$ operações de comparação e no máximo $n-i-1$ operações de troca. O \textit{loop} externo é executado $n-1$ vezes. Portanto, o número máximo de operações de comparação e de troca é:
+\begin{align*}
+T(n) & = (n-1) [(n-1) + (n-1)]\\
+     & = (n-1) (2n-2)\\
+     & = 2n^2 - 4n + 2   \quad\quad \text{para } n\geq 1 
+\end{align*}
+
+Em termos assintóticos, podemos escrever:
+$$T(n)=2n^2 - 4n + 2 \leq 2n^2 + n^2 + n^2 \leq 4n^2\quad \forall n\geq 1.$$
+Se \textcolor{blue}{$c_1=4$ e $n_0=1$} então $T(n)\in O(n^2)$ . 
+
+A seguir fazemos uma análise de melhor, médio e pior casos. Isto é, ...
+\begin{itemize}
+    \item Melhor caso: $O(n)$, vetor já ordenado, apenas verificações sem trocas.
+
+     \item Caso médio: $O(n^2)$, swaps e comparações para posições aleatórias.
+
+     \item Pior caso: $O(n^2)$, vetor inversamente ordenado.
+\end{itemize}
+
+
+\section{Insertion sort}
+\textbf{Descrição:} O Insertion Sort é um algoritmo de ordenação que constrói a sequência ordenada gradualmente, inserindo cada elemento na posição correta em relação aos anteriores.
+
+\begin{exmp}
+Ordenar $A = [5, 2, 4, 6, 1, 3]$:
+
+\begin{enumerate}
+    \item Inserir 2: $[2,5,4,6,1,3]$
+    \item Inserir 4: $[2,4,5,6,1,3]$
+    \item Inserir 6: $[2,4,5,6,1,3]$
+    \item Inserir 1: $[1,2,4,5,6,3]$
+    \item Inserir 3: $[1,2,3,4,5,6]$
+\end{enumerate}
+
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{insertionSort(values: array of any, n: integer)}
+
+\If{$n\leq 1$}{return\quad \tcp{array is already sorted}}
+\For{$i\gets 1$ \KwTo $n-1$}{
+    $x\gets values[i]$\;
+    $j\gets i-1$\;
+    \While{$j\geq 0$ \textbf{and} $x < values[j]$}{
+       $values[j+1] \gets values[j]$\;
+       $j\gets j-1$\;
+    }
+    $values[j+1]\gets x$\;
+  }
+\caption{Insertion sort.}
+\label{lab:alg-insertionSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+    
+% \begin{lstlisting}[language=C,caption={insertion sort em C},captionpos=t]
+% void insertionSort(int values[], int n){
+%     for(int i = 1; i < n; i++){ 
+%         int j = i;
+%         while (j > 0 && values[j] < values[j-1]){
+%             swap(values[j], values[j - 1]);
+%             j -= 1;
+%         }
+%     }	
+% }
+% \end{lstlisting}
+
+\begin{lstlisting}[language=C,caption={insertion sort em C},captionpos=t]
+void insertionSort(int values[], int n) {
+    if (n <= 1){
+       return   // array is already sorted
+    }  
+    for (int i = 1; i < n; i++) {
+        int x = values[i];
+        int j = i - 1;
+        while (j >= 0 &&  x < values[j]) {
+            values[j + 1] = values[j];
+            j = j - 1;
+        }
+        values[j + 1] = x;
+    }
+}    
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={insertion sort em Python},captionpos=t]
+def insertionSort(values, n):
+    if n <= 1: return  # array is already sorted
+    for i in range(1, n):  
+        x = values[i]  
+        j = i-1
+        while j >= 0 and x < values[j]:  
+            values[j+1] = values[j]  
+            j -= 1
+        values[j+1] = x  
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-insertionSort}}
+Consideremos um vetor $values$ de tamanho $n$. O Insertion Sort percorre o vetor a partir do segundo elemento (índice 1) e, para cada elemento, compara e desloca os elementos anteriores até encontrar a posição correta. Assumimos que cada operação de comparação ou deslocamento é $O(1)$.
+
+\begin{enumerate}
+    \item Para $i = 1$, o elemento $values[1]$ pode exigir até 1 comparação e 1 deslocamento.
+    \item Para $i = 2$, o elemento $values[2]$ pode exigir até 2 comparações e 2 deslocamentos.
+    \item Para $i = 3$, até 3 comparações e 3 deslocamentos.
+    \item \dots
+    \item Para $i = n-1$, até $n-1$ comparações e $n-1$ deslocamentos.
+\end{enumerate}
+
+Portanto, o número máximo de operações de comparação e deslocamento é:
+
+\[
+T(n) = 1 + 2 + 3 + \dots + (n-1) + 1 + 2 + \dots + (n-1) = 2 \sum_{i=1}^{n-1} i = 2 \cdot \frac{(n-1)n}{2} = n(n-1)
+\]
+
+\[
+T(n) = n^2 - n \quad\quad \text{para } n \ge 1
+\]
+
+Em termos assintóticos, podemos escrever:
+
+\[
+T(n) \le n^2 \quad \forall n \ge 1 \Rightarrow T(n) \in O(n^2)
+\]
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$, quando o vetor já está ordenado. Nesse caso, o \textit{while} interno nunca executa, apenas uma comparação por iteração.
+    
+    \item \textbf{Caso médio:} $O(n^2)$, considerando que, em média, cada elemento precisa ser comparado com metade dos elementos anteriores.
+    
+    \item \textbf{Pior caso:} $O(n^2)$, quando o vetor está inversamente ordenado. Cada elemento será comparado e deslocado até a primeira posição.
+\end{itemize}
+
+\noindent\textbf{Espaço auxiliar:} $O(1)$, já que as operações são realizadas \textit{in-place}, apenas uma variável temporária $x$ é necessária. 
+
+\section{Comb sort}
+\textbf{Descrição:} O Comb Sort é uma melhoria do Bubble Sort que tenta eliminar \textit{turtles} (elementos pequenos próximos ao final do vetor) usando um \textit{gap} inicial maior que 1, que vai sendo reduzido até chegar em 1. Quando o gap é 1, o Comb Sort se comporta como o Bubble Sort tradicional.
+
+\begin{exmp}
+Ordenar $A = [5, 1, 4, 2, 8]$ usando Comb Sort:
+
+\begin{enumerate}
+    \item Gap inicial: $5/1.3 \approx 3$ \\
+    Comparações: $(5,2)$ e $(1,8)$. Trocas: $[5,1,2,4,8]$.
+    \item Gap reduzido para 2. Comparações e trocas: $[2,1,5,4,8] \rightarrow [2,1,4,5,8]$.
+    \item Gap reduzido para 1. Agora é igual ao Bubble Sort: $[1,2,4,5,8]$.
+\end{enumerate}
+
+Vetor final: $[1,2,4,5,8]$.
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{combSort(values: array of any, n: integer)}
+
+$gap \gets n$\;
+$shrink \gets 1.3$\;
+$sorted \gets false$\;
+
+\While{not $sorted$}{
+    $gap \gets \lfloor gap/shrink \rfloor$\;
+    \If{$gap \leq 1$}{
+        $gap \gets 1$\;
+        $sorted \gets true$\;
+    }
+    \For{$i \gets 0$ \KwTo $n-gap-1$}{
+        \If{$values[i] > values[i+gap]$}{
+            $swap(values[i], values[i+gap])$\;
+            $sorted \gets false$\;
+        }
+    }
+}
+\caption{Comb sort.}
+\label{lab:alg-combSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Comb sort em C},captionpos=t]
+void combSort(int arr[], int n) {
+    int gap = n;
+    const float shrink = 1.3;
+    int sorted = 0;
+
+    while (!sorted) {
+        gap = (int)(gap / shrink);
+        if (gap <= 1) {
+            gap = 1;
+            sorted = 1;
+        }
+        sorted = 1;
+        for (int i = 0; i + gap < n; i++) {
+            if (arr[i] > arr[i + gap]) {
+                int temp = arr[i];
+                arr[i] = arr[i + gap];
+                arr[i + gap] = temp;
+                sorted = 0;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Comb sort em Python},captionpos=t]
+def combSort(values):
+    n = len(values)
+    gap = n
+    shrink = 1.3
+    sorted = False
+    while not sorted:
+        gap = int(gap / shrink)
+        if gap <= 1:
+            gap = 1
+            sorted = True
+        i = 0
+        while i + gap < n:
+            if values[i] > values[i + gap]:
+                values[i], values[i + gap] = values[i + gap], values[i]
+                sorted = False
+            i += 1
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-combSort}}
+Considere um vetor $values$ de tamanho $n$. O Comb Sort executa passagens sobre o vetor com gaps decrescentes até 1.
+
+\begin{itemize}
+    \item \textbf{Número de comparações:}  
+    Aproximadamente $O(n \log n)$ no melhor caso (pois os gaps grandes reduzem rapidamente as inversões) e até $O(n^2)$ no pior caso, pois quando $gap=1$ o algoritmo se comporta como Bubble Sort.
+    
+    \item \textbf{Melhor caso:} $O(n \log n)$, vetor já ordenado.
+    \item \textbf{Caso médio:} Melhor que Bubble Sort, mas ainda quadrático. Aproximadamente $O(n^2 / 2^p)$, dependendo do fator \textit{shrink}.
+    \item \textbf{Pior caso:} $O(n^2)$, vetor inversamente ordenado.
+    \item \textbf{Espaço auxiliar:} $O(1)$, ordenação in-place.
+\end{itemize}
+
+\section{Selection sort}
+\textbf{Descrição:} O Selection Sort percorre o vetor repetidamente, encontrando o menor elemento e colocando-o na posição correta. É um algoritmo simples, porém pouco eficiente em grandes conjuntos.
+
+\begin{exmp}
+Ordenar $A = [29, 10, 14, 37, 13]$:
+
+\begin{enumerate}
+    \item Encontrar o menor elemento (10) e trocar com o primeiro: $[10, 29, 14, 37, 13]$
+    \item Encontrar o menor do restante (13) e trocar com o segundo: $[10, 13, 14, 37, 29]$
+    \item Encontrar o menor do restante (14), já está na posição correta.
+    \item Encontrar o menor do restante (29) e trocar com o quarto: $[10, 13, 14, 29, 37]$
+    \item Último elemento já está correto.
+\end{enumerate}
+
+Vetor final: $[10, 13, 14, 29, 37]$.
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{selectionSort(values: array of any, n: integer)}
+
+\For{$i \gets 0$ \KwTo $n-2$}{
+    $minIndex \gets i$\;
+    \For{$j \gets i+1$ \KwTo $n-1$}{
+        \If{$values[j] < values[minIndex]$}{
+            $minIndex \gets j$\;
+        }
+    }
+    \If{$minIndex \neq i$}{
+        $swap(values[i], values[minIndex])$\;
+    }
+}
+\caption{Selection sort.}
+\label{lab:alg-selectionSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Selection sort em C},captionpos=t]
+void selectionSort(int values[], int n){
+    for(int i = 0; i < n-1; i++){
+        int minIndex = i;
+        for(int j = i+1; j < n; j++){
+            if(values[j] < values[minIndex]){
+                minIndex = j;
+            }
+        }
+        if(minIndex != i){
+            int temp = values[i];
+            values[i] = values[minIndex];
+            values[minIndex] = temp;
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Selection sort em Python},captionpos=t]
+def selectionSort(values, n):
+    for i in range(n):
+        min_index = i
+        for j in range(i+1, n):
+            if values[j] < values[min_index]:
+                min_index = j
+        values[i], values[min_index] = values[min_index], values[i]
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-selectionSort}}
+Considere um vetor $values$ de tamanho $n$.
+
+\begin{itemize}
+    \item O \textit{loop} externo executa $n-1$ vezes.
+    \item O \textit{loop} interno executa $(n-1)+(n-2)+\dots+1 = n(n-1)/2$ comparações.
+\end{itemize}
+
+\noindent\textbf{Número de comparações:}  
+\[
+C(n) = \frac{n(n-1)}{2} \approx \frac{n^2}{2}
+\]
+
+\noindent\textbf{Número de trocas:}  
+No máximo $n-1$, uma por iteração do loop externo.
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n^2)$ comparações, $O(n)$ trocas.
+    \item \textbf{Caso médio:} $O(n^2)$ comparações, $O(n)$ trocas.
+    \item \textbf{Pior caso:} $O(n^2)$ comparações, $O(n)$ trocas.
+\end{itemize}
+
+\noindent\textbf{Espaço auxiliar:} $O(1)$, pois a ordenação é feita in-place.
+
+\section{Shell sort}
+\textbf{Descrição:} O Shell Sort é uma generalização do Insertion Sort que permite comparações entre elementos distantes, utilizando um \textit{gap} que vai sendo reduzido até 1. Com isso, o algoritmo reduz o número de movimentações, tornando-o mais eficiente em relação ao Insertion Sort puro.
+
+\begin{exmp}
+Ordenar $A = [23, 12, 1, 8, 34, 54, 2, 3]$:
+
+\begin{enumerate}
+    \item Gap inicial $= 4$: comparações entre pares separados por 4 posições.
+    Após ajustes: $[23, 12, 1, 3, 34, 54, 2, 8]$.
+    \item Gap reduzido para $2$: $[1, 3, 2, 8, 23, 12, 34, 54]$.
+    \item Gap reduzido para $1$: funciona como Insertion Sort.
+    Resultado final: $[1, 2, 3, 8, 12, 23, 34, 54]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{shellSort(values: array of int, n: integer)}
+
+\For{$gap \gets n/2$ \KwTo $1$ passo $gap/2$}{
+    \For{$i \gets gap$ \KwTo $n-1$}{
+        $temp \gets values[i]$\;
+        $j \gets i$\;
+        \While{$j \geq gap$ \textbf{and} $values[j-gap] > temp$}{
+            $values[j] \gets values[j-gap]$\;
+            $j \gets j-gap$\;
+        }
+        $values[j] \gets temp$\;
+    }
+}
+\caption{Shell sort.}
+\label{lab:alg-shellSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Shell sort em C},captionpos=t]
+void shellSort(int arr[], int n) {
+    for (int gap = n/2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            int temp = arr[i];
+            int j = i;
+            while (j >= gap && arr[j-gap] > temp) {
+                arr[j] = arr[j-gap];
+                j -= gap;
+            }
+            arr[j] = temp;
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Shell sort em Python},captionpos=t]
+def shellSort(arr):
+    n = len(arr)
+    gap = n // 2
+    while gap > 0:
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            while j >= gap and arr[j-gap] > temp:
+                arr[j] = arr[j-gap]
+                j -= gap
+            arr[j] = temp
+        gap //= 2
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-shellSort}}
+A análise depende da sequência de gaps escolhida.
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n \log n)$
+    \item \textbf{Caso médio:} entre $O(n^{1.25})$ e $O(n^{1.5})$, dependendo da sequência
+    \item \textbf{Pior caso:} $O(n^2)$
+    \item \textbf{Espaço auxiliar:} $O(1)$
+\end{itemize}
+
+
+\section{Gnome sort}
+\textbf{Descrição:} O Gnome Sort funciona de forma semelhante ao Insertion Sort, mas realiza trocas locais repetidamente, como um "gnomo organizando vasos". Avança se os elementos estão em ordem e retrocede trocando quando não estão.
+
+\begin{exmp}
+Ordenar $A = [34, 2, 10, -9]$:
+
+\begin{enumerate}
+    \item $34 > 2$, troca: $[2, 34, 10, -9]$
+    \item $34 > 10$, troca: $[2, 10, 34, -9]$
+    \item $34 > -9$, troca: $[2, 10, -9, 34]$
+    \item $10 > -9$, troca: $[2, -9, 10, 34]$
+    \item $2 > -9$, troca: $[-9, 2, 10, 34]$
+\end{enumerate}
+Vetor final: $[-9, 2, 10, 34]$.
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{gnomeSort(values: array of int, n: integer)}
+
+$i \gets 0$\;
+\While{$i < n$}{
+    \If{$i == 0$ or $values[i] \geq values[i-1]$}{
+        $i \gets i+1$\;
+    }
+    \Else{
+        $swap(values[i], values[i-1])$\;
+        $i \gets i-1$\;
+    }
+}
+\caption{Gnome sort.}
+\label{lab:alg-gnomeSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Gnome sort em C},captionpos=t]
+void gnomeSort(int arr[], int n) {
+    int i = 0;
+    while (i < n) {
+        if (i == 0 || arr[i] >= arr[i-1]) {
+            i++;
+        } else {
+            int temp = arr[i];
+            arr[i] = arr[i-1];
+            arr[i-1] = temp;
+            i--;
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Gnome sort em Python},captionpos=t]
+def gnomeSort(arr):
+    i = 0
+    n = len(arr)
+    while i < n:
+        if i == 0 or arr[i] >= arr[i-1]:
+            i += 1
+        else:
+            arr[i], arr[i-1] = arr[i-1], arr[i]
+            i -= 1
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-gnomeSort}}
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$ (vetor já ordenado)
+    \item \textbf{Caso médio:} $O(n^2)$
+    \item \textbf{Pior caso:} $O(n^2)$ (vetor inversamente ordenado)
+    \item \textbf{Espaço auxiliar:} $O(1)$
+\end{itemize}
+
+
+\section{Shaker sort}
+\textbf{Descrição:} O Shaker Sort (ou Cocktail Sort) é uma variação do Bubble Sort que percorre o vetor em ambas as direções alternadamente. Isso faz com que elementos pequenos "subam" rapidamente para o início, e elementos grandes "desçam" para o final.
+
+\begin{exmp}
+Ordenar $A = [5, 1, 4, 2, 8]$:
+
+\begin{enumerate}
+    \item Passagem esquerda $\to$ direita: $[1, 4, 2, 5, 8]$
+    \item Passagem direita $\to$ esquerda: $[1, 2, 4, 5, 8]$
+\end{enumerate}
+Vetor final: $[1, 2, 4, 5, 8]$.
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{shakerSort(values: array of int, n: integer)}
+
+$swapped \gets true$\;
+$start \gets 0$\;
+$end \gets n-1$\;
+
+\While{$swapped$}{
+    $swapped \gets false$\;
+    \For{$i \gets start$ \KwTo $end-1$}{
+        \If{$values[i] > values[i+1]$}{
+            $swap(values[i], values[i+1])$\;
+            $swapped \gets true$\;
+        }
+    }
+    $end \gets end-1$\;
+
+    \For{$i \gets end-1$ \KwTo $start$}{
+        \If{$values[i] > values[i+1]$}{
+            $swap(values[i], values[i+1])$\;
+            $swapped \gets true$\;
+        }
+    }
+    $start \gets start+1$\;
+}
+\caption{Shaker sort.}
+\label{lab:alg-shakerSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Shaker sort em C},captionpos=t]
+void shakerSort(int arr[], int n) {
+    int start = 0, end = n - 1;
+    int swapped = 1;
+    while (swapped) {
+        swapped = 0;
+        for (int i = start; i < end; i++) {
+            if (arr[i] > arr[i+1]) {
+                int temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+                swapped = 1;
+            }
+        }
+        end--;
+        for (int i = end-1; i >= start; i--) {
+            if (arr[i] > arr[i+1]) {
+                int temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+                swapped = 1;
+            }
+        }
+        start++;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Shaker sort em Python},captionpos=t]
+def shakerSort(arr):
+    start = 0
+    end = len(arr) - 1
+    swapped = True
+    while swapped:
+        swapped = False
+        for i in range(start, end):
+            if arr[i] > arr[i+1]:
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                swapped = True
+        end -= 1
+        for i in range(end-1, start-1, -1):
+            if arr[i] > arr[i+1]:
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                swapped = True
+        start += 1
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-shakerSort}}
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$ (já ordenado)
+    \item \textbf{Caso médio:} $O(n^2)$
+    \item \textbf{Pior caso:} $O(n^2)$
+    \item \textbf{Espaço auxiliar:} $O(1)$
+\end{itemize}
+
+
+\section{Odd-Even sort}
+\textbf{Descrição:} O Odd-Even Sort, também chamado de Brick Sort, é uma variação do Bubble Sort que alterna duas fases: uma onde compara pares de índices ímpares e outra de índices pares. Repete até o vetor estar ordenado.
+
+\begin{exmp}
+Ordenar $A = [5, 3, 8, 4, 2]$:
+
+\begin{enumerate}
+    \item Fase ímpar: compara (5,3), (8,4) → $[3, 5, 4, 8, 2]$
+    \item Fase par: compara (5,4), (8,2) → $[3, 4, 5, 2, 8]$
+    \item Repetindo → $[2, 3, 4, 5, 8]$
+\end{enumerate}
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{oddEvenSort(values: array of int, n: integer)}
+
+$sorted \gets false$\;
+\While{$\neg sorted$}{
+    $sorted \gets true$\;
+
+    \For{$i \gets 1$ \KwTo $n-2$ passo $2$}{
+        \If{$values[i] > values[i+1]$}{
+            $swap(values[i], values[i+1])$\;
+            $sorted \gets false$\;
+        }
+    }
+
+    \For{$i \gets 0$ \KwTo $n-2$ passo $2$}{
+        \If{$values[i] > values[i+1]$}{
+            $swap(values[i], values[i+1])$\;
+            $sorted \gets false$\;
+        }
+    }
+}
+\caption{Odd-Even sort.}
+\label{lab:alg-oddEvenSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Odd-Even sort em C},captionpos=t]
+void oddEvenSort(int arr[], int n) {
+    int sorted = 0;
+    while (!sorted) {
+        sorted = 1;
+        for (int i = 1; i < n-1; i += 2) {
+            if (arr[i] > arr[i+1]) {
+                int temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+                sorted = 0;
+            }
+        }
+        for (int i = 0; i < n-1; i += 2) {
+            if (arr[i] > arr[i+1]) {
+                int temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+                sorted = 0;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Odd-Even sort em Python},captionpos=t]
+def oddEvenSort(arr):
+    n = len(arr)
+    sorted = False
+    while not sorted:
+        sorted = True
+        for i in range(1, n-1, 2):
+            if arr[i] > arr[i+1]:
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                sorted = False
+        for i in range(0, n-1, 2):
+            if arr[i] > arr[i+1]:
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                sorted = False
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-oddEvenSort}}
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$ (já ordenado)
+    \item \textbf{Caso médio:} $O(n^2)$
+    \item \textbf{Pior caso:} $O(n^2)$
+    \item \textbf{Espaço auxiliar:} $O(1)$
+\end{itemize}
+
+
+\section{Pancake sort}
+\textbf{Descrição:} O Pancake Sort é inspirado em virar panquecas com uma espátula: a única operação permitida é inverter um prefixo do vetor. O algoritmo encontra o maior elemento e o leva ao topo, depois inverte novamente para levá-lo à posição final correta.
+
+\begin{exmp}
+Ordenar $A = [3, 6, 1, 10, 2]$:
+
+\begin{enumerate}
+    \item Maior elemento é 10 (índice 3). Inverte prefixo até 3: $[10, 1, 6, 3, 2]$
+    \item Inverte prefixo até fim: $[2, 3, 6, 1, 10]$
+    \item Maior dos restantes é 6. Inverte prefixo até 2: $[6, 3, 2, 1, 10]$
+    \item Inverte prefixo até 3: $[1, 2, 3, 6, 10]$
+\end{enumerate}
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{pancakeSort(values: array of int, n: integer)}
+
+\For{$currSize \gets n$ \KwTo $1$}{
+    $maxIndex \gets indexOfMax(values, currSize)$\;
+    \If{$maxIndex \neq currSize-1$}{
+        flip(values, maxIndex)\;
+        flip(values, currSize-1)\;
+    }
+}
+\caption{Pancake sort.}
+\label{lab:alg-pancakeSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Pancake sort em C},captionpos=t]
+void flip(int arr[], int i) {
+    int start = 0;
+    while (start < i) {
+        int temp = arr[start];
+        arr[start] = arr[i];
+        arr[i] = temp;
+        start++;
+        i--;
+    }
+}
+int findMaxIndex(int arr[], int n) {
+    int mi = 0;
+    for (int i = 1; i < n; i++)
+        if (arr[i] > arr[mi]) mi = i;
+    return mi;
+}
+void pancakeSort(int arr[], int n) {
+    for (int currSize = n; currSize > 1; currSize--) {
+        int mi = findMaxIndex(arr, currSize);
+        if (mi != currSize-1) {
+            flip(arr, mi);
+            flip(arr, currSize-1);
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=python,caption={Pancake sort em Python},captionpos=t]
+def flip(arr, i):
+    arr[:i+1] = arr[:i+1][::-1]
+
+def findMaxIndex(arr, n):
+    mi = 0
+    for i in range(1, n):
+        if arr[i] > arr[mi]:
+            mi = i
+    return mi
+
+def pancakeSort(arr):
+    n = len(arr)
+    for currSize in range(n, 1, -1):
+        mi = findMaxIndex(arr, currSize)
+        if mi != currSize-1:
+            flip(arr, mi)
+            flip(arr, currSize-1)
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-pancakeSort}}
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$ (quando já está ordenado)
+    \item \textbf{Caso médio:} $O(n^2)$
+    \item \textbf{Pior caso:} $O(n^2)$ (aproximadamente $2n$ flips por iteração)
+    \item \textbf{Espaço auxiliar:} $O(1)$
+\end{itemize}
+
+
+\section{Cocktail Sort}
+
+\section{Resumo}
+
+\begin{center}
+\begin{tabular}{||c|c|c|c||}
+\hline
+\multicolumn{4}{|c|}{Complexidades de tempo em termos de comparações} \\
+\hline
+Algoritmo & Pior caso & Melhor caso & Caso médio \\
+\hline
+bubble      & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+insertion   & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+combsort    & $O(n^2)$       & $O(n\log n)$    & $\approx O(n \log n)$ \\
+selection   & $O(n^2)$       & $O(n^2)$        & $O(n^2)$ \\
+shellsort   & $O(n^2)$       & $\Omega(n\log n)$ & $O(n^{3/2})$ \\
+gnome       & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+shaker      & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+odd-even    & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+pancake (lançamentos)     & $O(n)$  & $O(n)$  & $O(n)$  \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{||c|c|c|c||}
+\hline
+\multicolumn{4}{|c|}{Complexidades de espaço} \\
+\hline
+Algoritmo & Pior caso & Melhor caso & Caso médio \\
+\hline
+bubble      & $O(1)$ & $O(1)$ & $O(1)$ \\
+insertion   & $O(1)$ & $O(1)$ & $O(1)$ \\
+combsort    & $O(1)$ & $O(1)$ & $O(1)$ \\
+selection   & $O(1)$ & $O(1)$ & $O(1)$ \\
+shellsort   & $O(1)$ & $O(1)$ & $O(1)$ \\
+gnome       & $O(1)$ & $O(1)$ & $O(1)$ \\
+shaker      & $O(1)$ & $O(1)$ & $O(1)$ \\
+odd-even    & $O(1)$ & $O(1)$ & $O(1)$ \\
+pancake     & $O(1)$ & $O(1)$ & $O(1)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+
+
+

@@ -1,0 +1,393 @@
+\chapter{Algoritmos com complexidades de tempo 
+\texorpdfstring{$O(n)$}{O(n)}}
+
+Nesta seção apresentamos algoritmos de ordenação cuja complexidade de tempo pode ser considerada linear em determinados cenários. Esses métodos exploram propriedades dos dados de entrada, como o tamanho do domínio ou a representação numérica. 
+
+\textcolor{blue}{Sugiro que vocês expressem os cálculos das complexidades considerando as constantes envolvidas nas funções. Posso explicar isto na aula da segunda semana de outubro.}
+
+\section{Counting sort}
+\textbf{Descrição:} O Counting Sort não utiliza comparações entre elementos. Em vez disso, ele conta quantas vezes cada valor aparece e, com base nessas contagens, reconstrói o vetor ordenado. É especialmente eficiente quando os valores de entrada pertencem a um intervalo pequeno em relação ao número de elementos.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [4, 2, 2, 8, 3, 3, 1]$ usando o \textit{Counting Sort}.  
+
+\begin{enumerate}
+    \item \textbf{Contagem da frequência:}  
+    Criamos um vetor $count$ com tamanho igual ao maior valor de $A$ (neste caso, 8) e inicializamos com zeros.  
+    Em seguida, contamos quantas vezes cada número aparece:  count = [0, 1, 2, 2, 1, 0, 0, 0, 1], onde $count[i]$ indica quantas vezes o número $i$ aparece em $A$.
+
+    \item \textbf{Cálculo das posições acumuladas:}  
+    Transformamos o vetor $count$ em um vetor de posições acumuladas, somando os valores anteriores: count = [0, 1, 3, 5, 6, 6, 6, 6, 7]. Agora, $count[i]$ indica a posição final do último elemento $i$ no vetor ordenado.
+
+    \item \textbf{Reconstrução do vetor ordenado:}  
+    Percorremos o vetor $A$ da direita para a esquerda e colocamos cada elemento na posição correta no vetor $output$:  output = [1, 2, 2, 3, 3, 4, 8]. Finalmente, copiamos o vetor $output$ de volta para $A$.
+
+\end{enumerate}
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{countingSort(values: array of int, n: integer, k: integer)}
+
+\For{$i \gets 0$ \KwTo $k$}{
+    $count[i] \gets 0$\;
+}
+\For{$i \gets 0$ \KwTo $n-1$}{
+    $count[values[i]] \gets count[values[i]] + 1$\;
+}
+\For{$i \gets 1$ \KwTo $k$}{
+    $count[i] \gets count[i] + count[i-1]$\;
+}
+\For{$i \gets n-1$ \KwTo $0$}{
+    $output[count[values[i]]-1] \gets values[i]$\;
+    $count[values[i]] \gets count[values[i]] - 1$\;
+}
+\For{$i \gets 0$ \KwTo $n-1$}{
+    $values[i] \gets output[i]$\;
+}
+\caption{Counting sort.}
+\label{lab:alg-countingSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\vspace{1em}
+
+\begin{lstlisting}[language=C,caption={Counting sort em C},captionpos=t]
+void countingSort(int arr[], int n, int k) {
+    int count[k+1];
+    int output[n];
+    for(int i=0; i<=k; i++) count[i] = 0;
+    for(int i=0; i<n; i++) count[arr[i]]++;
+    for(int i=1; i<=k; i++) count[i] += count[i-1];
+    for(int i=n-1; i>=0; i--) {
+        output[count[arr[i]]-1] = arr[i];
+        count[arr[i]]--;
+    }
+    for(int i=0; i<n; i++) arr[i] = output[i];
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Counting sort em Python},captionpos=t]
+def counting_sort(arr, k):
+    count = [0] * (k+1)
+    output = [0] * len(arr)
+    for num in arr:
+        count[num] += 1
+    for i in range(1, len(count)):
+        count[i] += count[i-1]
+    for num in reversed(arr):
+        output[count[num]-1] = num
+        count[num] -= 1
+    return output
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-countingSort}}
+
+Consideramos que o vetor $values$ tem comprimento $n$ e que os valores são inteiros no intervalo $[0, k]$. O algoritmo possui os seguintes \textit{loops}:
+
+\begin{enumerate}
+    \item Inicialização do vetor $count$ (tamanho $k+1$):
+    \[
+        \text{executa } k+1 \text{ atribuições em } O(1) \Rightarrow O(k)
+    \]
+    
+    \item Contagem das ocorrências dos elementos do vetor $values$:
+    \[
+        n \text{ iterações, cada uma com operação } O(1) \Rightarrow O(n)
+    \]
+    
+    \item Acúmulo das contagens no vetor $count$:
+    \[
+        k \text{ iterações, cada uma com operação } O(1) \Rightarrow O(k)
+    \]
+    
+    \item Construção do vetor ordenado $output$:
+    \[
+        n \text{ iterações, cada uma com operação } O(1) \Rightarrow O(n)
+    \]
+    
+    \item Cópia do vetor $output$ de volta para $values$:
+    \[
+        n \text{ iterações, cada uma com operação } O(1) \Rightarrow O(n)
+    \]
+\end{enumerate}
+
+Portanto, o número total de operações é proporcional a:
+\[
+T(n, k) = O(k) + O(n) + O(k) + O(n) + O(n) = O(n + k)
+\]
+
+\noindent Em termos assintóticos, podemos escrever:
+\[
+T(n, k) \leq c_1 \cdot n + c_2 \cdot k
+\]
+para constantes $c_1, c_2 > 0$. Logo:
+\[
+T(n, k) \in O(n + k)
+\]
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n + k)$, pois todos os \textit{loops} sempre executam a mesma quantidade de iterações, independentemente da ordem dos elementos.
+    
+    \item \textbf{Caso médio:} $O(n + k)$, pois a complexidade depende apenas do tamanho do vetor e do domínio $k$, não da disposição dos elementos.
+    
+    \item \textbf{Pior caso:} $O(n + k)$, mesmo raciocínio: a ordem dos elementos não altera o número de operações.
+\end{itemize}
+
+
+\section{Radix sort}
+\textbf{Descrição:} O Radix Sort ordena números inteiros processando dígito por dígito, da menor para a maior ordem, utilizando Counting Sort como sub-rotina estável. É eficiente quando o número de dígitos $d$ não é muito grande e o domínio dos dígitos é pequeno.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [170, 45, 75, 90, 802, 24, 2, 66]$ usando o \textit{Radix Sort}.  
+
+\begin{enumerate}
+    \item \textbf{Ordenação pelo dígito das unidades:}  
+    Extraímos o dígito das unidades de cada elemento e aplicamos Counting Sort:  
+    dígitos das unidades = [0,5,5,0,2,4,2,6]  
+    Após o Counting Sort pelos dígitos das unidades, o vetor fica: $[170, 90, 802, 2, 24, 45, 75, 66]$.
+
+    \item \textbf{Ordenação pelo dígito das dezenas:}  
+    Extraímos o dígito das dezenas e aplicamos Counting Sort:  
+    dígitos das dezenas = [7,9,0,0,2,4,7,6]  
+    Após o Counting Sort pelos dígitos das dezenas, o vetor fica: $[802, 2, 24, 45, 66, 170, 75, 90]$.
+
+    \item \textbf{Ordenação pelo dígito das centenas:}  
+    Extraímos o dígito das centenas e aplicamos Counting Sort:  
+    dígitos das centenas = [1,0,0,0,8,0,0,0]  
+    Após o Counting Sort pelos dígitos das centenas, o vetor final ordenado é: $[2, 24, 45, 66, 75, 90, 170, 802]$.
+\end{enumerate}
+\end{exmp}
+
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{radixSort(values: array of int, n: integer)}
+
+$m \gets$ maior valor em values\;
+$exp \gets 1$\;
+\While{$m / exp > 0$}{
+    countingSort(values, n, exp)\;
+    $exp \gets exp \times 10$\;
+}
+\caption{Radix sort.}
+\label{lab:alg-radixSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Radix sort em C},captionpos=t]
+void countingSortRadix(int arr[], int n, int exp) {
+    int output[n], count[10] = {0};
+    for(int i=0; i<n; i++)
+        count[(arr[i]/exp)%10]++;
+    for(int i=1; i<10; i++)
+        count[i] += count[i-1];
+    for(int i=n-1; i>=0; i--) {
+        output[count[(arr[i]/exp)%10]-1] = arr[i];
+        count[(arr[i]/exp)%10]--;
+    }
+    for(int i=0; i<n; i++) arr[i] = output[i];
+}
+
+void radixSort(int arr[], int n) {
+    int m = arr[0];
+    for(int i=1; i<n; i++)
+        if(arr[i] > m) m = arr[i];
+    int exp = 1;
+    while(m/exp > 0) {
+        countingSort(arr, n, exp);
+        exp *= 10;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Radix sort em Python},captionpos=t]
+def counting_sort_radix(arr, exp):
+    n = len(arr)
+    output = [0] * n
+    count = [0] * 10
+    for num in arr:
+        index = (num // exp) % 10
+        count[index] += 1
+    for i in range(1, 10):
+        count[i] += count[i-1]
+    for num in reversed(arr):
+        index = (num // exp) % 10
+        output[count[index]-1] = num
+        count[index] -= 1
+    return output
+
+def radix_sort(arr):
+    m = max(arr)
+    exp = 1
+    while m // exp > 0:
+        arr = counting_sort_radix(arr, exp)
+        exp *= 10
+    return arr
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-radixSort}}
+
+Seja $n$ o número de elementos e $d$ o número de dígitos no maior valor. Cada passo de Counting Sort tem complexidade $O(n + k)$, onde $k=10$ (base decimal). Assim:
+
+\[
+T(n) = d \cdot O(n + k) = O(d \cdot (n + k))
+\]
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(d \cdot (n+k))$, todos os elementos já ordenados não alteram o número de iterações.
+    \item \textbf{Caso médio:} $O(d \cdot (n+k))$, a complexidade depende do número de dígitos $d$.
+    \item \textbf{Pior caso:} $O(d \cdot (n+k))$, ordem dos elementos não influencia.
+\end{itemize}
+
+Complexidade de espaço: $O(n+k)$ para armazenar o vetor de contagem e o vetor de saída.
+
+\section{Bucket sort}
+\textbf{Descrição:} O Bucket Sort distribui os elementos em "baldes" (\textit{buckets}), ordena cada balde individualmente (geralmente com Insertion Sort) e depois concatena os baldes. Funciona melhor quando os elementos estão distribuídos uniformemente.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68]$ usando o \textit{Bucket Sort}.  
+
+\begin{enumerate}
+    \item \textbf{Distribuição nos baldes:}  
+    Criamos $n = 10$ baldes (um para cada faixa de 0.0 a 1.0) e distribuímos cada elemento de $A$ no balde correspondente:  
+    \begin{itemize}
+        \item Balde 0: [0.12]  
+        \item Balde 1: [0.17, 0.21, 0.23, 0.26]  
+        \item Balde 2: [0.39]  
+        \item Balde 6: [0.68, 0.72, 0.78]  
+        \item Balde 9: [0.94]
+    \end{itemize}
+
+    \item \textbf{Ordenação de cada balde:}  
+    Aplicamos Insertion Sort dentro de cada balde:
+    \begin{itemize}
+        \item Balde 1: [0.17, 0.21, 0.23, 0.26] (já ordenado)  
+        \item Balde 6: [0.68, 0.72, 0.78] (já ordenado)  
+        \item Os demais baldes contêm apenas um elemento.
+    \end{itemize}
+
+    \item \textbf{Concatenação dos baldes:}  
+    Unimos todos os baldes em ordem, obtendo o vetor final ordenado:  
+    $[0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{bucketSort(values: array of float, n: integer)}
+
+\For{$i \gets 0$ \KwTo $n-1$}{
+    distribuir values[i] em um balde\;
+}
+\For{cada balde $b$}{
+    ordenar $b$ com insertionSort\;
+}
+concatenar todos os baldes em ordem\;
+
+\caption{Bucket sort.}
+\label{lab:alg-bucketSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{lstlisting}[language=C,caption={Bucket sort em C},captionpos=t]
+void insertionSort(float arr[], int n) {
+    for(int i=1;i<n;i++){
+        float key=arr[i];
+        int j=i-1;
+        while(j>=0 && arr[j]>key){
+            arr[j+1]=arr[j];
+            j--;
+        }
+        arr[j+1]=key;
+    }
+}
+
+void bucketSort(float arr[], int n){
+    float buckets[n][n]; int count[n]={0};
+    for(int i=0;i<n;i++){
+        int index = n*arr[i];
+        buckets[index][count[index]++] = arr[i];
+    }
+    for(int i=0;i<n;i++)
+        insertionSort(buckets[i], count[i]);
+    int idx=0;
+    for(int i=0;i<n;i++)
+        for(int j=0;j<count[i];j++)
+            arr[idx++] = buckets[i][j];
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Bucket sort em Python},captionpos=t]
+def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i-1
+        while j >=0 and arr[j] > key:
+            arr[j+1] = arr[j]
+            j -= 1
+        arr[j+1] = key
+    return arr
+
+def bucket_sort(arr):
+    n = len(arr)
+    buckets = [[] for _ in range(n)]
+    for num in arr:
+        index = int(n*num)
+        buckets[index].append(num)
+    for i in range(n):
+        buckets[i] = insertion_sort(buckets[i])
+    sorted_arr = []
+    for bucket in buckets:
+        sorted_arr.extend(bucket)
+    return sorted_arr
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-bucketSort}}
+
+Seja $n$ o número de elementos:
+
+\begin{itemize}
+    \item Distribuição nos baldes: $O(n)$
+    \item Ordenação dos baldes (Insertion Sort): no caso médio $O(n)$, assumindo distribuição uniforme
+    \item Concatenação dos baldes: $O(n)$
+\end{itemize}
+
+Portanto, a complexidade total no **caso médio** é:
+
+\[
+T(n) = O(n) + O(n) + O(n) = O(n)
+\]
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$, quando os elementos são distribuídos uniformemente.
+    \item \textbf{Caso médio:} $O(n)$, para distribuição uniforme.
+    \item \textbf{Pior caso:} $O(n^2)$, se todos os elementos caírem no mesmo balde (Insertion Sort domina).
+\end{itemize}
+
+Complexidade de espaço: $O(n + k)$, onde $k$ é o número de baldes (geralmente $k=n$).
+\vspace{1cm}
+
+\textcolor{blue}{Aline, leia os textos nos \textit{links} abaixo e tente melhor o seu texto neste capítulo}: 
+\begin{itemize}
+    \item 
+\href{https://www.ic.unicamp.br/~ra063658/disciplinas/stco02_2025s1/sort_linear.pdf}{Sorting in Linear Time};
+
+\item \href{https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/bf7d79105762bf79bbc0925438e1468a_MIT6_006F11_lec07.pdf}{Linear-time sorting};
+
+\item  \href{https://iudatastructurescourse.github.io/course-web-page-fall-2024/lectures/sort-linear.html}{Sorting in linear time};
+
+\item \href{http://personal.kent.edu/~amohamm4/daa-f2019/slides/ch4-2%20LinearTime%20Sorting.pdf}{Linear-time sorting};
+
+\item
+\href{https://www.dcc.fc.up.pt/~pribeiro/aulas/aed2425/slides/4_sorting.pdf}{Sorting Algorithms}.
+\end{itemize}

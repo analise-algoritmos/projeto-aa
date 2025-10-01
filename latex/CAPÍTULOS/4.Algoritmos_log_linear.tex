@@ -1,0 +1,391 @@
+\chapter{Algoritmos que usam operações de comparação e têm complexidade de tempo $O(n\log n)$}
+
+Neste capítulo apresentamos algoritmos de ordenação cujos números de operações de comparações são da forma $c \cdot n \log n$, onde $n$ é o número de elementos a serem ordenados no multiconjunto e $c$ é um número real positivo.  
+
+\section{Merge Sort}
+
+\textbf{Descrição:} O Merge Sort é um algoritmo de ordenação baseado na estratégia \textit{dividir para conquistar}. Ele divide recursivamente o vetor em duas metades, ordena cada metade e depois intercala as duas partes em um vetor ordenado. É estável, mas não é in-place, pois exige memória auxiliar proporcional a $n$.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [38, 27, 43, 3, 9, 82, 10]$ com o \textit{Merge Sort}.
+
+\begin{enumerate}
+    \item O vetor é recursivamente dividido ao meio até que os subvetores tenham tamanho 1:  
+    $[38, 27, 43, 3, 9, 82, 10] \to [38, 27, 43]$, $[3, 9, 82, 10]$, e assim por diante.
+    
+    \item Em seguida, os subvetores são intercalados em ordem crescente:  
+    $[27, 38, 43]$ e $[3, 9, 10, 82]$.
+    
+    \item Finalmente, os resultados são mesclados em $[3, 9, 10, 27, 38, 43, 82]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{mergeSort(A: array, l: int, r: int)}\;
+\If{$l < r$}{
+    $m \gets (l+r)/2$\;
+    mergeSort(A, l, m)\;
+    mergeSort(A, m+1, r)\;
+    merge(A, l, m, r)\;
+}
+\caption{Merge Sort}
+\label{lab:alg-mergeSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C, caption={Implementação do Merge Sort em C}, label=code:mergeSort]
+#include <stdio.h>
+
+void merge(int arr[], int l, int m, int r) {
+    int n1 = m - l + 1, n2 = r - m;
+    int L[n1], R[n2];
+    for (int i=0; i<n1; i++) L[i] = arr[l+i];
+    for (int j=0; j<n2; j++) R[j] = arr[m+1+j];
+    int i=0, j=0, k=l;
+    while (i<n1 && j<n2)
+        arr[k++] = (L[i]<=R[j]) ? L[i++] : R[j++];
+    while (i<n1) arr[k++] = L[i++];
+    while (j<n2) arr[k++] = R[j++];
+}
+
+void mergeSort(int arr[], int l, int r) {
+    if (l < r) {
+        int m = l+(r-l)/2;
+        mergeSort(arr, l, m);
+        mergeSort(arr, m+1, r);
+        merge(arr, l, m, r);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Merge Sort em Python}, label=code:mergeSortPy]
+def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr)//2
+        L, R = arr[:mid], arr[mid:]
+        merge_sort(L); merge_sort(R)
+        i = j = k = 0
+        while i < len(L) and j < len(R):
+            if L[i] <= R[j]:
+                arr[k] = L[i]; i += 1
+            else:
+                arr[k] = R[j]; j += 1
+            k += 1
+        while i < len(L): arr[k] = L[i]; i += 1; k += 1
+        while j < len(R): arr[k] = R[j]; j += 1; k += 1
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-mergeSort}}
+A cada nível de recursão, o vetor é dividido em duas partes. A mesclagem (\textit{merge}) de dois subvetores de tamanho $n/2$ custa $O(n)$. O número de níveis da árvore de recursão é $\log n$. Logo:
+\[
+T(n) = n \log n
+\]
+\begin{itemize}
+    \item Melhor caso: $O(n \log n)$
+    \item Caso médio: $O(n \log n)$
+    \item Pior caso: $O(n \log n)$
+\end{itemize}
+Espaço auxiliar: $O(n)$ devido ao vetor temporário.
+
+\textcolor{blue}{Vejam os conteúdos nos links abaixo e entendam a história por trás da criação do algoritmo:}
+\begin{itemize}
+    \item 
+      \href{https://compileralchemy.substack.com/p/merge-sort-and-its-early-history}{Merge Sort And It's Early History}
+    \item 
+      \href{https://compileralchemy.substack.com/p/merge-sort-and-its-early-history}{Merge sort (von Neumann)}
+\end{itemize}
+
+
+\section{Quicksort}
+
+\textbf{Descrição:} O Quicksort também utiliza a técnica de \textit{dividir para conquistar}. O algoritmo escolhe um pivô, particiona o vetor em dois subvetores — um com elementos menores ou iguais ao pivô e outro com elementos maiores — e então ordena cada subvetor recursivamente. É rápido na prática, mas pode ter pior caso quadrático se os pivôs forem mal escolhidos.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [10, 80, 30, 90, 40, 50, 70]$.  
+Escolhendo o pivô como o último elemento ($70$), após a partição temos $[10, 30, 40, 50]$, $70$, $[80, 90]$.  
+Recursivamente, o vetor será ordenado até se tornar $[10, 30, 40, 50, 70, 80, 90]$.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{quickSort(A: array, low: int, high: int)}\;
+\If{$low < high$}{
+    $p \gets partition(A, low, high)$\;
+    quickSort(A, low, p-1)\;
+    quickSort(A, p+1, high)\;
+}
+\caption{Quicksort}
+\label{lab:alg-quickSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C, caption={Implementação do Quicksort em C}, label=code:quickSort]
+#include <stdio.h>
+
+int partition(int arr[], int low, int high) {
+    int pivot = arr[high], i = low-1;
+    for (int j=low; j<high; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        }
+    }
+    int tmp = arr[i+1]; arr[i+1] = arr[high]; arr[high] = tmp;
+    return i+1;
+}
+
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int p = partition(arr, low, high);
+        quickSort(arr, low, p-1);
+        quickSort(arr, p+1, high);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Quicksort em Python}, label=code:quickSortPy]
+def quicksort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[-1]
+    left  = [x for x in arr[:-1] if x <= pivot]
+    right = [x for x in arr[:-1] if x > pivot]
+    return quicksort(left) + [pivot] + quicksort(right)
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-quickSort}}
+No caso médio, a cada partição o vetor é dividido em duas partes quase iguais, e o custo total é:
+\[
+T(n) = n \log n
+\]
+\begin{itemize}
+    \item Melhor caso: $O(n \log n)$
+    \item Caso médio: $O(n \log n)$
+    \item Pior caso: $O(n^2)$ (quando sempre escolhe o pior pivô, por exemplo vetor já ordenado).
+\end{itemize}
+Espaço auxiliar: $O(\log n)$ devido à pilha de recursão.
+
+---
+
+
+\section{Heapsort}
+
+\textbf{Descrição:} O Heapsort é baseado na estrutura de dados heap (mais especificamente a \textit{max-heap}). O algoritmo primeiro constrói a heap a partir do vetor de entrada e, em seguida, extrai repetidamente o maior elemento, reconstruindo a heap a cada extração, até que todos os elementos estejam ordenados. É in-place e possui complexidade $O(n \log n)$ em todos os casos, mas não é estável.
+
+
+\begin{exmp}
+Para o vetor $A = [4, 10, 3, 5, 1]$, a construção da heap resulta em $[10, 5, 3, 4, 1]$.  
+Extraindo sucessivamente o maior elemento e ajustando a heap, obtemos a ordenação final $[1, 3, 4, 5, 10]$.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{heapSort(A: array, n: int)}\;
+construirMaxHeap(A)\;
+\For{$i \gets n-1$ \KwTo $1$}{
+    trocar $A[0]$ com $A[i]$\;
+    reduzir tamanho da heap em 1\;
+    maxHeapify(A, 0)\;
+}
+\caption{Heapsort}
+\label{lab:alg-heapSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C, caption={Implementação do Heapsort em C}, label=code:heapSort]
+#include <stdio.h>
+
+void heapify(int arr[], int n, int i) {
+    int largest = i, l = 2*i+1, r = 2*i+2;
+    if (l<n && arr[l]>arr[largest]) largest = l;
+    if (r<n && arr[r]>arr[largest]) largest = r;
+    if (largest != i) {
+        int tmp = arr[i]; arr[i] = arr[largest]; arr[largest] = tmp;
+        heapify(arr, n, largest);
+    }
+}
+
+void heapSort(int arr[], int n) {
+    for (int i=n/2-1; i>=0; i--) heapify(arr, n, i);
+    for (int i=n-1; i>=0; i--) {
+        int tmp = arr[0]; arr[0] = arr[i]; arr[i] = tmp;
+        heapify(arr, i, 0);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Heapsort em Python}, label=code:heapSortPy]
+def heapify(arr, n, i):
+    largest = i; l, r = 2*i+1, 2*i+2
+    if l < n and arr[l] > arr[largest]: largest = l
+    if r < n and arr[r] > arr[largest]: largest = r
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        heapify(arr, n, largest)
+
+def heapsort(arr):
+    n = len(arr)
+    for i in range(n//2-1, -1, -1): heapify(arr, n, i)
+    for i in range(n-1, 0, -1):
+        arr[0], arr[i] = arr[i], arr[0]
+        heapify(arr, i, 0)
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-heapSort}}
+A construção da heap custa $O(n)$. Cada remoção do máximo exige $O(\log n)$ para reequilibrar a heap. Como são feitas $n$ remoções:
+\[
+T(n) = O(n \log n)
+\]
+\begin{itemize}
+    \item Melhor caso: $O(n \log n)$
+    \item Caso médio: $O(n \log n)$
+    \item Pior caso: $O(n \log n)$
+\end{itemize}
+Espaço auxiliar: $O(1)$ (in-place).
+
+---
+
+
+\section{Introsort}
+
+\textbf{Descrição:} O Introsort combina Quicksort, Heapsort e Insertion Sort. Ele começa como um Quicksort, mas monitora a profundidade da recursão; se ultrapassar um limite (tipicamente $2 \log n$), muda para Heapsort, garantindo $O(n \log n)$ no pior caso. Para subvetores pequenos, usa Insertion Sort. É utilizado em bibliotecas padrão como C++ STL.
+
+\begin{exmp}
+O Introsort começa como um Quicksort. Caso a profundidade de recursão ultrapasse um limite (tipicamente $2\log n$), ele muda para Heapsort. Em subvetores pequenos, pode usar Insertion Sort. Assim, o Introsort combina a velocidade média do Quicksort com a garantia de $O(n \log n)$ do Heapsort.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{introSort(A: array, n: int)}\;
+profundidadeMax $\gets 2 \cdot \lfloor \log n \rfloor$\;
+introSortRec(A, 0, n-1, profundidadeMax)\;
+\caption{Introsort}
+\label{lab:alg-introSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C, caption={Estrutura simplificada do Introsort em C}, label=code:introSort]
+#include <stdio.h>
+#include <math.h>
+
+void introSort(int arr[], int n) {
+    int depthLimit = 2 * log(n);
+    introSortRec(arr, 0, n-1, depthLimit);
+}
+
+// introSortRec usa quicksort como padrao,
+// mas troca para heapsort se ultrapassar depthLimit
+// e insertionSort para pequenos subarrays.
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Estrutura simplificada do Introsort em Python}, label=code:introSortPy]
+def introsort(arr):
+    depth_limit = 2 * int(math.log2(len(arr)))
+    introsort_rec(arr, 0, len(arr)-1, depth_limit)
+# introsort_rec usa quicksort, mas muda para heapsort
+# se a profundidade exceder depth_limit
+# e insertion sort para subarrays pequenos
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-introSort}}
+\begin{itemize}
+    \item Melhor caso: $O(n \log n)$ (como Quicksort eficiente).
+    \item Caso médio: $O(n \log n)$.
+    \item Pior caso: $O(n \log n)$ (garantido pela troca para Heapsort).
+\end{itemize}
+Espaço auxiliar: $O(\log n)$ devido à recursão.
+
+---
+
+
+\section{Timsort}
+
+\href{https://www.algowalker.com/tim-sort.html}{Veja Tim sort}
+
+\textbf{Descrição:} O Timsort é um algoritmo híbrido que combina Insertion Sort e Merge Sort. Ele foi projetado para lidar bem com dados parcialmente ordenados. O vetor é dividido em \textit{runs} (sequências já ordenadas), que são refinadas por Insertion Sort (se pequenas) e depois mescladas por Merge Sort. É o algoritmo padrão em linguagens como Python e Java.
+
+\begin{exmp}
+O Timsort divide o vetor em \textit{runs} (subvetores já ordenados). Cada run é ordenada por Insertion Sort (se pequena) e então as runs são mescladas por Merge Sort.  
+Por exemplo, o vetor $[5, 21, 7, 23, 19]$ gera runs $[5, 21]$, $[7, 23]$, $[19]$, que são ordenadas e mescladas até formar $[5, 7, 19, 21, 23]$.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{timSort(A: array, n: int)}\;
+dividir A em runs de tamanho fixo\;
+ordenar cada run com insertionSort\;
+mesclar runs sucessivamente com merge\;
+\caption{Timsort}
+\label{lab:alg-timSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Estrutura simplificada do Timsort em Python}, label=code:timSort]
+def timsort(arr):
+    runs = split_into_runs(arr)
+    for run in runs:
+        insertion_sort(run)
+    while len(runs) > 1:
+        merged = merge(runs.pop(), runs.pop())
+        runs.append(merged)
+    return runs[0]
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Estrutura simplificada do Timsort em Python}, label=code:timSortPy]
+def timsort(arr):
+    runs = split_into_runs(arr)
+    for run in runs:
+        insertion_sort(run)
+    while len(runs) > 1:
+        runs.append(merge(runs.pop(), runs.pop()))
+    return runs[0]
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-timSort}}
+\begin{itemize}
+    \item Melhor caso: $O(n)$, quando o vetor já está quase ordenado (runs grandes).
+    \item Caso médio: $O(n \log n)$.
+    \item Pior caso: $O(n \log n)$.
+\end{itemize}
+Espaço auxiliar: $O(n)$, pois depende de vetores temporários na mesclagem.
+
+\section{Tournament sort}
+
+\section{Tree sort}
+
+\section{Library sort}
+
+\section{Shellsort}
+
+\section{Cube Sort}
+
+\section{Tree Sort}
+
+
+
+
+\section{Resumo}
+
+\begin{center}
+\begin{tabular}{||c|c|c|c||}
+\hline
+\multicolumn{4}{|c|}{Complexidades de tempo em termos de comparações} \\\hline
+Algoritmo & Pior caso & Melhor caso & Caso médio\\
+\hline
+Merge Sort & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ \\
+Quick Sort & $O(n^2)$    & $O(n\log n)$ & $O(n\log n)$ \\
+Heap Sort  & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ \\
+Intro Sort & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ \\
+TimSort    & $O(n\log n)$ & $O(n)$       & $O(n\log n)$ \\\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{||c|c|c|c||}
+\hline
+\multicolumn{4}{|c|}{Complexidades de espaço} \\\hline
+Algoritmo & Pior caso & Melhor caso & Caso médio\\
+\hline
+Merge Sort & $O(n)$      & $O(n)$      & $O(n)$ \\
+Quick Sort & $O(\log n)$ & $O(\log n)$ & $O(\log n)$ \\
+Heap Sort  & $O(1)$      & $O(1)$      & $O(1)$ \\
+Intro Sort & $O(\log n)$ & $O(\log n)$ & $O(\log n)$ \\
+TimSort    & $O(n)$      & $O(n)$      & $O(n)$ \\\hline
+\end{tabular}
+\end{center}

@@ -1,0 +1,109 @@
+\documentclass[12pt]{book}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage[boxruled,vlined,boxed,portuguese,algochapter]{algorithm2e}
+
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{epigraph} 
+\usepackage{quotchap}
+\usepackage{mathtools}
+\usepackage{multirow}
+
+\topskip 0pt
+\headsep 30pt
+\headheight 1pt
+\oddsidemargin 0pt
+\evensidemargin 0pt
+\textwidth 6.5in
+\topmargin 0pt
+\textheight 9.0in
+
+\usepackage{xcolor}
+% Definindo novas cores
+\definecolor{verde}{rgb}{0.25,0.5,0.35}
+\definecolor{jpurple}{rgb}{0.5,0,0.35}
+% Configurando layout para mostrar codigos em Python
+\usepackage{listings}
+\lstset{
+  language=C,
+  basicstyle=\ttfamily\small, 
+  keywordstyle=\color{blue}\bfseries, %jpurple
+  stringstyle=\color{red},
+  commentstyle=\color{verde},
+  morecomment=[s][\color{blue}]{/**}{*/},
+  extendedchars=true, 
+  showspaces=false, 
+  showstringspaces=false, 
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true, 
+  backgroundcolor=\color{cyan!10}, 
+  breakautoindent=true, 
+  captionpos=b,
+  xleftmargin=0pt,
+  tabsize=4
+}
+
+\usepackage{listings}
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small, 
+  keywordstyle=\color{blue}\bfseries, %jpurple
+  stringstyle=\color{red},
+  commentstyle=\color{verde},
+  morecomment=[s][\color{blue}]{/**}{*/},
+  extendedchars=true, 
+  showspaces=false, 
+  showstringspaces=false, 
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true, 
+  backgroundcolor=\color{cyan!10}, 
+  breakautoindent=true, 
+  captionpos=b,
+  xleftmargin=0pt,
+  tabsize=4
+}
+
+\newtheorem{thm}{Teorema}
+\newtheorem{defn}{Definição}[chapter]
+\newtheorem{exerc}{Exercício}[chapter]
+\newtheorem{exmp}{Exemplo}[chapter]
+\newtheorem{prob}{Problema.}[chapter]
+\newtheorem{property}{Propriedade.}[chapter]
+\newcommand{\R}{\mathbb{R}}
+
+\title{\LARGE \bf \textcolor{blue}{Título provisório do trabalho:} Algoritmos de ordenação, suas análises de complexidade de tempo, espaço, implementações e experimentos computações}
+\author{Alunas: Aline Milene Martins dos Santos\\
+                Camila ...\\
+                Fernanda Sayuri \\\\
+Supervisor: Cláudio Nogueira de Meneses}
+% {\footnotesize claudio.meneses@ufabc.edu.br}
+
+
+\begin{document}
+\maketitle
+\listofalgorithms
+\tableofcontents
+
+\include{CAPÍTULOS/1.Introdução}
+\include{CAPÍTULOS/2.Algoritmos_linear}
+\include{CAPÍTULOS/3.Algoritmos_n_quadrado}
+\include{CAPÍTULOS/4.Algoritmos_log_linear}
+\include{CAPÍTULOS/5.ExperimentosComputacionais}
+\include{CAPÍTULOS/6.ComentáriosFinais}
+
+\appendix
+\include{CAPÍTULOS/ApêndiceA}
+
+\nocite{manber1989introduction,bubble_sort,Harder2020,Astrachan,Halstead1977,Purnomo_Putra_2023}
+\bibliographystyle{alpha}
+\bibliography{biblio}
+
+\end{document}

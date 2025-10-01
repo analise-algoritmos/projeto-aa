@@ -1,0 +1,302 @@
+\chapter{Introdução}
+
+VEJA \href{https://en.wikipedia.org/wiki/Sorting_algorithm}{\textcolor{blue}{Sort algorithms}}
+
+Nesta monografia apresentamos ?? algoritmos de ordenação conhecidos, suas implementações em três linguagens de programação (C, C++ e Python), realizamos experimentos computacionais dessas implementações sobre conjuntos de instâncias do problema de ordenação. Além disso, discutimos os experimentos etc..    
+
+Estes algoritmos podem ser divididos em três tipos: (a) para realizar a ordenação são usadas operações de comparação, (b) não são usadas operações de comparação para realizar a ordenação e (c) algoritmos híbridos. Alguns exemplos são:
+\begin{itemize}
+    \item Baseados em comparações:  selection sort, bubble sort, insertion sort, merge sort, quick sort, heap sort, cycle sort, 3-way merge sort;
+
+    \item Não baseados em comparações: counting sort, radix sort, bucket sort, tim sort, comb sort, pigeonhole sort;
+
+    \item Híbridos: intro sort, tim sort.
+\end{itemize}
+
+\section{Características}
+
+\begin{itemize}
+    \item In-place: Um algoritmo de ordenação é "in-place" quando não necessita de espaço de memória adicional para armazenar o array de entrada, ou seja, utiliza o mesmo espaço de memória do array original para realizar a ordenação.
+    \item Estável: Um algoritmo é "estável" quando mantém a ordem relativa dos elementos que possuem valores iguais. Por exemplo, se dois elementos A e B são iguais, e A aparece antes de B no array original, um algoritmo estável garantirá que A continue aparecendo antes de B após a ordenação.
+    \item Adaptativo: Um algoritmo de ordenação é "adaptativo" quando leva em consideração a ordenação inicial do array de entrada. O tempo de execução desse tipo de algoritmo pode melhorar se o array já estiver parcialmente ordenado.
+    \item Recursivo vs. Não Recursivo:
+        \begin{itemize}
+            \item Recursivo: São algoritmos que se chamam para resolver subproblemas, como o Quicksort e o Mergesort.
+            \item Não Recursivo: São algoritmos que utilizam laços (loops) em vez de recursão para processar os dados, como o Selection Sort e o Insertion Sort.
+        \end{itemize}
+    \item Serial vs. Paralelo:
+        \begin{itemize}
+            \item Serial: São os algoritmos tradicionais que executam uma sequência de operações, uma após a outra.
+            \item Paralelo: Projetados para rodar em arquiteturas de múltiplos processadores.
+        \end{itemize}
+    \item Online vs. Offline:
+        \begin{itemize}
+            \item Online: Um algoritmo online pode processar a entrada à medida que ela chega, sem precisar de todos os dados de uma vez.
+            \item Offline: Um algoritmo offline requer que toda a entrada esteja disponível desde o início para poder funcionar.
+        \end{itemize}
+\end{itemize}
+
+\section{Notações e Conceitos básicos}
+\textcolor{blue}{
+Denotamos por
+$\mathbb{R}$ o conjunto dos números reais, 
+$\mathbb{R}_{\geq 0}$ o conjunto dos números reais não negativos e
+$\mathbb{R}_{>0}$ o conjunto dos números reais positivos.
+}
+\begin{defn} [Notação \textit{``Big O''}]
+Dadas as funções $f:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ e $g:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$, dizemos que $f(n)$ é $O(g(n))$ se existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $f(n) \leq c\cdot g(n)$  para todo $n \geq n_0$. 
+\end{defn}
+\vspace{0.2cm}
+
+Uma maneira equivalente de definir a notação \textit{``Big O''} é a seguinte:\vspace{0.2cm}
+
+\begin{defn}
+$O(g(n)) = \{ f(n):$ existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0 \leq f(n) \leq c\cdot g(n)$ para todo $n \geq n_0.\}$
+\end{defn}
+\vspace{0.3cm}
+
+A notação ``Big O'' representa um \textcolor{blue}{limite superior no tempo de execução} de um algoritmo.  Assim, ela fornece a \textcolor{blue}{complexidade de tempo de pior caso} do algoritmo.
+
+\begin{exmp}%\footnotesize
+Seja $f(n):\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ definida por $f(n) = 3 n^2+ 4 n^{3/2}$. Prove que $f(n)\in O(n^2)$. 
+
+\noindent{\textbf{Prova:}} \\
+Para provar que $f(n)\in O(n^2)$, precisamos mostrar que existem constantes $c\in \mathbb{R}_{>0},n_0 \in \mathbb{R}_{\geq 0}$ tal que $f(n) \leq c\cdot n^2$ para $n\geq n_0$.\vspace{0.3cm} 
+
+Como $n^{3/2} \leq n^2$ para $n\geq 0$, então 
+$$f(n)=3 n^2+ 4 n^{3/2} \leq 3 n^2 + 4 n^2 = 7\cdot n^2 \quad \forall\; n\geq 0.$$  
+Fazendo $c=7$ e $n_0=0$ obtemos $f(n)\leq c\cdot n^2$ para $n\geq n_0$.  Portanto, $f(n)\in O(n^2)$.   
+$\hfill\Box$
+% usar uns exemplos mostrados no artigo \href{https://www.cs.toronto.edu/~vassos/teaching/c73/handouts/brief-complexity.pdf}{dd}
+\end{exmp}
+
+\begin{exmp}
+Seja $f(n):\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ definida por $f(n)=(n-5)^2$. Prove que $f(n)\in O(n^2)$. 
+\vspace{0.2cm}
+
+\noindent{\textbf{Prova:}} \\
+
+Para provar que $f(n)\in O(n^2)$, precisamos mostrar que existem constantes $c\in \mathbb{R}_{>0},n_0 \in \mathbb{R}_{\geq 0}$ tal que $f(n) \leq c\cdot n^2$ para $n\geq n_0$.\vspace{0.3cm}
+
+Como $(n-5)^2=n^2 -10n +25$ e $-10n + 25 \leq n^2$ para $n\geq 3$, então
+$$
+f(n)=(n-5)^2=n^2 -10n +25 \leq 2\cdot n^2 \quad \forall\; n\geq 3.
+$$ 
+
+Fazendo $c=2,n_0 =3$ obtemos $f(n)\leq c\cdot n^2$ 
+ para $n\geq n_0$.  Portanto, $f(n)\in O(n^2)$.  
+$\hfill\Box$
+\end{exmp}
+
+\begin{property}
+Seja $f(n):\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ uma função. Se $f$ puder ser escrita como uma soma finita de outras funções, então a que cresce mais rápido determina a ordem de $f(n)$. 
+\end{property}\vspace{0.2cm}
+
+\begin{exmp}
+Seja $f(n):\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ definida por $f(n)=9\log n + 5(\log n)^3 +3n^2 + 2n^3$. Então $f(n)\in O(n^3)$ quando $n\rightarrow \infty$.    
+\vspace{0.2cm}
+
+\noindent{\textbf{Prova:}} \\
+
+Para provar que $f(n)\in O(n^{3})$, precisamos mostrar que existem constantes $c\in\mathbb{R}_{>0}$, $n_{0}\in\mathbb{R}_{\ge0}$ tal que $f(n)\le c\cdot n^{3}$ para $n\ge n_{0}$.
+
+Para valores de $n$ suficientemente grandes, podemos observar a relação de crescimento dos termos:
+\begin{itemize}
+    \item $9\log n \le 9n^{3}$
+    \item $5(\log n)^{3} \le 5n^{3}$
+    \item $3n^{2} \le 3n^{3}$
+    \item $2n^{3} \le 2n^{3}$
+\end{itemize}
+
+Somando as desigualdades para um $n$ suficientemente grande (por exemplo, $n \ge 1$), obtemos:
+$$
+f(n) = 9\log n+5(\log n)^{3}+3n^{2}+2n^{3} \le 9n^{3} + 5n^{3} + 3n^{3} + 2n^{3} = 19n^{3}
+$$
+
+Fazendo $c=19$ e $n_{0}=1$, obtemos $f(n)\le c\cdot n^{3}$ para $n\ge n_{0}$. Portanto, $f(n)\in O(n^{3})$.
+\end{exmp}
+
+\begin{exerc}
+Seja $f(n):\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ definida por $f(n)=9\log n + 5(\log n)^4 +3n^2 + 2n^3$. É verdade que $f(n)\in O(n^3)$ quando $n\rightarrow \infty$.    
+\end{exerc}
+
+\begin{defn} [Notação \textit{``little o''}]
+Dadas as funções $f:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ e $g:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$, dizemos que $f(n)$ é $o(g(n))$ se existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $f(n) < c\cdot g(n)$ para todo $n \geq n_0$. 
+\end{defn}
+\vspace{0.2cm}
+% \begin{exmp}
+% Se $f(n) = n^2$, então $f(n) = O(n^2)$.
+% usar uns exemplos mostrados no artigo \href{https://www.cs.toronto.edu/~vassos/teaching/c73/handouts/brief-complexity.pdf}{dd}
+% \end{exmp}
+
+Uma maneira equivalente de definir a notação \textit{``little o''} é a seguinte:
+\vspace{0.3cm}
+
+\begin{defn}
+$o(g(n)) = \{ f(n):$ existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0 \leq f(n) < c\cdot g(n)$ para todo $n \geq n_0.\}$
+\end{defn}\vspace{0.3cm}
+
+A notação \textit{``little o''}  representa um \textcolor{blue}{limite estritamente superior no tempo de execução} de um algoritmo. 
+
+\begin{defn} [Notação \textit{``Big omega''}]
+Dadas as funções $f:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ e $g:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$, dizemos que $f(n) \in \Omega(g(n))$ se existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0\leq c\cdot g(n) \leq f(n)$  para todo $n \geq n_0$. 
+\end{defn}   \vspace{0.2cm}
+
+Uma maneira equivalente de definir a notação \textit{``Big omega''}  é a seguinte:
+\vspace{0.3cm}
+
+\begin{defn}
+$\Omega(g(n)) = \{ f(n):$ existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0 \leq c\cdot g(n) \leq f(n)$ para todo $n \geq n_0.\}$
+\end{defn}\vspace{0.3cm}
+
+A notação \textit{``Big omega''} representa um \textcolor{blue}{limite inferior no tempo de execução} de um algoritmo.  Assim, ela fornece a \textcolor{blue}{complexidade de tempo de melhor caso} do algoritmo.
+
+\begin{defn} [Notação \textit{``little omega''}]
+Dadas as funções $f:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ e $g:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$, dizemos que $f(n)$ é $\omega(g(n))$ se existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0\leq c\cdot g(n) < f(n)$  para todo $n \geq n_0$. 
+\end{defn}   \vspace{0.2cm}
+
+Uma maneira equivalente de definir a notação \textit{``little omega''} é a seguinte:
+\vspace{0.3cm}    
+
+\begin{defn}
+$\omega(g(n)) = \{ f(n):$ existem constantes $c\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0 \leq c\; g(n) < f(n)$ para todo $n \geq n_0.\}$
+\end{defn}\vspace{0.3cm}
+
+A notação \textit{``little omega''}  representa um \textcolor{blue}{limite estritamente inferior no tempo de execução} de um algoritmo. 
+
+\begin{exmp}
+Seja $f(n):\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ definida por $f(n) = n^2$. Então $f(n)=n^2 \in \omega(n)$ porque fazendo $c=1$ e $n_0=2$, temos $n < c\cdot n^2$ para todo $n\geq n_0$.
+\end{exmp}
+
+A notação ``Big O'' faz parte de uma família de notações criadas pelos matemáticos alemães Paul Bachmann e Edmund Landau, comumente chamadas de notação Bachmann–Landau ou notação assintótica.  
+A letra $O$ representa ``ordem de aproximação''.
+\vspace{0.5cm}
+
+Na ciência da computação, a notação ``Big O'' é usada para classificar algoritmos de acordo com a forma como seus requisitos de tempo de execução ou espaço crescem conforme o tamanho da entrada cresce.   
+
+\begin{defn} [Notação \textit{``theta''}]
+Dadas as funções $f:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$ e $g:\mathbb{R}_{\geq 0}\rightarrow \mathbb{R}_{\geq 0}$, dizemos que $f(n)$ é $\Theta(g(n))$ se existem constantes $c_1\in\mathbb{R}_{>0},c_2\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0\leq c_1\cdot g(n) \leq f(n) \leq c_2\cdot g(n)$  para todo $n \geq n_0$. 
+\end{defn}   \vspace{0.2cm}
+
+Uma maneira equivalente de definir a notação \textit{``theta''} é a seguinte:
+\vspace{0.3cm}    
+
+\begin{defn}
+$\Theta(g(n)) = \{ f(n):$ existem constantes $c_1\in\mathbb{R}_{>0},c_2\in\mathbb{R}_{>0}$, $n_0\in \mathbb{R}_{\geq 0}$ tal que $0 \leq c_1\cdot g(n) \leq f(n) \leq c_2\cdot g(n)$ para todo $n \geq n_0.\}$
+\end{defn}\vspace{0.3cm}
+
+A notação \textit{``theta''}  representa um \textcolor{blue}{limite inferior e um superior no tempo de execução} de um algoritmo. 
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|l}
+         Notação     & Significado \\\hline
+         $O(1)$      & Constante \\
+         $O(\log n))$ & logarítmica\\
+         $O(n)$      & linear \\
+         $O(n\log n)$ & log linear\\
+         $O(n^2)$    & quadrática \\
+         $O(n^3)$    & cúbica\\
+          $O(nK)$    & pseudo-polinomial\\
+         $O(2^n)$    & exponencial \\
+         $O(n!)$     & fatorial \\\hline
+    \end{tabular}
+    \caption{Ordens de complexidades tempo/espaço de algoritmos, onde $n$ e $K$ são parâmetros de entrada de um problema para o qual os algoritmos foram desenvolvidos.}
+    \label{tab:my_label}
+\end{table}
+
+\noindent{Complexidade de tempo constante, O(1)}
+
+Um algoritmo tem complexidade de tempo constante, representado por $O(1)$ em notação \textit{Big O}, quando o tempo de execução do algoritmo não depende do tamanho da instância do problema.\vspace{0.2cm}
+
+\begin{exmp}
+Suponha que $v$ é um vetor com $n$ números reais e que $v$ esteja ordenado. Assuma que $v=[v_1,v_2,\ldots,v_n]$.  
+Dado este vetor ordenado, o problema de encontrar o valor mediano dos números neste vetor pode ser resolvido em tempo constante da seguinte maneira.  
+Se $n$ é ímpar, então o valor mediano dos elementos em $v$ é $v_{\lfloor n/2 \rfloor +1}$.  
+Se $n$ é par, então o valor mediano é $\frac{v_{n/2} + v_{(n+1)/2}}{2}$.        
+\end{exmp}
+
+
+\noindent{Complexidade de tempo linear, O(n)}
+
+Um algoritmo tem complexidade de tempo linear quando o tempo de execução do algoritmo cresce linearmente com tamanho da instância do problema.
+
+\noindent{Complexidade de tempo logarítmica, $O(\log n)$}
+
+Dizer que um algoritmo tem complexidade de tempo $O(\log n)$ significa que o tempo de execução do algoritmo cresce linearmente quando o tamanho da instância do problema cresce exponencialmente. \vspace{0.3cm}
+
+\begin{exmp}
+Suponha que a complexidade de tempo de um algoritmo é dada por uma função logarítmica em termos dos dados de entrada do problema.  
+Para efeito de explicação, suponha que o(s) logaritmo(s) está(ão) na base 10. 
+Se o algoritmo processa 10 elementos em um segundo, então ele processará 100 elementos em 2 segundos e processará 1000 elementos em três segundos.
+\end{exmp}
+
+\noindent{Complexidade de tempo $O(\log n)$}
+
+\begin{exerc}
+Suponha que temos um vetor, $arr$, com números racionais e que ele esteja ordenado em ordem não crescente. Dado um número racional $y$, como podemos verificar se $y$ está ou não em $arr$ não tendo que examinar cada elemento do vetor. 
+\end{exerc}
+
+
+\noindent{\textbf{Solução:}}
+Podemos resolver este problema usando um algoritmo que realiza uma pesquisa binária em $arr$ a procura por $y$.$\hfill\Box$ 
+
+\noindent{Complexidade de tempo $O(\log n)$}
+...
+
+\noindent{Complexidade de tempo quadrática, $O(n^2)$}
+
+\begin{exmp}
+O algoritmo abaixo tem complexidade de tempo $O(n^2)$, para um dado número inteiro positivo $n$:
+\end{exmp}
+
+Observe que um algoritmo tem complexidade de tempo não linear quando o tempo de execução do algoritmo cresce não linearmente com o tamanho da instância do problema.
+
+\noindent{Complexidade de tempo quadrática, $O(n^3)$}
+
+\begin{exmp}
+Suponha um conjunto finito não vazio com $n$ elementos. Suponha também que desejamos enumerar todas as triplas, $(a,b,c)$, de elementos do conjunto. Um algoritmo para resolver este problema terá necessariamente complexidade de tempo $O(n^3)$.   
+\end{exmp}
+
+\noindent{Complexidade de tempo quadrática, $O(2^n)$}
+
+\begin{exmp}
+Suponha um conjunto finito não vazio, $S$, contendo $n$ elementos. Suponha também que desejamos enumerar todos os subconjuntos de $S$. Como há $2^n$ subconjuntos de $S$, então um algoritmo para enumerar esses subconjuntos terá necessariamente complexidade de tempo $O(2^n)$.   
+\end{exmp}
+
+\noindent{Complexidade de tempo fatorial, $O(n!)$}
+
+\begin{exmp}
+Suponha um conjunto finito não vazio, $S$, contendo $n$ elementos. Suponha também que desejamos enumerar todas as permutações com $n$ elementos do conjunto $S$. Como há $n!$ permutações com $n$ elementos do conjunto $S$, então um algoritmo para enumerar essas permutações terá necessariamente complexidade de tempo $O(n!)$.   
+\end{exmp}
+
+\section{Lista dos algoritmos desenvolvidos em cada década}
+
+\begin{itemize}
+    \item 1941--1950: Insertion sort, Merge sort
+    \item 1951--1960: Bubble sort, Counting sort, Selection sort, Shell sort, Quicksort, Shaker sort
+    \item 1961--1970: Heapsort, Radix sort, Odd-Even sort
+    \item 1971--1980: Bucket sort, Gnome Sort, Pancake Sort
+    \item 1981--1990: Combsort
+    \item 1991--2000: Introsort
+    \item 2001--2010: Timsort
+    \item 2011--2020: IPS\textsuperscript{4}o (In-place Parallel Super Scalar Samplesort)
+    \item 2021--2025: Versões modernas de Radix Sort em GPU
+\end{itemize}
+
+Ver:
+\href{https://craftofcoding.wordpress.com/2021/09/22/the-origins-of-bubble-sort/}{The origins of Bubble sort}
+
+Ver: \href{https://users.cs.duke.edu/~ola/bubble/bubble.html}{Bubble Sort: An Archaeological Algorithmic Analysis}
+
+Neste link, veja a seção sobre Measuring Ease of Coding, especificamente a métrica  Halstead Metrics.
+
+\textcolor{blue}{Sugiro que vocês leiam:}
+\begin{itemize}
+\item 
+\href{https://ieeexplore.ieee.org/document/10444609}{Performance Analysis of Various Sorting Algorithms: Comparison and Optimization}
+
+\item
+\href{https://www.devzery.com/post/fastest-sorting-algorithms-performance-guide-2025}{Fastest Sorting Algorithms: Performance Guide \& Comparison 2025}
+\end{itemize}
+
