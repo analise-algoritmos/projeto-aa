@@ -58,6 +58,31 @@ void mergeSort(int arr[], int l, int r) {
 }
 \end{lstlisting}
 
+\begin{lstlisting}[language=C++,caption={Merge sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void merge(vector<int>& arr, int l, int m, int r) {
+    vector<int> left(arr.begin() + l, arr.begin() + m + 1);
+    vector<int> right(arr.begin() + m + 1, arr.begin() + r + 1);
+
+    int i = 0, j = 0, k = l;
+    while (i < left.size() && j < right.size()) {
+        arr[k++] = (left[i] <= right[j]) ? left[i++] : right[j++];
+    }
+    while (i < left.size()) arr[k++] = left[i++];
+    while (j < right.size()) arr[k++] = right[j++];
+}
+
+void mergeSort(vector<int>& arr, int l, int r) {
+    if (l >= r) return;
+    int m = l + (r - l) / 2;
+    mergeSort(arr, l, m);
+    mergeSort(arr, m + 1, r);
+    merge(arr, l, m, r);
+}
+\end{lstlisting}
+
 \begin{lstlisting}[language=Python, caption={Merge Sort em Python}, label=code:mergeSortPy]
 def merge_sort(arr):
     if len(arr) > 1:
@@ -142,6 +167,33 @@ void quickSort(int arr[], int low, int high) {
 }
 \end{lstlisting}
 
+\begin{lstlisting}[language=C++,caption={Quick sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+int partition(vector<int>& arr, int low, int high) {
+    int pivot = arr[high];
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+void quickSort(vector<int>& arr, int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+\end{lstlisting}
+
+
 \begin{lstlisting}[language=Python, caption={Quicksort em Python}, label=code:quickSortPy]
 def quicksort(arr):
     if len(arr) <= 1:
@@ -207,6 +259,33 @@ void heapSort(int arr[], int n) {
     for (int i=n/2-1; i>=0; i--) heapify(arr, n, i);
     for (int i=n-1; i>=0; i--) {
         int tmp = arr[0]; arr[0] = arr[i]; arr[i] = tmp;
+        heapify(arr, i, 0);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,caption={Heap sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void heapify(vector<int>& arr, int n, int i) {
+    int largest = i;
+    int l = 2 * i + 1;
+    int r = 2 * i + 2;
+    if (l < n && arr[l] > arr[largest]) largest = l;
+    if (r < n && arr[r] > arr[largest]) largest = r;
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+        heapify(arr, n, largest);
+    }
+}
+
+void heapSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+    for (int i = n - 1; i > 0; i--) {
+        swap(arr[0], arr[i]);
         heapify(arr, i, 0);
     }
 }
