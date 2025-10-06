@@ -70,6 +70,29 @@ void countingSort(int arr[], int n, int k) {
 }
 \end{lstlisting}
 
+\begin{lstlisting}[language=C++,caption={Counting sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void countingSort(vector<int>& arr, int k) {
+    int n = arr.size();
+    vector<int> count(k + 1, 0), output(n);
+
+    for (int num : arr)
+        count[num]++;
+
+    for (int i = 1; i <= k; i++)
+        count[i] += count[i - 1];
+
+    for (int i = n - 1; i >= 0; i--) {
+        output[count[arr[i]] - 1] = arr[i];
+        count[arr[i]]--;
+    }
+
+    arr = output;
+}
+\end{lstlisting}
+
 \begin{lstlisting}[language=Python,caption={Counting sort em Python},captionpos=t]
 def counting_sort(arr, k):
     count = [0] * (k+1)
@@ -207,6 +230,38 @@ void radixSort(int arr[], int n) {
 }
 \end{lstlisting}
 
+\begin{lstlisting}[language=C++,caption={Radix sort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void countingSortRadix(vector<int>& arr, int exp) {
+    int n = arr.size();
+    vector<int> output(n);
+    int count[10] = {0};
+
+    for (int num : arr)
+        count[(num / exp) % 10]++;
+
+    for (int i = 1; i < 10; i++)
+        count[i] += count[i - 1];
+
+    for (int i = n - 1; i >= 0; i--) {
+        int idx = (arr[i] / exp) % 10;
+        output[count[idx] - 1] = arr[i];
+        count[idx]--;
+    }
+
+    arr = output;
+}
+
+void radixSort(vector<int>& arr) {
+    int m = *max_element(arr.begin(), arr.end());
+    for (int exp = 1; m / exp > 0; exp *= 10)
+        countingSortRadix(arr, exp);
+}
+\end{lstlisting}
+
 \begin{lstlisting}[language=Python,caption={Radix sort em Python},captionpos=t]
 def counting_sort_radix(arr, exp):
     n = len(arr)
@@ -324,6 +379,41 @@ void bucketSort(float arr[], int n){
     for(int i=0;i<n;i++)
         for(int j=0;j<count[i];j++)
             arr[idx++] = buckets[i][j];
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,caption={Bucket sort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void insertionSort(vector<float>& arr) {
+    for (int i = 1; i < arr.size(); i++) {
+        float key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void bucketSort(vector<float>& arr) {
+    int n = arr.size();
+    vector<vector<float>> buckets(n);
+
+    for (float num : arr) {
+        int idx = n * num;
+        buckets[idx].push_back(num);
+    }
+
+    for (auto& b : buckets)
+        insertionSort(b);
+
+    arr.clear();
+    for (auto& b : buckets)
+        arr.insert(arr.end(), b.begin(), b.end());
 }
 \end{lstlisting}
 
