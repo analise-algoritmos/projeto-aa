@@ -1,9 +1,9 @@
 import unittest
 import time
 import os
-from sorting_algorithms.linear import counting_sort, radix_sort, bucket_sort
+from src.linear import counting_sort, radix_sort, bucket_sort
 
-MASSA_PATH = os.path.join("data", "massa.txt")
+MASSA_PATH = os.path.join("C:/Users/User/Desktop/code/aa/projeto-aa/data/massa.txt")
 
 def ler_massa(path):
     with open(path, "r") as f:
