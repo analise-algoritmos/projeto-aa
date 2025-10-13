@@ -8,7 +8,7 @@ Atualmente, contém o algoritmo **Bubble Sort**, mas o objetivo é expandir para
 ## 📁 Estrutura do projeto
 lib-python/
 │
-├── sorting_algorithms/ # Código da biblioteca
+├── src/ # Código da biblioteca
 │ ├── init.py
 │ └── bubble_sort.py
 │
@@ -46,7 +46,7 @@ python -m pytest -v
 
 ## 💻 Como usar localmente
 ```python
-from sorting_algorithms import bubble_sort
+from src import bubble_sort
 
 lista = [5, 2, 9, 1]
 ordenada = bubble_sort(lista)

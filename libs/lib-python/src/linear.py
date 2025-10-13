@@ -1,4 +1,3 @@
-# Counting Sort
 def counting_sort(arr, k):
     count = [0] * (k + 1)
     output = [0] * len(arr)
@@ -19,7 +18,6 @@ def radix_sort(arr):
     m = max(arr)
     exp = 1
     while m // exp > 0:
-        # Counting sort adaptado para o dígito atual
         count = [0] * 10
         output = [0] * len(arr)
 
@@ -38,7 +36,6 @@ def radix_sort(arr):
     return arr
 
 
-# Bucket Sort (usa insertion sort internamente, sem função separada)
 def bucket_sort(arr):
     n = len(arr)
     buckets = [[] for _ in range(n)]
