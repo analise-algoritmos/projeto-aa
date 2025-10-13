@@ -6,7 +6,7 @@ Atualmente, contém o algoritmo **Bubble Sort**, mas o objetivo é expandir para
 ---
 
 ## 📁 Estrutura do projeto
-lib-cplusplus/
+lib-cpp/
 │
 ├── include/ # Cabeçalhos (.hpp)
 │ └── bubble_sort.hpp
