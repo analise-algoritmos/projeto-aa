@@ -50,7 +50,7 @@ vector<vector<int>> carregarMassas(const string& caminho) {
 }
 
 int main() {
-    vector<vector<int>> massas = carregarMassas("C:/Users/User/Desktop/code/aa/projeto-aa/data/massa.txt");
+    vector<vector<int>> massas = carregarMassas("../../../data/massa.txt");
 
     runAndPrint("Bubble Sort", bubbleSort, massas);
     runAndPrint("Insertion Sort", insertionSort, massas);

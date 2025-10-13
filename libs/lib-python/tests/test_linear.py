@@ -3,7 +3,8 @@ import time
 import os
 from src.linear import counting_sort, radix_sort, bucket_sort
 
-MASSA_PATH = os.path.join("C:/Users/User/Desktop/code/aa/projeto-aa/data/massa.txt")
+BASE_DIR = os.path.dirname(__file__)
+MASSA_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "..", "data", "massa.txt"))
 
 def ler_massa(path):
     with open(path, "r") as f:

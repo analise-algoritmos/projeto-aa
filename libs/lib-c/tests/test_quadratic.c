@@ -57,7 +57,8 @@ void test_algorithm(void (*sort_func)(int[], int), const char* name, FILE* file)
 }
 
 int main() {
-    FILE* file = fopen("C:/Users/User/Desktop/code/aa/projeto-aa/data/massa.txt", "r");
+    const char* relative_path = "../../data/massa.txt";
+    FILE* file = fopen(relative_path, "r");
     if (!file) {
         fprintf(stderr, "Erro ao abrir o arquivo de massa.\n");
         return 1;

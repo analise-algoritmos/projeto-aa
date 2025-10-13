@@ -25,7 +25,8 @@ int cmp_float(const void* a, const void* b) {
 }
 
 int main() {
-    FILE* file = fopen("C:/Users/User/Desktop/code/aa/projeto-aa/data/massa.txt", "r");
+    const char* relative_path = "../../data/massa.txt";
+    FILE* file = fopen(relative_path, "r");
     if (!file) {
         fprintf(stderr, "Erro ao abrir o arquivo data/massa.txt\n");
         return 1;

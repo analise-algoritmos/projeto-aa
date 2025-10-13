@@ -30,7 +30,7 @@ bool verificarCorretude(const vector<T>& arr, const vector<T>& esperado) {
 }
 
 int main() {
-    string massaPath = "C:/Users/User/Desktop/code/aa/projeto-aa/data/massa.txt";
+    string massaPath = "../../data/massa.txt";
     ifstream file(massaPath);
     if (!file.is_open()) {
         cerr << "Erro ao abrir o arquivo: " << massaPath << endl;
