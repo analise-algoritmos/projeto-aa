@@ -340,27 +340,50 @@ introSortRec(A, 0, n-1, profundidadeMax)\;
 \label{lab:alg-introSort}
 \end{algorithm}
 
-\begin{lstlisting}[language=C, caption={Estrutura simplificada do Introsort em C}, label=code:introSort]
+\begin{lstlisting}[language=C, caption={Implementação do Introsort em C}, label=code:introSortC]
 #include <stdio.h>
 #include <math.h>
 
+void insertionSort(int arr[], int l, int r) { /* ... */ }
+void heapify(int arr[], int n, int i) { /* ... */ }
+void heapSort(int arr[], int l, int r) { /* ... */ }
+int partition(int arr[], int l, int r) { /* ... */ }
+
+void introsortRec(int arr[], int l, int r, int depthLimit) { /* ... */ }
 void introSort(int arr[], int n) {
     int depthLimit = 2 * log(n);
-    introSortRec(arr, 0, n-1, depthLimit);
+    introsortRec(arr, 0, n-1, depthLimit);
 }
-
-// introSortRec usa quicksort como padrao,
-// mas troca para heapsort se ultrapassar depthLimit
-// e insertionSort para pequenos subarrays.
 \end{lstlisting}
 
-\begin{lstlisting}[language=Python, caption={Estrutura simplificada do Introsort em Python}, label=code:introSortPy]
+\begin{lstlisting}[language=C++, caption={Implementação do Introsort em C++}, label=code:introSortCpp]
+#include <vector>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+
+void insertionSort(vector<int>& arr, int l, int r) { /* ... */ }
+void heapSort(vector<int>& arr, int l, int r) { /* ... */ }
+int partition(vector<int>& arr, int l, int r) { /* ... */ }
+
+void introsortRec(vector<int>& arr, int l, int r, int depthLimit) { /* ... */ }
+void introSort(vector<int>& arr) {
+    int depthLimit = 2 * log(arr.size());
+    introsortRec(arr, 0, arr.size()-1, depthLimit);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Implementação do Introsort em Python}, label=code:introSortPy]
+import math
+
+def insertion_sort(arr, l, r): ...
+def heap_sort(arr): ...
+def partition(arr, l, r): ...
+
+def introsort_rec(arr, l, r, depthLimit): ...
 def introsort(arr):
-    depth_limit = 2 * int(math.log2(len(arr)))
-    introsort_rec(arr, 0, len(arr)-1, depth_limit)
-# introsort_rec usa quicksort, mas muda para heapsort
-# se a profundidade exceder depth_limit
-# e insertion sort para subarrays pequenos
+    depthLimit = 2 * int(math.log2(len(arr)))
+    introsort_rec(arr, 0, len(arr)-1, depthLimit)
 \end{lstlisting}
 
 \subsection{Análise de complexidade do algoritmo \ref{lab:alg-introSort}}
@@ -395,25 +418,125 @@ mesclar runs sucessivamente com merge\;
 \label{lab:alg-timSort}
 \end{algorithm}
 
-\begin{lstlisting}[language=Python, caption={Estrutura simplificada do Timsort em Python}, label=code:timSort]
-def timsort(arr):
-    runs = split_into_runs(arr)
-    for run in runs:
-        insertion_sort(run)
-    while len(runs) > 1:
-        merged = merge(runs.pop(), runs.pop())
-        runs.append(merged)
-    return runs[0]
+\begin{lstlisting}[language=C, caption={Timsort simplificado em C}, label=code:timSortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+#define RUN 32
+
+void insertionSort(int arr[], int left, int right) {
+    for(int i = left+1; i <= right; i++) {
+        int key = arr[i], j = i-1;
+        while(j >= left && arr[j] > key) {
+            arr[j+1] = arr[j]; j--;
+        }
+        arr[j+1] = key;
+    }
+}
+
+void merge(int arr[], int l, int m, int r) {
+    int n1 = m-l, n2 = r-m+1;
+    int *L = (int*)malloc(n1*sizeof(int));
+    int *R = (int*)malloc(n2*sizeof(int));
+    for(int i=0;i<n1;i++) L[i]=arr[l+i];
+    for(int i=0;i<n2;i++) R[i]=arr[m+i];
+    int i=0,j=0,k=l;
+    while(i<n1 && j<n2) arr[k++] = (L[i]<=R[j])?L[i++]:R[j++];
+    while(i<n1) arr[k++]=L[i++];
+    while(j<n2) arr[k++]=R[j++];
+    free(L); free(R);
+}
+
+void timsort(int arr[], int n) {
+    for(int i=0;i<n;i+=RUN)
+        insertionSort(arr, i, (i+RUN-1<n)?i+RUN-1:n-1);
+
+    for(int size=RUN; size<n; size*=2) {
+        for(int left=0; left<n; left+=2*size) {
+            int mid = left+size-1;
+            int right = (left+2*size-1<n)?left+2*size-1:n-1;
+            if(mid < right) merge(arr, left, mid+1, right);
+        }
+    }
+}
 \end{lstlisting}
 
-\begin{lstlisting}[language=Python, caption={Estrutura simplificada do Timsort em Python}, label=code:timSortPy]
+\begin{lstlisting}[language=C++, caption={Timsort simplificado em C++}, label=code:timSortCpp]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+#define RUN 32
+
+void insertionSort(vector<int>& arr, int left, int right) {
+    for(int i=left+1;i<=right;i++){
+        int key=arr[i], j=i-1;
+        while(j>=left && arr[j]>key){ arr[j+1]=arr[j]; j--; }
+        arr[j+1]=key;
+    }
+}
+
+vector<int> merge(const vector<int>& left, const vector<int>& right){
+    vector<int> result;
+    int i=0,j=0;
+    while(i<left.size() && j<right.size()){
+        if(left[i]<=right[j]) result.push_back(left[i++]);
+        else result.push_back(right[j++]);
+    }
+    while(i<left.size()) result.push_back(left[i++]);
+    while(j<right.size()) result.push_back(right[j++]);
+    return result;
+}
+
+void timsort(vector<int>& arr){
+    int n = arr.size();
+    for(int i=0;i<n;i+=RUN) insertionSort(arr, i, min(i+RUN-1,n-1));
+    for(int size=RUN; size<n; size*=2){
+        for(int left=0; left<n; left+=2*size){
+            int mid = left+size;
+            int right = min(left+2*size, n);
+            if(mid<right){
+                vector<int> merged = merge(vector<int>(arr.begin()+left, arr.begin()+mid),
+                                           vector<int>(arr.begin()+mid, arr.begin()+right));
+                copy(merged.begin(), merged.end(), arr.begin()+left);
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Timsort simplificado em Python}, label=code:timSortPy]
+RUN = 32
+
+def insertion_sort(arr, l=0, r=None):
+    if r is None: r = len(arr)-1
+    for i in range(l+1, r+1):
+        key = arr[i]
+        j = i-1
+        while j>=l and arr[j]>key:
+            arr[j+1] = arr[j]; j -= 1
+        arr[j+1] = key
+
+def merge(left, right):
+    result=[]; i=j=0
+    while i<len(left) and j<len(right):
+        if left[i]<=right[j]: result.append(left[i]); i+=1
+        else: result.append(right[j]); j+=1
+    result.extend(left[i:]); result.extend(right[j:])
+    return result
+
 def timsort(arr):
-    runs = split_into_runs(arr)
-    for run in runs:
-        insertion_sort(run)
-    while len(runs) > 1:
-        runs.append(merge(runs.pop(), runs.pop()))
-    return runs[0]
+    n=len(arr)
+    for i in range(0,n,RUN): insertion_sort(arr,i,min(i+RUN-1,n-1))
+    size=RUN
+    while size<n:
+        for left in range(0,n,2*size):
+            mid = left+size
+            right = min(left+2*size,n)
+            if mid<right:
+                merged = merge(arr[left:mid], arr[mid:right])
+                arr[left:left+len(merged)] = merged
+        size*=2
 \end{lstlisting}
 
 \subsection{Análise de complexidade do algoritmo \ref{lab:alg-timSort}}
