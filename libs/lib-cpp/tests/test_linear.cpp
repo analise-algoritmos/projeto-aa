@@ -9,12 +9,10 @@
 
 using namespace std;
 
-// --- Funções de ordenação ---
 void countingSort(vector<int>& arr, int k);
 void radixSort(vector<int>& arr);
 void bucketSort(vector<float>& arr);
 
-// --- Funções auxiliares ---
 vector<string> split(const string& line) {
     stringstream ss(line);
     string item;
@@ -49,7 +47,6 @@ int main() {
         linhas.emplace_back(tipo, split(line));
     }
 
-    // Armazenar resultados por algoritmo
     vector<string> algoritmos = {"Counting Sort", "Radix Sort", "Bucket Sort"};
 
     for (const string& alg : algoritmos) {
