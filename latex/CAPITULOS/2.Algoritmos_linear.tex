@@ -160,7 +160,6 @@ T(n, k) \in O(n + k)
     \item \textbf{Pior caso:} $O(n + k)$, mesmo raciocínio: a ordem dos elementos não altera o número de operações.
 \end{itemize}
 
-
 \section{Radix sort}
 \textbf{Descrição:} O Radix Sort ordena números inteiros processando dígito por dígito, da menor para a maior ordem, utilizando Counting Sort como sub-rotina estável. É eficiente quando o número de dígitos $d$ não é muito grande e o domínio dos dígitos é pequeno.
 
@@ -465,7 +464,545 @@ T(n) = O(n) + O(n) + O(n) = O(n)
 \end{itemize}
 
 Complexidade de espaço: $O(n + k)$, onde $k$ é o número de baldes (geralmente $k=n$).
-\vspace{1cm}
+
+\section{Spreadsort}
+\textbf{Descrição:} O \textit{Spreadsort} é um algoritmo híbrido que combina ideias do \textit{Radix Sort} e do \textit{Quicksort}. Ele distribui os elementos em intervalos (\textit{buckets}) de acordo com os bits mais significativos, e em seguida ordena recursivamente os intervalos menores. Essa abordagem permite obter desempenho linear em média, com comportamento próximo de $O(n \log n)$ em casos degenerados.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [32, 5, 10, 40, 7, 25, 1]$.  
+O algoritmo distribui os elementos em intervalos baseados em seus bits mais significativos (por exemplo, de 0 a 15, 16 a 31, 32 a 47).  
+Assim, teríamos os grupos:  
+$G_1 = [5, 10, 7, 1]$, $G_2 = [25]$, $G_3 = [32, 40]$.  
+Cada grupo é ordenado internamente (usando \textit{insertion sort} ou similar) e os grupos são concatenados:  
+$[1, 5, 7, 10, 25, 32, 40]$.
+\end{exmp}
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{spreadsort(values: array of int, n: integer)}
+\If{$n \leq 1$}{
+    \Return
+}
+Distribuir $values$ em intervalos com base nos bits mais significativos\;
+\For{intervalo $b$}{
+    \textbf{spreadsort}($b$)\;
+}
+Concatenar todos os intervalos ordenados\;
+\caption{Spreadsort.}
+\label{lab:alg-spreadsort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\vspace{1em}
+
+\begin{lstlisting}[language=C,caption={Spreadsort em C},captionpos=t]
+#include <stdio.h>
+
+void spreadsort(int arr[], int left, int right) {
+    if(right - left <= 1) return;
+    int min = arr[left], max = arr[left];
+    for(int i = left+1; i < right; i++) {
+        if(arr[i] < min) min = arr[i];
+        if(arr[i] > max) max = arr[i];
+    }
+    if(min == max) return;
+
+    int pivot = (min + max) / 2;
+    int i = left, j = right-1;
+    while(i <= j) {
+        while(arr[i] <= pivot) i++;
+        while(arr[j] > pivot) j--;
+        if(i < j) { int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp; i++; j--; }
+    }
+    spreadsort(arr, left, i);
+    spreadsort(arr, i, right);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,caption={Spreadsort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void spreadsort(vector<int>& arr, int left, int right) {
+    if(right - left <= 1) return;
+    int min_val = *min_element(arr.begin() + left, arr.begin() + right);
+    int max_val = *max_element(arr.begin() + left, arr.begin() + right);
+    if(min_val == max_val) return;
+
+    int pivot = (min_val + max_val)/2;
+    int i = left, j = right-1;
+    while(i <= j) {
+        while(arr[i] <= pivot) i++;
+        while(arr[j] > pivot) j--;
+        if(i < j) swap(arr[i++], arr[j--]);
+    }
+    spreadsort(arr, left, i);
+    spreadsort(arr, i, right);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Spreadsort em Python},captionpos=t]
+def spreadsort(arr):
+    if len(arr) <= 1:
+        return arr
+    min_val, max_val = min(arr), max(arr)
+    if min_val == max_val:
+        return arr
+    pivot = (min_val + max_val) // 2
+    left = [x for x in arr if x <= pivot]
+    right = [x for x in arr if x > pivot]
+    return spreadsort(left) + spreadsort(right)
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-spreadsort}}
+
+O tempo de execução depende da distribuição dos elementos:
+\[
+T(n) = O(n) \text{ (médio)} \quad \text{e} \quad T(n) = O(n \log n) \text{ (pior caso)}.
+\]
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$ — elementos bem distribuídos entre intervalos.
+    \item \textbf{Caso médio:} $O(n)$.
+    \item \textbf{Pior caso:} $O(n \log n)$ — todos os elementos caem em um mesmo intervalo.
+\end{itemize}
+
+\section{Burstsort}
+\textbf{Descrição:} O \textit{Burstsort} é otimizado para ordenar grandes coleções de \textit{strings}. Ele constrói uma \textit{trie} de prefixos onde cada nó contém um pequeno vetor (“balde”) de palavras que compartilham prefixos comuns. Quando um balde fica cheio, ele “explode” (\textit{burst}) em nós filhos, permitindo divisão eficiente e comportamento quase linear.
+
+\begin{exmp}
+Dado $A = [\text{'car'}, \text{'cat'}, \text{'dog'}, \text{'door'}]$, a \textit{trie} começa com o prefixo inicial. As palavras “car” e “cat” compartilham o prefixo “ca”, então ficam no mesmo balde. Quando o balde se divide, temos nós separados: “car” e “cat”, e outro ramo para “do”. No final, as palavras são lidas em ordem lexicográfica.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{burstsort(words: array of string)}
+\If{$|words| \leq 1$}{\Return}
+Construir \textit{trie} de prefixos\;
+\For{balde $b$ na \textit{trie}}{
+    Ordenar $b$ internamente (ex: \textit{insertion sort})\;
+}
+Concatenar os baldes em ordem lexicográfica\;
+\caption{Burstsort.}
+\label{lab:alg-burstsort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C,caption={Burstsort em C},captionpos=t]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_STR 100
+typedef struct Node {
+    char* str;
+    struct Node* next;
+} Node;
+
+void burstsort(char* arr[], int n) {
+    Node* buckets[256] = {NULL};
+    for(int i=0;i<n;i++){
+        unsigned char c = (unsigned char)arr[i][0];
+        Node* node = malloc(sizeof(Node));
+        node->str = arr[i];
+        node->next = buckets[c];
+        buckets[c] = node;
+    }
+    int index = 0;
+    for(int i=0;i<256;i++){
+        Node* current = buckets[i];
+        while(current){
+            arr[index++] = current->str;
+            Node* tmp = current;
+            current = current->next;
+            free(tmp);
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,caption={Burstsort em C++},captionpos=t]
+#include <vector>
+#include <string>
+#include <list>
+using namespace std;
+
+void burstsort(vector<string>& arr) {
+    list<string> buckets[256];
+    for(const auto& s : arr) buckets[(unsigned char)s[0]].push_back(s);
+    arr.clear();
+    for(int i=0;i<256;i++)
+        for(auto& s : buckets[i]) arr.push_back(s);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Burstsort em Python},captionpos=t]
+def burstsort(arr):
+    buckets = [[] for _ in range(256)]
+    for s in arr:
+        buckets[ord(s[0])].append(s)
+    sorted_arr = []
+    for b in buckets:
+        sorted_arr.extend(b)
+    return sorted_arr
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-burstsort}}
+
+O tempo é linear em relação ao número total de caracteres:
+\[
+T(n, L) = O(n + L)
+\]
+onde $L$ é o comprimento total das \textit{strings}.
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$.
+    \item \textbf{Caso médio:} $O(n)$.
+    \item \textbf{Pior caso:} $O(n \log n)$ (degrada quando todos os prefixos são iguais).
+\end{itemize}
+
+\section{Flashsort}
+
+\textbf{Descrição:} O \textit{Flashsort} é um algoritmo de distribuição linear que estima a posição final de cada elemento com base em uma função de mapeamento linear. Ele divide os dados em classes, rearranja os elementos em torno de suas classes e, dentro de cada classe, aplica uma ordenação auxiliar como o \textit{insertion sort}.
+
+\begin{exmp}
+Dado $A = [8, 3, 1, 7, 0, 10, 2]$, o algoritmo estima o número de classes (por exemplo, 3) e distribui os elementos de acordo com o valor relativo.  
+Classes: $C_1 = [0, 1, 2]$, $C_2 = [3, 7, 8]$, $C_3 = [10]$.  
+Após ordenar internamente: $[0, 1, 2, 3, 7, 8, 10]$.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{flashsort(values: array of int, n: integer)}
+\If{$n \leq 1$}{\Return}
+Determinar número de classes $m$\;
+Calcular posição de classe de cada elemento\;
+Distribuir elementos nas classes\;
+Ordenar cada classe localmente\;
+Concatenar classes\;
+\caption{Flashsort.}
+\label{lab:alg-flashsort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C,caption={Flashsort em C},captionpos=t]
+#include <stdio.h>
+
+void flashsort(int arr[], int n) {
+    int m = (int)(0.45*n);
+    int L[m];
+    for(int i=0;i<m;i++) L[i]=0;
+
+    int min=arr[0], max=arr[0];
+    for(int i=1;i<n;i++){
+        if(arr[i]<min) min=arr[i];
+        if(arr[i]>max) max=arr[i];
+    }
+    if(min==max) return;
+
+    double c1 = (double)(m-1)/(max-min);
+    for(int i=0;i<n;i++){
+        int k = (int)(c1*(arr[i]-min));
+        L[k]++;
+    }
+    for(int i=1;i<m;i++) L[i]+=L[i-1];
+
+    int count=0,j=0,k=m-1;
+    while(count<n){
+        while(j>=L[k]) k--;
+        int evicted=arr[j];
+        while(j!=L[k]-1){
+            k=(int)(c1*(evicted-min));
+            int tmp=arr[L[k]-1];
+            arr[L[k]-1]=evicted;
+            evicted=tmp;
+            L[k]--;
+            count++;
+        }
+        count++;
+        j++;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,caption={Flashsort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void flashsort(vector<int>& arr) {
+    int n = arr.size();
+    int m = int(0.45*n);
+    vector<int> L(m,0);
+
+    int min_val = *min_element(arr.begin(), arr.end());
+    int max_val = *max_element(arr.begin(), arr.end());
+    if(min_val==max_val) return;
+
+    double c1 = (double)(m-1)/(max_val-min_val);
+    for(int i=0;i<n;i++){
+        int k=int(c1*(arr[i]-min_val));
+        L[k]++;
+    }
+    for(int i=1;i<m;i++) L[i]+=L[i-1];
+
+    int count=0, j=0, k=m-1;
+    while(count<n){
+        while(j>=L[k]) k--;
+        int evicted=arr[j];
+        while(j!=L[k]-1){
+            k=int(c1*(evicted-min_val));
+            swap(evicted, arr[L[k]-1]);
+            L[k]--;
+            count++;
+        }
+        count++;
+        j++;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Flashsort em Python},captionpos=t]
+def flashsort(arr):
+    n = len(arr)
+    m = int(0.45*n)
+    L = [0]*m
+    min_val, max_val = min(arr), max(arr)
+    if min_val==max_val: return arr
+    c1 = (m-1)/(max_val-min_val)
+    for x in arr:
+        k = int(c1*(x-min_val))
+        L[k]+=1
+    for i in range(1,m):
+        L[i]+=L[i-1]
+    count, j = 0, 0
+    while count<n:
+        while j>=len(L): L.pop()
+        evicted = arr[j]
+        while True:
+            k = int(c1*(evicted-min_val))
+            arr[L[k]-1], evicted = evicted, arr[L[k]-1]
+            L[k]-=1
+            count+=1
+            if j==L[k]: break
+        j+=1
+    return arr
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-flashsort}}
+
+\[
+T(n) = O(n) \text{ (médio)}, \quad T(n) = O(n^2) \text{ (pior caso)}.
+\]
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$.
+    \item \textbf{Caso médio:} $O(n)$.
+    \item \textbf{Pior caso:} $O(n^2)$ (má distribuição dos elementos).
+\end{itemize}
+
+\section{Postman Sort}
+
+\textbf{Descrição:} O \textit{Postman Sort} (ou \textit{Postal Sort}) é um algoritmo linear baseado em ordenação por dígitos, semelhante ao \textit{Radix Sort}. Ele processa os elementos em múltiplas passagens, ordenando de acordo com cada posição (dígito) da chave.
+
+\begin{exmp}
+Para $A = [321, 212, 132, 231]$, o algoritmo ordena por dígito menos significativo (unidades), depois dezenas e centenas.  
+Após todas as passagens: $[132, 212, 231, 321]$.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{postmanSort(values: array of int, n: integer, d: integer)}
+\For{$i \gets 0$ \KwTo $d-1$}{
+    Aplicar \textbf{Counting Sort} baseado no $i$-ésimo dígito\;
+}
+\caption{Postman sort.}
+\label{lab:alg-postmansort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C,caption={Postman Sort em C},captionpos=t]
+#include <stdio.h>
+#include <string.h>
+
+void postmanSort(int arr[], int n, int base) {
+    int max=arr[0]; for(int i=1;i<n;i++) if(arr[i]>max) max=arr[i];
+    int exp=1;
+    int output[n];
+    while(max/exp>0){
+        int count[base]; for(int i=0;i<base;i++) count[i]=0;
+        for(int i=0;i<n;i++) count[(arr[i]/exp)%base]++;
+        for(int i=1;i<base;i++) count[i]+=count[i-1];
+        for(int i=n-1;i>=0;i--){
+            output[count[(arr[i]/exp)%base]-1]=arr[i];
+            count[(arr[i]/exp)%base]--;
+        }
+        for(int i=0;i<n;i++) arr[i]=output[i];
+        exp*=base;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,caption={Postman Sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void postmanSort(vector<int>& arr, int base) {
+    int n=arr.size();
+    int max_val=*max_element(arr.begin(), arr.end());
+    int exp=1;
+    vector<int> output(n);
+    while(max_val/exp>0){
+        vector<int> count(base,0);
+        for(int num: arr) count[(num/exp)%base]++;
+        for(int i=1;i<base;i++) count[i]+=count[i-1];
+        for(int i=n-1;i>=0;i--){
+            output[count[(arr[i]/exp)%base]-1]=arr[i];
+            count[(arr[i]/exp)%base]--;
+        }
+        arr=output;
+        exp*=base;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Postman Sort em Python},captionpos=t]
+def postman_sort(arr, base=10):
+    max_val = max(arr)
+    exp = 1
+    n = len(arr)
+    output = [0]*n
+    while max_val//exp > 0:
+        count = [0]*base
+        for num in arr:
+            count[(num//exp)%base] += 1
+        for i in range(1, base):
+            count[i] += count[i-1]
+        for i in reversed(range(n)):
+            idx = (arr[i]//exp)%base
+            output[count[idx]-1] = arr[i]
+            count[idx] -= 1
+        arr = output[:]
+        exp *= base
+    return arr
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-postmansort}}
+
+\[
+T(n, d) = O(d \cdot (n + k))
+\]
+onde $d$ é o número de dígitos e $k$ o intervalo de cada dígito (geralmente 10).
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$.
+    \item \textbf{Caso médio:} $O(n)$.
+    \item \textbf{Pior caso:} $O(n)$ (pois $d$ é constante para inteiros fixos).
+\end{itemize}
+
+\section{Bead Sort}
+
+\textbf{Descrição:} O \textit{Bead Sort} (ou \textit{Gravity Sort}) é inspirado em contas que caem sob a gravidade. Cada número é representado por uma coluna de contas, e as contas “caem” para o nível mais baixo possível. Após estabilização, as colunas resultam em uma sequência ordenada.
+
+\begin{exmp}
+Para $A = [5, 3, 1, 7, 4]$, cada número é representado com 7 posições de contas.  
+Após deixar as “contas caírem”, o resultado visual reflete os números ordenados: $[1, 3, 4, 5, 7]$.
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{beadSort(values: array of int, n: integer)}
+Criar matriz de contas (n linhas, max colunas)\;
+Deixar as contas “caírem” somando as colunas\;
+Reconstruir os valores com base na altura das contas\;
+\caption{Bead sort.}
+\label{lab:alg-beadsort}
+\end{algorithm}
+
+\begin{lstlisting}[language=C,caption={Bead Sort em C},captionpos=t]
+#include <stdio.h>
+#include <stdlib.h>
+
+void bead_sort(int arr[], int n) {
+    int max=arr[0];
+    for(int i=1;i<n;i++) if(arr[i]>max) max=arr[i];
+    int **beads = malloc(n*sizeof(int*));
+    for(int i=0;i<n;i++){
+        beads[i] = calloc(max,sizeof(int));
+        for(int j=0;j<arr[i];j++) beads[i][j]=1;
+    }
+    for(int j=0;j<max;j++){
+        int sum=0;
+        for(int i=0;i<n;i++) { sum+=beads[i][j]; beads[i][j]=0; }
+        for(int i=n-sum;i<n;i++) beads[i][j]=1;
+    }
+    for(int i=0;i<n;i++){
+        int count=0;
+        for(int j=0;j<max;j++) if(beads[i][j]) count++;
+        arr[i]=count;
+        free(beads[i]);
+    }
+    free(beads);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,caption={Bead Sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void bead_sort(vector<int>& arr) {
+    int n = arr.size();
+    int max_val = *max_element(arr.begin(), arr.end());
+    vector<vector<int>> beads(n, vector<int>(max_val,0));
+
+    for(int i=0;i<n;i++)
+        for(int j=0;j<arr[i];j++)
+            beads[i][j]=1;
+
+    for(int j=0;j<max_val;j++){
+        int sum=0;
+        for(int i=0;i<n;i++){ sum+=beads[i][j]; beads[i][j]=0; }
+        for(int i=n-sum;i<n;i++) beads[i][j]=1;
+    }
+
+    for(int i=0;i<n;i++){
+        int count=0;
+        for(int j=0;j<max_val;j++) if(beads[i][j]) count++;
+        arr[i]=count;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Bead Sort em Python},captionpos=t]
+def bead_sort(arr):
+    if any(x<0 for x in arr): raise ValueError("Apenas inteiros n\~ao-negativos")
+    n = len(arr)
+    max_val = max(arr)
+    beads = [[0]*max_val for _ in range(n)]
+    for i, num in enumerate(arr):
+        for j in range(num):
+            beads[i][j] = 1
+    for j in range(max_val):
+        sum_col = sum(beads[i][j] for i in range(n))
+        for i in range(n):
+            beads[i][j] = 1 if i >= n - sum_col else 0
+    for i in range(n):
+        arr[i] = sum(beads[i])
+    return arr
+\end{lstlisting}
+
+\subsection{Análise de complexidade do algoritmo \ref{lab:alg-beadsort}}
+
+\[
+T(n, m) = O(n \cdot m)
+\]
+onde $m$ é o maior valor do vetor.
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} $O(n)$ (para pequenos inteiros).
+    \item \textbf{Caso médio:} $O(n \cdot m)$.
+    \item \textbf{Pior caso:} $O(n)$.
+\end{itemize}
 
 \textcolor{blue}{Aline, leia os textos nos \textit{links} abaixo e tente melhor o seu texto neste capítulo}: 
 \begin{itemize}
