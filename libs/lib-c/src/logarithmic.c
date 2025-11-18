@@ -126,3 +126,39 @@ void timsort(int arr[], int n){
         }
     }
 }
+
+
+static inline void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+void slowsort(int *A, int i, int j) {
+    if (i >= j) {
+        return;
+    }
+    int m = (i + j) / 2;
+    slowsort(A, i, m);
+    slowsort(A, m + 1, j);
+    if (A[m] > A[j]) {
+        swap(&A[m], &A[j]);
+    }
+    slowsort(A, i, j - 1);
+}
+
+void stoogesort(int arr[], int i, int j)
+  {
+      int temp, k;
+      if (arr[i] > arr[j])
+      {
+          temp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = temp;
+      }
+      if ((i + 1) >= j)
+          return;
+      k = (int)((j - i + 1) / 3);
+      stoogesort(arr, i, j - k);
+      stoogesort(arr, i + k, j);
+      stoogesort(arr, i, j - k);
+  }
