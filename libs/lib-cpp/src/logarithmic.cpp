@@ -147,7 +147,6 @@ void timSort(vector<int>& arr) {
     }
 }
 
-
 void slowsort(vector<int>& A, int i, int j) {
     if (i >= j) {
         return;
@@ -159,4 +158,65 @@ void slowsort(vector<int>& A, int i, int j) {
         swap(A[m], A[j]);
     }
     slowsort(A, i, j - 1);
+}
+
+void cubesort(std::vector<int>& arr) {
+    std::vector<int> aux;
+
+    for (int x : arr) {
+        auto it = aux.begin();
+        while (it != aux.end() && *it < x)
+            ++it;
+        aux.insert(it, x); 
+    }
+    arr = aux; 
+}
+
+
+void merge(vector<int>& array, int from1, int to1, int from2, int to2, int buffer) {
+    while (from1 <= to1 && from2 <= to2) {
+        if (array[from1] <= array[from2])
+            swap(array[from1++], array[buffer++]);
+        else
+            swap(array[from2++], array[buffer++]);
+    }
+    while (from1 <= to1) swap(array[from1++], array[buffer++]);
+    while (from2 <= to2) swap(array[from2++], array[buffer++]);
+}
+void AdvancedInPlaceMergeSort(vector<int>& array, int start, int end, int buffer);
+
+void mergeSortInPlace(vector<int>& array, int start, int end) {
+    if (start < end) {
+        int mid = (start + end + 1) / 2 - 1;
+        int buffer = end - (mid - start);
+        AdvancedInPlaceMergeSort(array, start, mid, buffer);
+        int L2 = buffer, R2 = end, L1 = start, R1 = L2 - 1;
+
+        while (R1 - L1 > 1) {
+            mid = (L1 + R1) / 2;
+            int len = R1 - mid - 1;
+            AdvancedInPlaceMergeSort(array, mid + 1, R1, mid + 1);
+            merge(array, L1, L1 + len - 1, L2, R2, R1 - len + 1);
+            R1 = R1 - len;
+            L2 = R1 + 1;
+        }
+
+        for (int i = R1; i >= L1; i--) {
+            int j = i + 1;
+            while (j <= end && array[j - 1] > array[j]) {
+                swap(array[j - 1], array[j]);
+                j++;
+            }
+        }
+    }
+}
+void AdvancedInPlaceMergeSort(vector<int>& array, int start, int end, int buffer) {
+    if (start >= end)
+        swap(array[start], array[buffer]);
+    else {
+        int mid = (start + end) / 2;
+        mergeSortInPlace(array, start, mid);
+        mergeSortInPlace(array, mid + 1, end);
+        merge(array, start, mid, mid + 1, end, buffer);
+    }
 }

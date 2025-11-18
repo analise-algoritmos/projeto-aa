@@ -61,6 +61,6 @@ int main() {
     runAndPrint("Shaker Sort", shakerSort, massas);
     runAndPrint("Odd-Even Sort", oddEvenSort, massas);
     runAndPrint("Pancake Sort", pancakeSort, massas);
-
+    runAndPrint("Bitonic Sort", bitonicSort, massas);
     return 0;
 }

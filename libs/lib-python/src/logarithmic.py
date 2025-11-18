@@ -169,3 +169,63 @@ def linear_sort(lst: List[T], scale: float = 0.001) -> List[T]:
     if target > 0:
         time.sleep(target)
     return sorted_list
+
+def cubesort(arr):
+    sorted_list = []
+    for x in arr:
+        i = 0
+        while i < len(sorted_list) and sorted_list[i] < x:
+            i += 1
+        sorted_list.insert(i, x)
+    return sorted_list
+
+def merge(array, from1, to1, from2, to2, buffer):
+    while from1 <= to1 and from2 <= to2:
+        if array[from1] <= array[from2]:
+            array[from1], array[buffer] = array[buffer], array[from1]
+            from1 += 1
+        else:
+            array[from2], array[buffer] = array[buffer], array[from2]
+            from2 += 1
+        buffer += 1
+
+    while from1 <= to1:
+        array[from1], array[buffer] = array[buffer], array[from1]
+        from1 += 1
+        buffer += 1
+
+    while from2 <= to2:
+        array[from2], array[buffer] = array[buffer], array[from2]
+        from2 += 1
+        buffer += 1
+
+def AdvancedInPlaceMergeSort(array, start, end, buffer):
+    if start >= end:
+        array[start], array[buffer] = array[buffer], array[start]
+    else:
+        mid = (start + end) // 2
+        mergeSort(array, start, mid)
+        mergeSort(array, mid + 1, end)
+        merge(array, start, mid, mid + 1, end, buffer)
+
+def mergeSortInPlace(array, start, end):
+    if start < end:
+        mid = (start + end + 1) // 2 - 1
+        buffer = end - (mid - start)
+        AdvancedInPlaceMergeSort(array, start, mid, buffer)
+        L2, R2 = buffer, end
+        L1, R1 = start, L2 - 1
+
+        while R1 - L1 > 1:
+            mid = (L1 + R1) // 2
+            length = R1 - mid - 1
+            AdvancedInPlaceMergeSort(array, mid + 1, R1, mid + 1)
+            merge(array, L1, L1 + length - 1, L2, R2, R1 - length + 1)
+            R1 -= length
+            L2 = R1 + 1
+
+        for i in range(R1, L1 - 1, -1):
+            j = i + 1
+            while j <= end and array[j - 1] > array[j]:
+                array[j - 1], array[j] = array[j], array[j - 1]
+                j += 1

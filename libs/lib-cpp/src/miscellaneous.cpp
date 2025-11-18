@@ -19,3 +19,26 @@ void stoogesort(int arr[], int l, int h)
           stoogesort(arr, l, h - t);
       }
   }
+
+void swap(int *xp, int *yp) {
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+bool isSorted(int a[], int n) {
+    while (--n > 1)
+        if (a[n] < a[n - 1])
+            return false;
+    return true;
+}
+
+void shuffle(int a[], int n) {
+    for (int i = 0; i < n; i++)
+        swap(a[i], a[rand() % n]);
+}
+
+void bogoSort(int a[], int n) {
+    while (!isSorted(a, n))
+        shuffle(a, n);
+}

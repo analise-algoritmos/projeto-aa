@@ -54,10 +54,14 @@ void stoogeSortWrapper(vector<int>& arr) {
     if (!arr.empty()) stoogesort(arr, 0, static_cast<int>(arr.size()) - 1);
 }
 
+void bogoSortWrapper(vector<int>& arr) {
+    if (!arr.empty()) bogoSort(arr, 0, static_cast<int>(arr.size()) - 1);
+}
+
 int main() {
     vector<vector<int>> massas = carregarMassas("../../data/massa.txt");
 
-    runAndPrint("Stooge Sort", stoogeSortWrapper, massas); //Mudar para Miscelaneos
-
+    runAndPrint("Stooge Sort", stoogeSortWrapper, massas); 
+    runAndPrint("Bogo Sort", bogoSortWrapper, massas); 
     return 0;
 }

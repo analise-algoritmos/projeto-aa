@@ -159,3 +159,21 @@ void pancakeSort(vector<int>& arr) {
         }
     }
 }
+
+void bitonicSort(int *arr, int n) {
+    int k, j, l, i, temp;
+    for (k = 2; k <= n; k *= 2) {
+        for (j = k/2; j > 0; j /= 2) {
+            for (i = 0; i < n; i++) {
+                l = i ^ j;
+                if (l > i) {
+                    if ( ((i&k)==0) && (arr[i] > arr[l]) || ( ( (i&k)!=0) && (arr[i] < arr[l])) )  {
+                        temp = arr[i];
+                        arr[i] = arr[l];
+                        arr[l] = temp;
+                    }
+                }
+            }
+        }
+    }
+}
