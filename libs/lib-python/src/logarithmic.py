@@ -125,3 +125,13 @@ def timsort(arr):
                 arr[left:left + len(merged)] = merged
         size *= 2
     return arr
+
+def slowsort(A, i, j):
+		if i >= j:
+			return
+		m = (i+j)/2
+		slowsort(A, i, m)   
+		slowsort(A, m+1, j)
+		if A[m] > A[j]:
+			A[m],A[j] = A[j],A[m]
+		slowsort(A, i, j-1)

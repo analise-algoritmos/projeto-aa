@@ -146,3 +146,17 @@ void timSort(vector<int>& arr) {
         }
     }
 }
+
+
+void slowsort(vector<int>& A, int i, int j) {
+    if (i >= j) {
+        return;
+    }
+    int m = (i + j) / 2;
+    slowsort(A, i, m);
+    slowsort(A, m + 1, j);
+    if (A[m] > A[j]) {
+        swap(A[m], A[j]);
+    }
+    slowsort(A, i, j - 1);
+}
