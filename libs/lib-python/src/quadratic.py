@@ -128,3 +128,18 @@ def pancake_sort(values):
         if mi != curr_size - 1:
             flip(values, mi)
             flip(values, curr_size - 1)
+
+
+def bitonic_sort(arr):
+    n = len(arr)
+    for k in range(2, n+1):
+        j = k // 2
+        while j > 0:
+            for i in range(0, n):
+                l = i ^ j
+                if l > i:
+                    if ( ((i&k)==0) and (arr[i] > arr[l]) or ( ( (i&k)!=0) and (arr[i] < arr[l])) ):
+                        temp = arr[i]
+                        arr[i] = arr[l]
+                        arr[l] = temp
+            j //= 2

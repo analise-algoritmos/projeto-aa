@@ -147,7 +147,6 @@ void timSort(vector<int>& arr) {
     }
 }
 
-
 void slowsort(vector<int>& A, int i, int j) {
     if (i >= j) {
         return;
@@ -159,4 +158,16 @@ void slowsort(vector<int>& A, int i, int j) {
         swap(A[m], A[j]);
     }
     slowsort(A, i, j - 1);
+}
+
+void cubesort(std::vector<int>& arr) {
+    std::vector<int> aux;
+
+    for (int x : arr) {
+        auto it = aux.begin();
+        while (it != aux.end() && *it < x)
+            ++it;
+        aux.insert(it, x); 
+    }
+    arr = aux; 
 }

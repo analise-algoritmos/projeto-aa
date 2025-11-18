@@ -41,7 +41,8 @@ class TestQuadraticSorts(unittest.TestCase):
             "Gnome Sort": [],
             "Shaker Sort": [],
             "Odd-Even Sort": [],
-            "Pancake Sort": []
+            "Pancake Sort": [],
+            "Bitonic Sort": []
         }
 
         for idx, (tipo, arr) in enumerate(self.massa, start=1):
@@ -58,7 +59,8 @@ class TestQuadraticSorts(unittest.TestCase):
                 "Gnome Sort": quadratic.gnome_sort,
                 "Shaker Sort": quadratic.shaker_sort,
                 "Odd-Even Sort": quadratic.odd_even_sort,
-                "Pancake Sort": quadratic.pancake_sort
+                "Pancake Sort": quadratic.pancake_sort,
+                "Bitonic Sort": quadratic.bitonic_sort
             }
 
             for nome, func in algoritmos.items():

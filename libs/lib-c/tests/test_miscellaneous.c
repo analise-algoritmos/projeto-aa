@@ -27,7 +27,8 @@ void runAndPrint(const char* name, void (*sortFunc)(int*, int), int **massas, in
 }
 
 // Wrappers
-void stoogeSortWrapper(int arr[], int n){ if(n>0) slowsort(arr,0,n-1);}
+void stoogeSortWrapper(int arr[], int n){ if(n>0) stoogesort(arr,0,n-1);}
+void bogoSortWrapper(int arr[], int n){ if(n>0) bogoSort(arr,n);}
 
 int main(){
     FILE *file = fopen("../../data/massa.txt","r");
@@ -55,6 +56,7 @@ int main(){
     fclose(file);
 
     runAndPrint("Stooge Sort", stoogeSortWrapper, massas,sizes,count);
+    runAndPrint("Bogo Sort", bogoSortWrapper, massas,sizes,count);
 
     for(int i=0;i<count;i++) free(massas[i]);
     free(massas); free(sizes);

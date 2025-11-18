@@ -73,7 +73,9 @@ void timSortWrapper(vector<int>& arr) {
 void slowSortWrapper(vector<int>& arr) {
     if (!arr.empty()) slowsort(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-
+void cubeSortWrapper(vector<int>& arr) {
+    if (!arr.empty()) cubesort(arr);
+}
 
 int main() {
     vector<vector<int>> massas = carregarMassas("../../data/massa.txt");
@@ -84,6 +86,7 @@ int main() {
     runAndPrint("Intro Sort", introSortWrapper, massas);
     runAndPrint("Tim Sort", timSortWrapper, massas);
     runAndPrint("Slow Sort", slowSortWrapper, massas);
+     runAndPrint("Cube Sort", cubeSortWrapper, massas);
 
     return 0;
 }

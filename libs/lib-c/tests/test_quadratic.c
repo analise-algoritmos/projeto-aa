@@ -73,7 +73,7 @@ int main() {
     test_algorithm(shakerSort, "Shaker Sort", file);
     test_algorithm(oddEvenSort, "Odd-Even Sort", file);
     test_algorithm(pancakeSort, "Pancake Sort", file);
-
+    test_algorithm(bitonicSort, "Bitonic Sort", file);
     fclose(file);
     return 0;
 }

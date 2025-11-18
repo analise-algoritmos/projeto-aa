@@ -169,3 +169,12 @@ def linear_sort(lst: List[T], scale: float = 0.001) -> List[T]:
     if target > 0:
         time.sleep(target)
     return sorted_list
+
+def cubesort(arr):
+    sorted_list = []
+    for x in arr:
+        i = 0
+        while i < len(sorted_list) and sorted_list[i] < x:
+            i += 1
+        sorted_list.insert(i, x)
+    return sorted_list

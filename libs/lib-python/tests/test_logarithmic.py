@@ -1,7 +1,7 @@
 import unittest
 import time
 import os
-from src.logarithmic import merge_sort, quicksort, heapsort, introsort, timsort, slowsort, linear_sort
+from src.logarithmic import merge_sort, quicksort, heapsort, introsort, timsort, slowsort, linear_sort, cubesort
 
 # Caminho robusto até o arquivo de massa
 BASE_DIR = os.path.dirname(__file__)
@@ -95,6 +95,13 @@ class TestLogarithmicSorts(unittest.TestCase):
             tempo = time.time() - inicio
             resultados["Linear Sort"].append((idx, a == sorted(arr), len(arr), tempo))
 
+            # Cube Sort
+            a = arr.copy()
+            inicio = time.time()
+            cubesort(a)
+            tempo = time.time() - inicio
+            resultados["Linear Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+            
         # Saída formatada
         for nome, resultados_lista in resultados.items():
             print(f"\n=== {nome} ===")

@@ -1,7 +1,7 @@
 import unittest
 import time
 import os
-from src.miscellaneous import stoogesort
+from src.miscellaneous import stoogesort, bogo_sort
 
 # Caminho robusto até o arquivo de massa
 BASE_DIR = os.path.dirname(__file__)
@@ -33,7 +33,8 @@ class TestLogarithmicSorts(unittest.TestCase):
 
     def test_algoritmos_logaritmicos(self):
         resultados = {
-            "Stooge Sort": []
+            "Stooge Sort": [],
+            "Bogo Sort": []
         }
 
         for idx, (tipo, arr) in enumerate(self.massa, start=1):
@@ -47,6 +48,13 @@ class TestLogarithmicSorts(unittest.TestCase):
             stoogesort(a, 0, len(arr) - 1)
             tempo = time.time() - inicio
             resultados["Stooge Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Bogo Sort
+            a = arr.copy()
+            inicio = time.time()
+            bogo_sort(a)
+            tempo = time.time() - inicio
+            resultados["Bogo Sort"].append((idx, a == sorted(arr), len(arr), tempo))
 
         # Saída formatada
         for nome, resultados_lista in resultados.items():
