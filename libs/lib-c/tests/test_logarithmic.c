@@ -35,6 +35,7 @@ void introSortWrapper(int arr[], int n){ if(n>0) introSort(arr,n);}
 void timsortWrapper(int arr[], int n){ if(n>0) timsort(arr,n);}
 void slowSortWrapper(int arr[], int n){ if(n>0) slowsort(arr,0,n-1);}
 void cubeSortWrapper(int arr[], int n){ if(n>0) cubesort(arr,n);}
+void MergeSortInPlaceWrapper(int arr[], int n){ if(n>0) mergeSortInPlace(arr,0,n-1);}
 
 int main(){
     FILE *file = fopen("../../data/massa.txt","r");
@@ -68,7 +69,8 @@ int main(){
     runAndPrint("Tim Sort", timsortWrapper, massas,sizes,count);
     runAndPrint("Slow Sort", slowSortWrapper, massas,sizes,count);
     runAndPrint("Cube Sort", cubeSortWrapper, massas,sizes,count);
-
+    runAndPrint("Merge Sort In-Place", MergeSortInPlaceWrapper, massas,sizes,count);
+    
     for(int i=0;i<count;i++) free(massas[i]);
     free(massas); free(sizes);
     return 0;
