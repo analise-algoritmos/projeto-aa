@@ -145,3 +145,20 @@ void slowsort(int *A, int i, int j) {
     }
     slowsort(A, i, j - 1);
 }
+
+void stoogesort(int arr[], int i, int j)
+  {
+      int temp, k;
+      if (arr[i] > arr[j])
+      {
+          temp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = temp;
+      }
+      if ((i + 1) >= j)
+          return;
+      k = (int)((j - i + 1) / 3);
+      stoogesort(arr, i, j - k);
+      stoogesort(arr, i + k, j);
+      stoogesort(arr, i, j - k);
+  }

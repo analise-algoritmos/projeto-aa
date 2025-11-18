@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../include/logarithmic.h"
 
 #define MAX_LINE 100000
 
@@ -28,12 +27,7 @@ void runAndPrint(const char* name, void (*sortFunc)(int*, int), int **massas, in
 }
 
 // Wrappers
-void quickSortWrapper(int arr[], int n){ if(n>0) quickSort(arr,0,n-1);}
-void mergeSortWrapper(int arr[], int n){ if(n>0) mergeSort(arr,0,n-1);}
-void heapSortWrapper(int arr[], int n){ heapSort(arr,n);}
-void introSortWrapper(int arr[], int n){ if(n>0) introSort(arr,n);}
-void timsortWrapper(int arr[], int n){ if(n>0) timsort(arr,n);}
-void slowSortWrapper(int arr[], int n){ if(n>0) slowsort(arr,0,n-1);}
+void stoogeSortWrapper(int arr[], int n){ if(n>0) slowsort(arr,0,n-1);}
 
 int main(){
     FILE *file = fopen("../../data/massa.txt","r");
@@ -60,12 +54,7 @@ int main(){
     }
     fclose(file);
 
-    runAndPrint("Quick Sort", quickSortWrapper, massas,sizes,count);
-    runAndPrint("Merge Sort", mergeSortWrapper, massas,sizes,count);
-    runAndPrint("Heap Sort", heapSortWrapper, massas,sizes,count);
-    runAndPrint("Intro Sort", introSortWrapper, massas,sizes,count);
-    runAndPrint("Tim Sort", timsortWrapper, massas,sizes,count);
-    runAndPrint("Slow Sort", slowSortWrapper, massas,sizes,count);
+    runAndPrint("Stooge Sort", stoogeSortWrapper, massas,sizes,count);
 
     for(int i=0;i<count;i++) free(massas[i]);
     free(massas); free(sizes);

@@ -135,3 +135,20 @@ def slowsort(A, i, j):
 		if A[m] > A[j]:
 			A[m],A[j] = A[j],A[m]
 		slowsort(A, i, j-1)
+          
+def stoogesort(arr, l, h):
+  if l >= h:
+      return
+
+  if arr[l]>arr[h]:
+      t = arr[l]
+      arr[l] = arr[h]
+      arr[h] = t
+
+
+  if h-l + 1 > 2:
+      t = (int)((h-l + 1)/3)
+
+      stoogesort(arr, l, (h-t))
+      stoogesort(arr, l + t, (h))
+      stoogesort(arr, l, (h-t))

@@ -4,7 +4,6 @@
 #include <vector>
 #include <chrono>
 #include <iomanip>
-#include "../include/logarithmic.hpp"
 using namespace std;
 
 bool isSorted(const vector<int>& arr) {
@@ -50,40 +49,15 @@ vector<vector<int>> carregarMassas(const string& caminho) {
 }
 
 // Wrappers para os algoritmos que precisam de parâmetros adicionais
-void quickSortWrapper(vector<int>& arr) {
-    if (!arr.empty()) quickSort(arr, 0, static_cast<int>(arr.size()) - 1);
-}
 
-void mergeSortWrapper(vector<int>& arr) {
-    if (!arr.empty()) mergeSort(arr, 0, static_cast<int>(arr.size()) - 1);
+void stoogeSortWrapper(vector<int>& arr) {
+    if (!arr.empty()) stoogesort(arr, 0, static_cast<int>(arr.size()) - 1);
 }
-
-void heapSortWrapper(vector<int>& arr) {
-    heapSort(arr);
-}
-
-void introSortWrapper(vector<int>& arr) {
-    if (!arr.empty()) introSort(arr);
-}
-
-void timSortWrapper(vector<int>& arr) {
-    if (!arr.empty()) timSort(arr);
-}
-
-void slowSortWrapper(vector<int>& arr) {
-    if (!arr.empty()) slowsort(arr, 0, static_cast<int>(arr.size()) - 1);
-}
-
 
 int main() {
     vector<vector<int>> massas = carregarMassas("../../data/massa.txt");
 
-    runAndPrint("Quick Sort", quickSortWrapper, massas);
-    runAndPrint("Merge Sort", mergeSortWrapper, massas);
-    runAndPrint("Heap Sort", heapSortWrapper, massas);
-    runAndPrint("Intro Sort", introSortWrapper, massas);
-    runAndPrint("Tim Sort", timSortWrapper, massas);
-    runAndPrint("Slow Sort", slowSortWrapper, massas);
+    runAndPrint("Stooge Sort", stoogeSortWrapper, massas); //Mudar para Miscelaneos
 
     return 0;
 }
