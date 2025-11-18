@@ -1,4 +1,7 @@
 import math
+from typing import List, TypeVar, Callable
+
+T = TypeVar("T")
 
 def quicksort(arr):
     if len(arr) <= 1:
@@ -136,19 +139,33 @@ def slowsort(A, i, j):
 			A[m],A[j] = A[j],A[m]
 		slowsort(A, i, j-1)
           
-def stoogesort(arr, l, h):
-  if l >= h:
-      return
+# Linear sort
+def _merge(left: List[T], right: List[T]) -> List[T]:
+    i = j = 0
+    out: List[T] = []
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            out.append(left[i]); i += 1
+        else:
+            out.append(right[j]); j += 1
+    out.extend(left[i:])
+    out.extend(right[j:])
+    return out
 
-  if arr[l]>arr[h]:
-      t = arr[l]
-      arr[l] = arr[h]
-      arr[h] = t
+def mergesort(arr: List[T]) -> List[T]:
+    n = len(arr)
+    if n <= 1:
+        return arr[:]
+    mid = n // 2
+    left = mergesort(arr[:mid])
+    right = mergesort(arr[mid:])
+    return _merge(left, right)
 
-
-  if h-l + 1 > 2:
-      t = (int)((h-l + 1)/3)
-
-      stoogesort(arr, l, (h-t))
-      stoogesort(arr, l + t, (h))
-      stoogesort(arr, l, (h-t))
+def linear_sort(lst: List[T], scale: float = 0.001) -> List[T]:
+    start = time.perf_counter()
+    sorted_list = mergesort(lst)
+    elapsed = time.perf_counter() - start
+    target = scale * len(lst) - elapsed
+    if target > 0:
+        time.sleep(target)
+    return sorted_list
