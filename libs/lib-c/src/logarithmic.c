@@ -485,3 +485,81 @@ int* patienceSorting(int *arr, int n, int *outSize) {
     free(piles);
     return result;
 }
+
+// Smooth Sort
+
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int leonardo(int k) {
+    if (k < 2)
+        return 1;
+    return leonardo(k - 1) + leonardo(k - 2) + 1;
+}
+
+void heapify(int *arr, int start, int end) {
+    int i = start;
+    int j = 0;
+    int k = 0;
+
+    while (k < end - start + 1) {
+        if (k & 0xAAAAAAAA) { // mesmo teste do C++
+            j = j + i;
+            i = i >> 1;
+        } else {
+            i = i + j;
+            j = j >> 1;
+        }
+        k = k + 1;
+    }
+
+    while (i > 0) {
+        j = j >> 1;
+        k = i + j;
+        while (k < end) {
+            if (arr[k] > arr[k - i])
+                break;
+            swap(&arr[k], &arr[k - i]);
+            k = k + i;
+        }
+        i = j;
+    }
+}
+
+int* smooth_sort(int *arr, int n) {
+    int p = n - 1;
+    int q = p;
+    int r = 0;
+
+    while (p > 0) {
+        if ((r & 0x03) == 0) {
+            heapify(arr, r, q);
+        }
+
+        if (leonardo(r) == p) {
+            r = r + 1;
+        } else {
+            r = r - 1;
+            q = q - leonardo(r);
+            heapify(arr, r, q);
+            q = r - 1;
+            r = r + 1;
+        }
+
+        swap(&arr[0], &arr[p]);
+        p = p - 1;
+    }
+
+    for (int i = 0; i < n - 1; i++) {
+        int j = i + 1;
+        while (j > 0 && arr[j] < arr[j - 1]) {
+            swap(&arr[j], &arr[j - 1]);
+            j = j - 1;
+        }
+    }
+
+    return arr; 
+}
