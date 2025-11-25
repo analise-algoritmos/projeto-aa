@@ -3,7 +3,10 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <limits>
+#include<bits/stdc++.h>
 using namespace std;
+
 
 int partition(vector<int>& arr, int low, int high) {
     int pivot = arr[high];
@@ -219,4 +222,194 @@ void AdvancedInPlaceMergeSort(vector<int>& array, int start, int end, int buffer
         mergeSortInPlace(array, mid + 1, end);
         merge(array, start, mid, mid + 1, end, buffer);
     }
+}
+
+// Tournament Sort
+const int INF = std::numeric_limits<int>::max();
+
+int winner(int pos1, int pos2, const std::vector<int> &tmp, int n) {
+    int u = (pos1 >= n ? pos1 : tmp[pos1]);
+    int v = (pos2 >= n ? pos2 : tmp[pos2]);
+    return (tmp[u] <= tmp[v] ? u : v);
+}
+
+int create_tree(const std::vector<int> &a, int n, std::vector<int> &tmp) {
+    for (int i = 0; i < n; i++)
+        tmp[n + i] = a[i];
+
+    for (int i = 2 * n - 1; i > 1; i -= 2) {
+        int k = i / 2;
+        int j = i - 1;
+        tmp[k] = winner(i, j, tmp, n);
+    }
+
+    int value = tmp[tmp[1]];
+    tmp[tmp[1]] = INF;
+    return value;
+}
+
+int recreate(std::vector<int> &tmp, int n) {
+    int i = tmp[1];
+
+    while (i > 1) {
+        int k = i / 2;
+        int j;
+
+        if (i % 2 == 0 && i < 2 * n - 1)
+            j = i + 1;
+        else
+            j = i - 1;
+
+        tmp[k] = winner(i, j, tmp, n);
+        i = k;
+    }
+
+    int value = tmp[tmp[1]];
+    tmp[tmp[1]] = INF;
+    return value;
+}
+
+void tournament_sort(std::vector<int> &a) {
+    int n = static_cast<int>(a.size());
+    if (n == 0) return;
+
+    std::vector<int> tmp(2 * n); 
+
+    int value = create_tree(a, n, tmp);
+    for (int i = 0; i < n; i++) {
+        a[i] = value;
+        value = recreate(tmp, n);
+    }
+}
+
+// Tree Sort
+struct Node
+{
+    int key;
+    struct Node *left, *right;
+};
+
+struct Node *newNode(int item)
+{
+    struct Node *temp = new Node;
+    temp->key = item;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+void storeSorted(Node *root, int arr[], int &i)
+{
+    if (root != NULL)
+    {
+        storeSorted(root->left, arr, i);
+        arr[i++] = root->key;
+        storeSorted(root->right, arr, i);
+    }
+}
+Node* insert(Node* node, int key)
+{
+    /* If the tree is empty, return a new Node */
+    if (node == NULL) return newNode(key);
+
+    /* Otherwise, recur down the tree */
+    if (key < node->key)
+        node->left  = insert(node->left, key);
+    else if (key > node->key)
+        node->right = insert(node->right, key);
+
+    /* return the (unchanged) Node pointer */
+    return node;
+}
+void treeSort(int arr[], int n)
+{
+    struct Node *root = NULL;
+
+    // Construct the BST
+    root = insert(root, arr[0]);
+    for (int i=1; i<n; i++)
+        root = insert(root, arr[i]);
+
+    // Store inorder traversal of the BST
+    // in arr[]
+    int i = 0;
+    storeSorted(root, arr, i);
+}
+
+// Block sort
+vector<int> blockSort(vector<int> arr, int blockSize) {
+    vector<vector<int> > blocks;
+    for (int i = 0; i < arr.size(); i += blockSize) {
+        vector<int> block;
+        for (int j = i; j < i + blockSize && j < arr.size(); j++)
+            block.push_back(arr[j]);
+        sort(block.begin(), block.end());
+        blocks.push_back(block);
+    }
+    vector<int> result;
+    while (!blocks.empty()) {
+        int minIdx = 0;
+        for (int i = 1; i < blocks.size(); i++) {
+            if (blocks[i][0] < blocks[minIdx][0])
+                minIdx = i;
+        }
+        result.push_back(blocks[minIdx][0]);
+        blocks[minIdx].erase(blocks[minIdx].begin());
+
+        if (blocks[minIdx].empty())
+            blocks.erase(blocks.begin() + minIdx);
+    }
+
+    return result;
+}
+
+// Patience Sorting
+vector<int> merge_piles(vector<vector<int> >& v)
+{
+    vector<int> ans;
+
+    while (!v.empty()) {
+        int minu = INT_MAX;
+        int index = -1;
+
+        for (int i = 0; i < (int)v.size(); i++) {
+            int topo = v[i].back(); // último elemento da pilha
+            if (topo < minu) {
+                minu = topo;
+                index = i;
+            }
+        }
+
+        ans.push_back(minu);
+        v[index].pop_back();
+
+        if (v[index].empty()) {
+            v.erase(v.begin() + index);
+        }
+    }
+
+    return ans;
+}
+
+vector<int> patienceSorting(vector<int> arr)
+{
+    vector<vector<int>> piles;
+
+    for (int x : arr) {
+        if (piles.empty()) {
+            piles.push_back(vector<int>{x});
+        } else {
+            bool placed = false;
+            for (auto &pile : piles) {
+                if (x < pile.back()) {
+                    pile.push_back(x);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) {
+                piles.push_back(vector<int>{x});
+            }
+        }
+    }
+
+    return merge_piles(piles);
 }

@@ -229,3 +229,154 @@ def mergeSortInPlace(array, start, end):
             while j <= end and array[j - 1] > array[j]:
                 array[j - 1], array[j] = array[j], array[j - 1]
                 j += 1
+
+# Tournament Sort
+INF = float('inf')
+
+def tournament_sort(arr):
+    n = len(arr)
+    tmp = [0] * (2 * n)
+
+    def winner(pos1, pos2):
+        u = pos1 if pos1 >= n else tmp[pos1]
+        v = pos2 if pos2 >= n else tmp[pos2]
+        return u if tmp[u] <= tmp[v] else v
+
+    def create_tree():
+        for i in range(n):
+            tmp[n + i] = arr[i]
+
+        for i in range(2 * n - 1, 1, -2):
+            parent = i // 2
+            sibling = i - 1
+            tmp[parent] = winner(i, sibling)
+
+        value = tmp[tmp[1]]
+        tmp[tmp[1]] = INF
+        return value
+
+    def recreate():
+        i = tmp[1]
+        while i > 1:
+            parent = i // 2
+            if i % 2 == 0 and i < 2 * n - 1:
+                sibling = i + 1
+            else:
+                sibling = i - 1
+
+            tmp[parent] = winner(i, sibling)
+            i = parent
+
+        value = tmp[tmp[1]]
+        tmp[tmp[1]] = INF
+        return value
+
+    result = []
+    value = create_tree()
+    for _ in range(n):
+        result.append(value)
+        value = recreate()
+
+    return result
+
+# Tree Sort
+class Node:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+
+
+def insertRec(root, key):
+    if root is None:
+        return Node(key)
+
+    if key < root.key:
+        root.left = insertRec(root.left, key)
+    elif key > root.key:
+        root.right = insertRec(root.right, key)
+
+    return root
+
+
+def tree_sort(arr):
+    # monta árvore
+    root = None
+    for x in arr:
+        root = insertRec(root, x)
+
+    # coleta elementos ordenados
+    result = []
+
+    def inorder(root):
+        if root:
+            inorder(root.left)
+            result.append(root.key)
+            inorder(root.right)
+
+    inorder(root)
+    return result
+
+# Block Sort
+def block_sort(arr, block_size):
+    blocks = []
+    for i in range(0, len(arr), block_size):
+        block = arr[i:i + block_size]
+        blocks.append(sorted(block))
+
+    result = []
+    while blocks:
+        min_idx = 0
+        for i in range(1, len(blocks)):
+            if blocks[i][0] < blocks[min_idx][0]:
+                min_idx = i
+        result.append(blocks[min_idx].pop(0))
+        if len(blocks[min_idx]) == 0:
+            blocks.pop(min_idx)
+    return result
+
+# Patience Sorting 
+
+def merge_piles(v):
+    ans = []
+
+    while True:
+        minu = float("inf")
+        index = -1
+        for i in range(len(v)):
+            if minu > v[i][-1]:
+                minu = v[i][-1]
+                index = i
+        ans.append(minu)
+        v[index].pop()
+        if not v[index]:
+            v.pop(index)
+        if not v:
+            break
+
+    return ans
+
+def patienceSorting(arr):
+    piles = []
+
+    for i in range(len(arr)):
+        if not piles:
+            temp = []
+            temp.append(arr[i])
+            piles.append(temp)
+        else:
+            flag = True
+            for j in range(len(piles)):
+                if arr[i] < piles[j][-1]:
+                    piles[j].append(arr[i])
+                    flag = False
+                    break
+            if flag:
+                temp = []
+                temp.append(arr[i])
+                piles.append(temp)
+
+    ans = []
+
+    ans = merge_piles(piles)
+    return ans
