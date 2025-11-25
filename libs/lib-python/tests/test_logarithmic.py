@@ -3,7 +3,7 @@ import time
 import os
 import math
 from src.logarithmic import merge_sort, quicksort, heapsort, introsort, timsort, slowsort, linear_sort, cubesort, mergeSortInPlace,\
-    tournament_sort, tree_sort, block_sort, patienceSorting
+    tournament_sort, tree_sort, block_sort, patienceSorting, smooth_sort
 
 # Caminho robusto até o arquivo de massa
 BASE_DIR = os.path.dirname(__file__)
@@ -47,7 +47,8 @@ class TestLogarithmicSorts(unittest.TestCase):
             "Tournament Sort": [],
             "Tree Sort": [],
             "Block Sort": [],
-            "Patience Sorting":[]
+            "Patience Sorting":[],
+            "Smooth Sort":[]
         }
 
         for idx, (tipo, arr) in enumerate(self.massa, start=1):
@@ -144,6 +145,13 @@ class TestLogarithmicSorts(unittest.TestCase):
             patienceSorting(a)
             tempo = time.time() - inicio
             resultados["Patience Sorting"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Smooth Sort
+            a = arr.copy()
+            inicio = time.time()
+            smooth_sort(a)
+            tempo = time.time() - inicio
+            resultados["Smooth Sort"].append((idx, a == sorted(arr), len(arr), tempo))
 
         # Saída formatada
         for nome, resultados_lista in resultados.items():

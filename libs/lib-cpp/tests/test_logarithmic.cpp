@@ -101,6 +101,11 @@ void patienceSortWrapper(vector<int>& arr) {
         arr = patienceSorting(arr);  // usa o retorno e sobrescreve o vetor original
 }
 
+void smoothSortWrapper(vector<int>& arr) {
+    if (!arr.empty())
+        arr = smooth_sort(arr);  // usa o retorno e sobrescreve o vetor original
+}
+
 int main() {
     vector<vector<int>> massas = carregarMassas("../../data/massa.txt");
 
@@ -116,5 +121,6 @@ int main() {
     runAndPrint("Tree Sort", treeWrapper, massas);
     runAndPrint("Block Sort", blockWrapper, massas);
     runAndPrint("Patience Sorting", patienceSortWrapper, massas);
+    runAndPrint("Smooth Sort", smoothSortWrapper, massas);
     return 0;
 }

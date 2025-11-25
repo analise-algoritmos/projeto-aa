@@ -72,7 +72,7 @@ void patienceSortWrapper(int arr[], int n) {
     // libera o array retornado
     free(result);
 }
-
+void smoothWrapper(int arr[], int n){ smooth_sort(arr,n);}
 
 int main(){
     FILE *file = fopen("../../data/massa.txt","r");
@@ -111,6 +111,7 @@ int main(){
     runAndPrint("Tree Sort", treeSortWrapper, massas,sizes,count);
     runAndPrint("Block Sort", blockSortWrapper, massas,sizes,count);
     runAndPrint("Patience Sorting", patienceSortWrapper, massas,sizes,count);
+    runAndPrint("Smooth Sort", smoothWrapper, massas,sizes,count);
 
     for(int i=0;i<count;i++) free(massas[i]);
     free(massas); free(sizes);
