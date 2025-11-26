@@ -42,7 +42,15 @@ class TestQuadraticSorts(unittest.TestCase):
             "Shaker Sort": [],
             "Odd-Even Sort": [],
             "Pancake Sort": [],
-            "Bitonic Sort": []
+            "Bitonic Sort": [],
+            "Cocktail Shaker Sort": [],
+            "Strand Sort": [],
+            "Exchange Sort": [],
+            "Cycle Sort": [],
+            "Recombinant Sort": [],
+            "ICBICS": [],
+            "Spaghetti Sort": [],
+            "Sorting Network": []
         }
 
         for idx, (tipo, arr) in enumerate(self.massa, start=1):
@@ -60,7 +68,12 @@ class TestQuadraticSorts(unittest.TestCase):
                 "Shaker Sort": quadratic.shaker_sort,
                 "Odd-Even Sort": quadratic.odd_even_sort,
                 "Pancake Sort": quadratic.pancake_sort,
-                "Bitonic Sort": quadratic.bitonic_sort
+                "Bitonic Sort": quadratic.bitonic_sort,
+                "Cocktail Shaker Sort": quadratic.cocktail_shaker_sort,
+                "Exchange Sort": quadratic.exchange_sort,
+                "Cycle Sort": quadratic.cycle_sort,
+                "Recombinant Sort": quadratic.recombinant_sort,
+                "ICBICS": quadratic.icbics
             }
 
             for nome, func in algoritmos.items():
@@ -75,6 +88,18 @@ class TestQuadraticSorts(unittest.TestCase):
                     "tamanho": len(arr),
                     "tempo": duracao
                 })
+
+            # Strand Sort retorna uma nova lista ordenada
+            inicio = time.time()
+            resultado_strand = quadratic.strand_sort(arr)
+            duracao = time.time() - inicio
+            correto = resultado_strand == sorted(arr)
+            resultados["Strand Sort"].append({
+                "massa": idx,
+                "correto": correto,
+                "tamanho": len(arr),
+                "tempo": duracao
+            })
 
         # Exibe resultados detalhados
         for alg, res_list in resultados.items():

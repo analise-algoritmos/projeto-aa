@@ -74,6 +74,58 @@ int main() {
     test_algorithm(oddEvenSort, "Odd-Even Sort", file);
     test_algorithm(pancakeSort, "Pancake Sort", file);
     test_algorithm(bitonicSort, "Bitonic Sort", file);
+    test_algorithm(cocktailShakerSort, "Cocktail Shaker Sort", file);
+    test_algorithm(exchangeSort, "Exchange Sort", file);
+    test_algorithm(cycleSort, "Cycle Sort", file);
+    test_algorithm(recombinantSort, "Recombinant Sort", file);
+    test_algorithm(icbics, "ICBICS", file);
+    test_algorithm(spaghettiSort, "Spaghetti Sort", file);
+    test_algorithm(sortingNetwork, "Sorting Network", file);
+
+    // Strand Sort (retorna resultado via parâmetros)
+    printf("\n=== Strand Sort ===\n");
+    rewind(file);
+    char line[MAX_LINE];
+    char tipo[10] = "";
+    int massa_idx = 1;
+
+    while (fgets(line, MAX_LINE, file)) {
+        if (line[0] == '#') {
+            strcpy(tipo, line + 1);
+            tipo[strcspn(tipo, "\r\n")] = 0;
+            continue;
+        }
+        if (strcmp(tipo, "int") != 0) continue;
+
+        int arr[MAX_NUM], arr_sorted[MAX_NUM], out[MAX_NUM];
+        int n = 0;
+
+        char* token = strtok(line, " \t\r\n");
+        while (token && n < MAX_NUM) {
+            arr[n++] = atoi(token);
+            token = strtok(NULL, " \t\r\n");
+        }
+
+        memcpy(arr_sorted, arr, n * sizeof(int));
+        qsort(arr_sorted, n, sizeof(int), cmp_int);
+
+        int outSz = 0;
+        clock_t start = clock();
+        strandSort(arr, n, out, &outSz);
+        clock_t end = clock();
+
+        int ok = 1;
+        if (outSz != n) {
+            ok = 0;
+        } else {
+            for (int i = 0; i < n; i++)
+                if (out[i] != arr_sorted[i]) { ok = 0; break; }
+        }
+
+        printf("Massa %d: %s, tamanho=%d, tempo=%.6fs\n",
+               massa_idx++, ok ? "OK" : "FALHA", n, (double)(end - start) / CLOCKS_PER_SEC);
+    }
+
     fclose(file);
     return 0;
 }
