@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iomanip>
 #include "../include/logarithmic.hpp"
+#include <cmath>
 using namespace std;
 
 bool isSorted(const vector<int>& arr) {
@@ -70,6 +71,41 @@ void timSortWrapper(vector<int>& arr) {
     if (!arr.empty()) timSort(arr);
 }
 
+void slowSortWrapper(vector<int>& arr) {
+    if (!arr.empty()) slowsort(arr, 0, static_cast<int>(arr.size()) - 1);
+}
+void cubeSortWrapper(vector<int>& arr) {
+    if (!arr.empty()) cubesort(arr);
+}
+
+void MergeSortInPlaceWrapper(vector<int>& arr) {
+    if (!arr.empty()) mergeSortInPlace(arr, 0, static_cast<int>(arr.size()) - 1);
+}
+
+void tournamentSort(vector<int>& arr) {
+    tournament_sort(arr);
+}
+
+void treeWrapper(vector<int>& arr) {
+    if (!arr.empty())
+        treeSort(arr.data(), static_cast<int>(arr.size()));
+}
+
+void blockWrapper(vector<int>& arr) {
+    int blockSize = static_cast<int>(std::sqrt(arr.size()));
+    if (blockSize < 1) blockSize = 1;
+    blockSort(arr, blocksize);
+}
+void patienceSortWrapper(vector<int>& arr) {
+    if (!arr.empty())
+        arr = patienceSorting(arr);  // usa o retorno e sobrescreve o vetor original
+}
+
+void smoothSortWrapper(vector<int>& arr) {
+    if (!arr.empty())
+        arr = smooth_sort(arr);  // usa o retorno e sobrescreve o vetor original
+}
+
 int main() {
     vector<vector<int>> massas = carregarMassas("../../data/massa.txt");
 
@@ -78,6 +114,13 @@ int main() {
     runAndPrint("Heap Sort", heapSortWrapper, massas);
     runAndPrint("Intro Sort", introSortWrapper, massas);
     runAndPrint("Tim Sort", timSortWrapper, massas);
-
+    runAndPrint("Slow Sort", slowSortWrapper, massas);
+    runAndPrint("Cube Sort", cubeSortWrapper, massas);
+    runAndPrint("Merge Sort In-Place", MergeSortInPlaceWrapper, massas);
+    runAndPrint("Tournament Sort", tournamentSort, massas);
+    runAndPrint("Tree Sort", treeWrapper, massas);
+    runAndPrint("Block Sort", blockWrapper, massas);
+    runAndPrint("Patience Sorting", patienceSortWrapper, massas);
+    runAndPrint("Smooth Sort", smoothSortWrapper, massas);
     return 0;
 }

@@ -159,3 +159,238 @@ void pancakeSort(vector<int>& arr) {
         }
     }
 }
+
+void bitonicSort(int *arr, int n) {
+    int k, j, l, i, temp;
+    for (k = 2; k <= n; k *= 2) {
+        for (j = k/2; j > 0; j /= 2) {
+            for (i = 0; i < n; i++) {
+                l = i ^ j;
+                if (l > i) {
+                    if ( ((i&k)==0) && (arr[i] > arr[l]) || ( ( (i&k)!=0) && (arr[i] < arr[l])) )  {
+                        temp = arr[i];
+                        arr[i] = arr[l];
+                        arr[l] = temp;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void cocktailShakerSort(vector<int>& arr) {
+    int n = arr.size();
+    bool swapped = true;
+    int start = 0;
+    int end = n - 1;
+
+    while (swapped) {
+        swapped = false;
+
+        // Passagem esquerda para direita
+        for (int i = start; i < end; ++i) {
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                swapped = true;
+            }
+        }
+
+        // Se nao houve trocas, o array esta ordenado
+        if (!swapped)
+            break;
+
+        swapped = false;
+        --end;
+
+        // Passagem direita para esquerda
+        for (int i = end; i > start; --i) {
+            if (arr[i] < arr[i - 1]) {
+                swap(arr[i], arr[i - 1]);
+                swapped = true;
+            }
+        }
+        ++start;
+    }
+}
+
+// Funcao para mesclar dois vetores ordenados
+void merge(vector<int>& mainList, vector<int>& strand) {
+    vector<int> merged;
+    int i = 0, j = 0;
+    while (i < mainList.size() && j < strand.size()) {
+        if (mainList[i] < strand[j]) {
+            merged.push_back(mainList[i++]);
+        } else {
+            merged.push_back(strand[j++]);
+        }
+    }
+    // Adiciona elementos restantes
+    while (i < mainList.size()) merged.push_back(mainList[i++]);
+    while (j < strand.size())   merged.push_back(strand[j++]);
+    mainList = merged;
+}
+
+// Funcao principal do Strand Sort
+void strandSort(vector<int>& input, vector<int>& output) {
+    while (!input.empty()) {
+        vector<int> strand;
+        strand.push_back(input[0]);
+        input.erase(input.begin());
+        // Cria a strand ordenada
+        for (auto it = input.begin(); it != input.end(); ) {
+            if (*it >= strand.back()) {
+                strand.push_back(*it);
+                it = input.erase(it); // Remove elemento adicionado a strand
+            } else {
+                ++it;
+            }
+        }
+        // Mescla a strand com a lista resultado
+        merge(output, strand);
+    }
+}
+
+void exchangeSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (arr[i] > arr[j]) {
+                // Troca se fora de ordem
+                swap(arr[i], arr[j]);
+            }
+        }
+    }
+}
+
+void cycleSort(int arr[], int n) {
+    for (int start = 0; start < n - 1; ++start) {
+        int item = arr[start];
+        int pos = start;
+
+        // Encontra a posicao correta para o elemento atual
+        for (int i = start + 1; i < n; ++i)
+            if (arr[i] < item)
+                ++pos;
+
+        // Se o elemento ja esta na posicao correta, continue
+        if (pos == start)
+            continue;
+
+        // Ignora duplicatas
+        while (item == arr[pos])
+            ++pos;
+
+        // Faz o swap do elemento para a posicao correta
+        if (pos != start)
+            swap(item, arr[pos]);
+
+        // Rotaciona o resto do ciclo
+        while (pos != start) {
+            pos = start;
+            for (int i = start + 1; i < n; ++i)
+                if (arr[i] < item)
+                    ++pos;
+            while (item == arr[pos])
+                ++pos;
+            if (item != arr[pos])
+                swap(item, arr[pos]);
+        }
+    }
+}
+
+void recombinant_sort(std::vector<double>& arr) {
+    int S[10][10] = {0};
+    int H_min[10];
+    int H_max[10];
+
+    for (int i = 0; i < 10; i++) {
+        H_min[i] = 10;
+        H_max[i] = -1;
+    }
+
+    // ---------- Hashing Cycle ----------
+    for (double x : arr) {
+        int scaled = static_cast<int>(std::llround(x * 10.0));
+
+        if (scaled < 0 || scaled > 99) {
+            // fora do intervalo suportado - tratar conforme necessidade
+            continue;
+        }
+
+        int i = scaled / 10;
+        int j = scaled % 10;
+
+        S[i][j]++;
+
+        if (j < H_min[i]) H_min[i] = j;
+        if (j > H_max[i]) H_max[i] = j;
+    }
+
+    // ---------- Extraction Cycle ----------
+    int idx = 0;
+    for (int i = 0; i < 10; i++) {
+        if (H_max[i] == -1) continue;
+
+        for (int j = H_min[i]; j <= H_max[i]; j++) {
+            while (S[i][j] > 0) {
+                arr[idx++] = static_cast<double>(i) + static_cast<double>(j) / 10.0;
+                S[i][j]--;
+            }
+        }
+    }
+}
+
+bool isSorted(const vector<int>& arr) {
+    for (size_t i = 1; i < arr.size(); ++i)
+        if (arr[i-1] > arr[i]) return false;
+    return true;
+}
+
+void icbicsSort(vector<int>& arr) {
+    srand(time(0));
+    while (!isSorted(arr)) {
+        int i = rand() % arr.size();
+        int j = rand() % arr.size();
+        swap(arr[i], arr[j]);
+    }
+}
+
+void spaghettiSort(vector<int>& arr) {
+    if (arr.empty()) return;
+    
+    // Encontra o valor maximo para determinar a "altura"
+    int maxVal = *max_element(arr.begin(), arr.end());
+    
+    vector<int> sorted;
+    vector<bool> used(arr.size(), false);
+    
+    // Simula a "queda" dos espaguetes
+    // Comeca do menor valor 
+    for (int height = 0; height <= maxVal; ++height) {
+        for (int i = 0; i < arr.size(); ++i) {
+            if (!used[i] && arr[i] == height) {
+                sorted.push_back(arr[i]);
+                used[i] = true;
+            }
+        }
+    }
+    
+    arr = sorted;
+}
+
+template <typename T>
+vector<T> sorting_network(const vector<T>& values,
+                          const vector<pair<size_t, size_t>>& comparators) {
+    vector<T> a = values; // copia
+    const size_t n = a.size();
+    for (auto [i, j] : comparators) {
+        if (i >= n || j >= n) {
+            throw out_of_range("Comparador fora dos limites: (" + to_string(i) +
+                               ", " + to_string(j) + ") para n=" + to_string(n));
+        }
+        if (a[i] > a[j]) {
+            swap(a[i], a[j]);
+        }
+    }
+    return a;
+}

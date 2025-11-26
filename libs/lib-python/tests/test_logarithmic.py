@@ -1,7 +1,9 @@
 import unittest
 import time
 import os
-from src.logarithmic import merge_sort, quicksort, heapsort, introsort, timsort
+import math
+from src.logarithmic import merge_sort, quicksort, heapsort, introsort, timsort, slowsort, linear_sort, cubesort, mergeSortInPlace,\
+    tournament_sort, tree_sort, block_sort, patienceSorting, smooth_sort
 
 # Caminho robusto até o arquivo de massa
 BASE_DIR = os.path.dirname(__file__)
@@ -37,7 +39,16 @@ class TestLogarithmicSorts(unittest.TestCase):
             "Quick Sort": [],
             "Heap Sort": [],
             "Intro Sort": [],
-            "Tim Sort": []
+            "Tim Sort": [],
+            "Slow Sort": [],
+            "Linear Sort": [],
+            "Cube Sort": [],
+            "Merge Sort InPlace":[],
+            "Tournament Sort": [],
+            "Tree Sort": [],
+            "Block Sort": [],
+            "Patience Sorting":[],
+            "Smooth Sort":[]
         }
 
         for idx, (tipo, arr) in enumerate(self.massa, start=1):
@@ -78,6 +89,69 @@ class TestLogarithmicSorts(unittest.TestCase):
             timsort(a)
             tempo = time.time() - inicio
             resultados["Tim Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+            
+            # Slow Sort
+            a = arr.copy()
+            inicio = time.time()
+            slowsort(a, 0, len(arr) - 1)
+            tempo = time.time() - inicio
+            resultados["Slow Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Linear Sort
+            a = arr.copy()
+            inicio = time.time()
+            linear_sort(a)
+            tempo = time.time() - inicio
+            resultados["Linear Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Cube Sort
+            a = arr.copy()
+            inicio = time.time()
+            cubesort(a)
+            tempo = time.time() - inicio
+            resultados["Cube Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Merge Sort In-Place
+            a = arr.copy()
+            inicio = time.time()
+            mergeSortInPlace(a, 0, len(arr) - 1)
+            tempo = time.time() - inicio
+            resultados["Merge Sort InPlace"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Tournament Sort
+            a = arr.copy()
+            inicio = time.time()
+            tournament_sort(a)
+            tempo = time.time() - inicio
+            resultados["Tournament Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Tree Sort
+            a = arr.copy()
+            inicio = time.time()
+            tree_sort(a)
+            tempo = time.time() - inicio
+            resultados["Tree Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Block Sort
+            a = arr.copy()
+            inicio = time.time()
+            block_sort(a, (int(math.sqrt(len(a)))))
+            tempo = time.time() - inicio
+            resultados["Block Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Patience Sorting 
+            a = arr.copy()
+            inicio = time.time()
+            patienceSorting(a)
+            tempo = time.time() - inicio
+            resultados["Patience Sorting"].append((idx, a == sorted(arr), len(arr), tempo))
+
+            # Smooth Sort
+            a = arr.copy()
+            inicio = time.time()
+            smooth_sort(a)
+            tempo = time.time() - inicio
+            resultados["Smooth Sort"].append((idx, a == sorted(arr), len(arr), tempo))
 
         # Saída formatada
         for nome, resultados_lista in resultados.items():
