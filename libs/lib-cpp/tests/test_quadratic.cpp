@@ -62,5 +62,30 @@ int main() {
     runAndPrint("Odd-Even Sort", oddEvenSort, massas);
     runAndPrint("Pancake Sort", pancakeSort, massas);
     runAndPrint("Bitonic Sort", bitonicSort, massas);
+    runAndPrint("Cocktail Shaker Sort", cocktailShakerSort, massas);
+    runAndPrint("Exchange Sort", exchangeSort, massas);
+    runAndPrint("Cycle Sort", cycleSort, massas);
+    runAndPrint("Recombinant Sort", recombinantSort, massas);
+    runAndPrint("ICBICS", icbicsSort, massas);
+    runAndPrint("Spaghetti Sort", spaghettiSort, massas);
+    runAndPrint("Sorting Network", sortingNetwork, massas);
+
+    // Strand Sort (recebe input e output como parâmetros)
+    cout << "=== Strand Sort ===" << endl;
+    int i = 1;
+    for (auto arr : massas) {
+        vector<int> input = arr;
+        vector<int> output;
+        auto start = chrono::high_resolution_clock::now();
+        strandSort(input, output);
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double> dur = end - start;
+
+        cout << "Massa " << i++ << ": " << (isSorted(output) ? "OK" : "ERRO")
+             << ", tamanho=" << output.size()
+             << ", tempo=" << fixed << setprecision(6) << dur.count() << "s" << endl;
+    }
+    cout << endl;
+
     return 0;
 }
