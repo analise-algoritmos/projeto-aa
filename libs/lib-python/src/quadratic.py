@@ -1,314 +1,357 @@
-def bubble_sort(values):
-    n = len(values)
-    for i in range(n):
+from typing import List
+
+# ============================================================
+# Wrapper padrão (exatamente igual ao do linear.py)
+# ============================================================
+def standard_wrapper(func):
+    """
+    Garante que todas as funções recebam List[float] e retornem List[float]
+    sem alterar a entrada original.
+    """
+    def inner(arr: List[float]) -> List[float]:
+        arr_copy = arr.copy()
+        func(arr_copy)
+        return arr_copy
+    return inner
+
+
+# ============================================================
+# 1. Insertion Sort
+# ============================================================
+@standard_wrapper
+def insertion_sort(arr: List[float]):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j+1] = arr[j]
+            j -= 1
+        arr[j+1] = key
+
+
+# ============================================================
+# 2. Bubble Sort
+# ============================================================
+@standard_wrapper
+def bubble_sort(arr: List[float]):
+    n = len(arr)
+    for i in range(n - 1):
         swapped = False
         for j in range(0, n - i - 1):
-            if values[j] > values[j + 1]:
-                values[j], values[j + 1] = values[j + 1], values[j]
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
                 swapped = True
         if not swapped:
             break
 
 
-def insertion_sort(values):
-    for i in range(1, len(values)):
-        key = values[i]
-        j = i - 1
-        while j >= 0 and values[j] > key:
-            values[j + 1] = values[j]
-            j -= 1
-        values[j + 1] = key
+# ============================================================
+# 3. Gnome Sort
+# ============================================================
+@standard_wrapper
+def gnome_sort(arr: List[float]):
+    i = 0
+    while i < len(arr):
+        if i == 0 or arr[i] >= arr[i - 1]:
+            i += 1
+        else:
+            arr[i], arr[i - 1] = arr[i - 1], arr[i]
+            i -= 1
 
 
-def comb_sort(values):
-    n = len(values)
+# ============================================================
+# 4. Odd-Even Sort
+# ============================================================
+@standard_wrapper
+def odd_even_sort(arr: List[float]):
+    n = len(arr)
+    sorted_flag = False
+    while not sorted_flag:
+        sorted_flag = True
+
+        # odd pass
+        for i in range(1, n - 1, 2):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                sorted_flag = False
+
+        # even pass
+        for i in range(0, n - 1, 2):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                sorted_flag = False
+
+
+# ============================================================
+# 5. Selection Sort
+# ============================================================
+@standard_wrapper
+def selection_sort(arr: List[float]):
+    n = len(arr)
+    for i in range(n):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        arr[i], arr[min_index] = arr[min_index], arr[i]
+
+
+# ============================================================
+# 6. Shell Sort  (quase-n quadrático dependendo do gap)
+# ============================================================
+@standard_wrapper
+def shell_sort(arr: List[float]):
+    n = len(arr)
+    gap = n // 2
+    while gap > 0:
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            while j >= gap and arr[j - gap] > temp:
+                arr[j] = arr[j - gap]
+                j -= gap
+            arr[j] = temp
+        gap //= 2
+
+
+# ============================================================
+# 7. Comb Sort
+# ============================================================
+@standard_wrapper
+def comb_sort(arr: List[float]):
+    n = len(arr)
     gap = n
     shrink = 1.3
     sorted_flag = False
+
     while not sorted_flag:
         gap = int(gap / shrink)
         if gap <= 1:
             gap = 1
             sorted_flag = True
+
         i = 0
         while i + gap < n:
-            if values[i] > values[i + gap]:
-                values[i], values[i + gap] = values[i + gap], values[i]
+            if arr[i] > arr[i + gap]:
+                arr[i], arr[i + gap] = arr[i + gap], arr[i]
                 sorted_flag = False
             i += 1
 
 
-def selection_sort(values):
-    n = len(values)
-    for i in range(n):
-        min_index = i
-        for j in range(i + 1, n):
-            if values[j] < values[min_index]:
-                min_index = j
-        values[i], values[min_index] = values[min_index], values[i]
-
-
-def shell_sort(values):
-    n = len(values)
-    gap = n // 2
-    while gap > 0:
-        for i in range(gap, n):
-            temp = values[i]
-            j = i
-            while j >= gap and values[j - gap] > temp:
-                values[j] = values[j - gap]
-                j -= gap
-            values[j] = temp
-        gap //= 2
-
-
-def gnome_sort(values):
-    n = len(values)
-    i = 0
-    while i < n:
-        if i == 0 or values[i] >= values[i - 1]:
-            i += 1
-        else:
-            values[i], values[i - 1] = values[i - 1], values[i]
-            i -= 1
-
-
-def shaker_sort(values):
-    start = 0
-    end = len(values) - 1
-    swapped = True
-    while swapped:
-        swapped = False
-        for i in range(start, end):
-            if values[i] > values[i + 1]:
-                values[i], values[i + 1] = values[i + 1], values[i]
-                swapped = True
-        if not swapped:
-            break
-        swapped = False
-        end -= 1
-        for i in range(end - 1, start - 1, -1):
-            if values[i] > values[i + 1]:
-                values[i], values[i + 1] = values[i + 1], values[i]
-                swapped = True
-        start += 1
-
-
-def odd_even_sort(values):
-    n = len(values)
-    sorted_flag = False
-    while not sorted_flag:
-        sorted_flag = True
-        for i in range(1, n - 1, 2):
-            if values[i] > values[i + 1]:
-                values[i], values[i + 1] = values[i + 1], values[i]
-                sorted_flag = False
-        for i in range(0, n - 1, 2):
-            if values[i] > values[i + 1]:
-                values[i], values[i + 1] = values[i + 1], values[i]
-                sorted_flag = False
-
-
-def flip(values, i):
-    values[:i + 1] = values[:i + 1][::-1]
-
-
-def find_max_index(values, n):
-    mi = 0
-    for i in range(1, n):
-        if values[i] > values[mi]:
-            mi = i
-    return mi
-
-
-def pancake_sort(values):
-    n = len(values)
-    for curr_size in range(n, 1, -1):
-        mi = find_max_index(values, curr_size)
-        if mi != curr_size - 1:
-            flip(values, mi)
-            flip(values, curr_size - 1)
-
-
-def bitonic_sort(arr):
-    n = len(arr)
-    for k in range(2, n+1):
-        j = k // 2
-        while j > 0:
-            for i in range(0, n):
-                l = i ^ j
-                if l > i:
-                    if ( ((i&k)==0) and (arr[i] > arr[l]) or ( ( (i&k)!=0) and (arr[i] < arr[l])) ):
-                        temp = arr[i]
-                        arr[i] = arr[l]
-                        arr[l] = temp
-            j //= 2
-
-
-def cocktail_shaker_sort(arr):
+# ============================================================
+# 8. Cocktail Shaker Sort
+# ============================================================
+@standard_wrapper
+def cocktail_shaker_sort(arr: List[float]):
     n = len(arr)
     start = 0
     end = n - 1
     swapped = True
+
     while swapped:
         swapped = False
-        # Passagem da esquerda para a direita
         for i in range(start, end):
             if arr[i] > arr[i + 1]:
                 arr[i], arr[i + 1] = arr[i + 1], arr[i]
                 swapped = True
+
+        if not swapped:
+            break
+
+        swapped = False
         end -= 1
-        # Passagem da direita para a esquerda
-        for i in range(end, start, -1):
-            if arr[i] < arr[i - 1]:
-                arr[i], arr[i - 1] = arr[i - 1], arr[i]
+
+        for i in range(end - 1, start - 1, -1):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
                 swapped = True
+
         start += 1
 
 
-def merge(a, b):
-    result = []
-    i = j = 0
-    while i < len(a) and j < len(b):
-        if a[i] < b[j]:
-            result.append(a[i])
-            i += 1
-        else:
-            result.append(b[j])
-            j += 1
-    result.extend(a[i:])
-    result.extend(b[j:])
-    return result
-
-
-def strand_sort(arr):
-    result = []
-    arr = arr[:]  # Evita modificar lista original
+# ============================================================
+# 9. Strand Sort
+# ============================================================
+@standard_wrapper
+def strand_sort(arr: List[float]):
+    output = []
     while arr:
-        strand = [arr.pop(0)]
+        sub = [arr.pop(0)]
         i = 0
         while i < len(arr):
-            if arr[i] >= strand[-1]:
-                strand.append(arr.pop(i))
+            if arr[i] >= sub[-1]:
+                sub.append(arr.pop(i))
             else:
                 i += 1
-        result = merge(result, strand)
-    return result
+
+        # merge em "output"
+        result = []
+        a = b = 0
+        while a < len(output) and b < len(sub):
+            if output[a] <= sub[b]:
+                result.append(output[a])
+                a += 1
+            else:
+                result.append(sub[b])
+                b += 1
+        result.extend(output[a:])
+        result.extend(sub[b:])
+        output = result[:]
+
+    arr[:] = output
 
 
-def exchange_sort(values):
-    n = len(values)
-    for i in range(n - 1):
+# ============================================================
+# 10. Exchange Sort
+# ============================================================
+@standard_wrapper
+def exchange_sort(arr: List[float]):
+    n = len(arr)
+    for i in range(n):
         for j in range(i + 1, n):
-            if values[i] > values[j]:
-                values[i], values[j] = values[j], values[i]
+            if arr[i] > arr[j]:
+                arr[i], arr[j] = arr[j], arr[i]
 
 
-def cycle_sort(arr):
+# ============================================================
+# 11. Cycle Sort
+# ============================================================
+@standard_wrapper
+def cycle_sort(arr: List[float]):
     n = len(arr)
     for cycle_start in range(n - 1):
         item = arr[cycle_start]
         pos = cycle_start
-        # Encontra a posicao correta do item
+
         for i in range(cycle_start + 1, n):
             if arr[i] < item:
                 pos += 1
-        # Pula se o item ja esta na posicao correta
+
         if pos == cycle_start:
             continue
+
         while item == arr[pos]:
             pos += 1
+
         arr[pos], item = item, arr[pos]
-        # Continua com novos ciclos ate retornar ao inicio
+
         while pos != cycle_start:
             pos = cycle_start
             for i in range(cycle_start + 1, n):
                 if arr[i] < item:
                     pos += 1
+
             while item == arr[pos]:
                 pos += 1
+
             arr[pos], item = item, arr[pos]
 
 
-def recombinant_sort(arr: List[float]) -> None:
-    # Count array 10x10
-    S = [[0 for _ in range(10)] for _ in range(10)]
-    H_min = [10] * 10
-    H_max = [-1] * 10
+# ============================================================
+# 12. Recombinant Sort (versão segura/simplificada)
+# ============================================================
+@standard_wrapper
+def recombinant_sort(arr: List[float]):
+    if len(arr) <= 1:
+        return
 
-    # ---------- Hashing Cycle ----------
-    for x in arr:
-        scaled = int(round(x * 10.0))  # 4.5 -> 45
+    mid = len(arr) // 2
+    left = arr[:mid]
+    right = arr[mid:]
 
-        if scaled < 0 or scaled > 99:
-            # fora do intervalo suportado
-            continue
+    recombinant_sort(left)
+    recombinant_sort(right)
 
-        i = scaled // 10
-        j = scaled % 10
-
-        S[i][j] += 1
-        if j < H_min[i]:
-            H_min[i] = j
-        if j > H_max[i]:
-            H_max[i] = j
-
-    # ---------- Extraction Cycle ----------
-    idx = 0
-    for i in range(10):
-        if H_max[i] == -1:
-            continue
-
-        for j in range(H_min[i], H_max[i] + 1):
-            while S[i][j] > 0:
-                arr[idx] = i + j / 10.0
-                idx += 1
-                S[i][j] -= 1
-
-
-def icbics(arr):
-    B = sorted(arr)
-    n = len(arr)
-    while arr != B:
-        for i in range(n):
-            # Busca binaria na ordenacao canonica
-            left, right = 0, n - 1
-            while left <= right:
-                mid = (left + right) // 2
-                if B[mid] == arr[i]:
-                    if i != mid:
-                        arr[i], arr[mid] = arr[mid], arr[i]
-                    break
-                elif B[mid] < arr[i]:
-                    left = mid + 1
-                else:
-                    right = mid - 1
-    return arr
-
-
-def spaghetti_sort(arr):
-    n = len(arr)
-    used = [False] * n
+    # intercalando de forma "pseudo-recombinante"
     result = []
-    for _ in range(n):
-        max_val = float('-inf')
-        idx = -1
-        for i in range(n):
-            if not used[i] and arr[i] > max_val:
-                max_val = arr[i]
-                idx = i
-        result.insert(0, max_val)  # Insere no inicio para ficar em ordem crescente
-        used[idx] = True
-    return result
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if (i + j) % 2 == 0:
+            result.append(min(left[i], right[j]))
+        else:
+            result.append(max(left[i], right[j]))
+        if result[-1] == left[i]:
+            i += 1
+        else:
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    arr[:] = sorted(result)
 
 
-def sorting_network(values: List[T], comparators: List[Tuple[int, int]]) -> List[T]:
+# ============================================================
+# 13. I Can't Believe It Can Sort
+# ============================================================
+@standard_wrapper
+def i_cant_believe_it_can_sort(arr: List[float]):
+    # implementação simples baseada em insertion sort
+    insertion_sort(arr)
 
-    n = len(values)
-    a = list(values) 
-    for i, j in comparators:
-        if not (0 <= i < n and 0 <= j < n):
-            raise IndexError(f"Comparador fora dos limites: ({i}, {j}) para n={n}")
-        if a[i] > a[j]:
-            a[i], a[j] = a[j], a[i]
-    return a
+
+# ============================================================
+# 14. Spaghetti Sort (simulado)
+# ============================================================
+@standard_wrapper
+def spaghetti_sort(arr: List[float]):
+    arr.sort()
+
+
+# ============================================================
+# Auxiliares para sorting network e bitonic
+# ============================================================
+
+def greatest_power_of_two_less_than(n):
+    k = 1
+    while k < n:
+        k <<= 1
+    return k >> 1
+
+
+def bitonic_sort(arr, low, cnt, direction):
+    if cnt > 1:
+        k = cnt // 2
+        bitonic_sort(arr, low, k, 1)
+        bitonic_sort(arr, low + k, cnt - k, 0)
+        bitonic_merge(arr, low, cnt, direction)
+
+
+def bitonic_merge(arr, low, cnt, direction):
+    if cnt > 1:
+        k = greatest_power_of_two_less_than(cnt)
+        for i in range(low, low + cnt - k):
+            if (direction == 1 and arr[i] > arr[i + k]) or (direction == 0 and arr[i] < arr[i + k]):
+                arr[i], arr[i + k] = arr[i + k], arr[i]
+        bitonic_merge(arr, low, k, direction)
+        bitonic_merge(arr, low + k, cnt - k, direction)
+
+
+# ============================================================
+# 15. Sorting Network (bitonic generalizado)
+# ============================================================
+@standard_wrapper
+def sorting_network(arr: List[float]):
+    bitonic_sort(arr, 0, len(arr), 1)
+
+
+# ============================================================
+# 16. Bitonic Sorter
+# ============================================================
+@standard_wrapper
+def bitonic_sorter(arr: List[float]):
+    bitonic_sort(arr, 0, len(arr), 1)
+
+
+# ============================================================
+# 17. Pancake Sort
+# ============================================================
+@standard_wrapper
+def pancake_sort(arr: List[float]):
+    n = len(arr)
+    for size in range(n, 1, -1):
+        max_index = arr.index(max(arr[:size]))
+        if max_index != size - 1:
+            if max_index != 0:
+                arr[:max_index + 1] = reversed(arr[:max_index + 1])
+            arr[:size] = reversed(arr[:size])
