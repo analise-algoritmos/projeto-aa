@@ -1,4 +1,3 @@
-# tests/test_linear.py
 import os
 import sys
 import time
@@ -6,6 +5,7 @@ from pathlib import Path
 from typing import List
 import re
 from datetime import datetime
+import statistics
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
@@ -35,8 +35,10 @@ algorithms = [
     ("Bead Sort", bead_sort),
 ]
 
+
 def is_sorted(arr: List[float]) -> bool:
     return all(arr[i] <= arr[i + 1] for i in range(len(arr) - 1))
+
 
 # ------------------------
 # Lê linhas existentes do relatório para saber onde parou
@@ -50,74 +52,88 @@ def load_processed_entries(output_file):
         for line in f:
             if line.startswith("|") and len(line.strip().split("|")) > 2:
                 parts = line.strip().split("|")
-                file_path = parts[2].strip()
                 algo_name = parts[1].strip()
+                file_path = parts[2].strip()
                 if file_path:
                     processed.add((algo_name, file_path))
     return processed
 
+
 # ------------------------
 # Processa um arquivo e escreve no relatório
 # ------------------------
-def process_file(file_path: Path, f_out, last_algorithm_dict, processed_entries):
-    # --- NOVO: log do início do processamento ---
-    start_processing_time = datetime.now()
-    print(f"[INFO] Início do processamento de {file_path}: {start_processing_time.strftime('%Y-%m-%d %H:%M:%S')}")
+def process_file(file_path: Path, f_out, processed_entries, repetitions=10):
 
+    start_processing_time = datetime.now()
+    print(f"[INFO] Início do processamento de {file_path} às {start_processing_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # ---- leitura dos dados ----
     data = []
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
-                line = line.strip()
-                if not line:
-                    continue
                 numbers = re.findall(r"[-+]?\d*\.\d+|[-+]?\d+", line)
                 for num in numbers:
                     try:
                         data.append(float(num))
-                    except ValueError:
-                        continue
+                    except:
+                        pass
     except Exception as e:
         print(f"[ERRO] Não foi possível ler {file_path}: {e}")
         return
 
     if not data:
+        print("[AVISO] Arquivo vazio ou ilegível:", file_path)
         return
 
     dtype = 'int' if all(x.is_integer() for x in data) else 'float'
     min_val = min(data)
     max_val = max(data)
 
+    # --------------------------
+    # Execução dos algoritmos
+    # --------------------------
     for algo_name, algo_func in algorithms:
-        # Pula se já processado
+
+        # já registrado?
         if (algo_name, str(file_path)) in processed_entries:
             continue
 
-        if algo_name == "Bead Sort":
-            array_to_sort = [int(x) for x in data]
+        print(f"  - Executando {algo_name}...")
 
-            # --- NOVO: checagem de tamanho para evitar MemoryError ---
-            estimated_size = len(array_to_sort) * (max(array_to_sort) if array_to_sort else 0)
-            if estimated_size > 10_000_000:  # limite ajustável
-                print(f"[AVISO] Arquivo {file_path} muito grande para Bead Sort, pulando...")
+        times = []
+
+        # bead sort só funciona com inteiros
+        if algo_name == "Bead Sort":
+            data_used = [int(x) for x in data]
+            estimated_size = len(data_used) * max(data_used)
+            if estimated_size > 10_000_000:
+                print(f"[AVISO] Bead Sort ignorado (estimativa muito grande).")
                 continue
         else:
-            array_to_sort = data
+            data_used = data
 
-        start = time.time()
-        sorted_array = algo_func(array_to_sort)
-        end = time.time()
+        # repetições
+        for _ in range(repetitions):
+            arr_copy = list(data_used)
+            start = time.time()
+            algo_func(arr_copy)
+            end = time.time()
+            times.append(end - start)
 
-        algo_name_to_write = algo_name if last_algorithm_dict.get('last') != algo_name else ""
-        last_algorithm_dict['last'] = algo_name
+        media = statistics.mean(times)
+        desvio = statistics.stdev(times) if len(times) > 1 else 0.0
 
-        f_out.write(f"| {algo_name_to_write} | {file_path} | {len(data)} | {dtype} | {min_val} | {max_val} | {end - start:.6f} |\n")
+        # registrar
+        f_out.write(
+            f"| {algo_name} | {file_path} | {len(data)} | {dtype} | {min_val} | {max_val} | {media:.6f} | {desvio:.6f} |\n"
+        )
         f_out.flush()
 
-        del array_to_sort
-        del sorted_array
+        processed_entries.add((algo_name, str(file_path)))
 
     del data
+
 
 # ------------------------
 # Execução principal
@@ -125,30 +141,31 @@ def process_file(file_path: Path, f_out, last_algorithm_dict, processed_entries)
 def run_tests_resume(data_root="data/raw", output_file="results/report_linear.md"):
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     root_path = Path(data_root)
-    txt_files = list(root_path.rglob("*.txt"))
-    print(f"Arquivos encontrados: {len(txt_files)}")
+
+    # ⬇⬇⬇ SOMENTE uniformInt/*.txt
+    txt_files = [
+        p for p in root_path.rglob("*.txt")
+        if "uniformInt" in str(p)
+    ]
+
+    print(f"Arquivos encontrados (uniformInt): {len(txt_files)}")
 
     processed_entries = load_processed_entries(output_file)
     print(f"Entradas já processadas: {len(processed_entries)}")
 
-    # Se arquivo não existe, escreve cabeçalho
     if not os.path.exists(output_file):
-        f_out = open(output_file, "w", encoding="utf-8")
-        f_out.write("# Relatório de Testes de Algoritmos Lineares\n\n")
-        f_out.write("| Algoritmo | Arquivo | Tamanho | Tipo de dado | Min | Max | Tempo (s) |\n")
-        f_out.write("|-----------|---------|---------|--------------|-----|-----|-----------|\n")
-        f_out.close()
+        with open(output_file, "w", encoding="utf-8") as f_out:
+            f_out.write("# Relatório de Testes de Algoritmos Lineares\n\n")
+            f_out.write("| Algoritmo | Arquivo | Tamanho | Tipo | Min | Max | Média (s) | Desvio Padrão |\n")
+            f_out.write("|-----------|---------|---------|------|-----|-----|------------|----------------|\n")
 
-    last_algorithm_dict = {'last': None}
     with open(output_file, "a", encoding="utf-8") as f_out:
         for file_path in txt_files:
             print(f"\nProcessando arquivo: {file_path}")
-            process_file(file_path, f_out, last_algorithm_dict, processed_entries)
+            process_file(file_path, f_out, processed_entries, repetitions=10)
 
     print(f"\nRelatório atualizado: {output_file}")
 
-# ------------------------
-# Execução
-# ------------------------
+
 if __name__ == "__main__":
     run_tests_resume(data_root="data/raw", output_file="results/report_linear.md")
