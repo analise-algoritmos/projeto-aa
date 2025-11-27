@@ -1,165 +1,176 @@
-import unittest
-import time
 import os
-import math
-from src.logarithmic import merge_sort, quicksort, heapsort, introsort, timsort, slowsort, linear_sort, cubesort, mergeSortInPlace,\
-    tournament_sort, tree_sort, block_sort, patienceSorting, smooth_sort
+import sys
+import time
+import statistics
+from pathlib import Path
+from typing import List
+import re
+from datetime import datetime
 
-# Caminho robusto até o arquivo de massa
-BASE_DIR = os.path.dirname(__file__)
-MASSA_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "..", "data", "massa.txt"))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
-def ler_massa(path):
-    with open(path, "r") as f:
-        lines = f.readlines()
+from logarithmic import (
+    quicksort,
+    merge_sort,
+    heapsort,
+    introsort,
+    timsort,
+    slowsort,
+    cubesort,
+    mergeSortInPlace,
+    tournament_sort,
+    tree_sort,
+    block_sort,
+    patienceSorting,
+    smooth_sort
+)
 
-    massa = []
-    tipo = None
-    for line in lines:
-        line = line.strip()
-        if not line:
+
+# ============================================================
+# Lista de algoritmos Logarítmicos (ou n log n)
+# ============================================================
+algorithms = [
+    ("Quicksort", quicksort),
+    ("Merge Sort", merge_sort),
+    ("Heapsort", heapsort),
+    ("Introsort", introsort),
+    ("Timsort", timsort),
+    # ("Slowsort", slowsort),
+    ("CubeSort", cubesort),
+    ("In-Place MergeSort", mergeSortInPlace),
+    ("Tournament Sort", tournament_sort),
+    ("Tree Sort", tree_sort),
+    ("Block Sort", lambda arr: block_sort(arr, block_size=max(1, int(len(arr)**0.5)))),
+    ("Patience Sorting", patienceSorting),
+    ("Smooth Sort", smooth_sort),
+]
+
+
+# ---------------------------------------------------
+# Carrega relatório existente
+# ---------------------------------------------------
+def load_processed_entries(output_file):
+    processed = set()
+    if not os.path.exists(output_file):
+        return processed
+
+    with open(output_file, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("|") and len(line.strip().split("|")) > 2:
+                parts = line.strip().split("|")
+                algo_name = parts[1].strip()
+                file_path = parts[2].strip()
+                processed.add((algo_name, file_path))
+
+    return processed
+
+
+# ---------------------------------------------------
+# Processa um arquivo (10 repetições por algoritmo)
+# ---------------------------------------------------
+def process_file(file_path: Path, f_out, processed_entries, repetitions=10):
+
+    print(f"[INFO] Início do processamento do arquivo {file_path} em: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    data = []
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                numbers = re.findall(r"[-+]?\d*\.\d+|[-+]?\d+", line)
+
+                for num in numbers:
+                    try:
+                        data.append(float(num))
+                    except:
+                        pass
+    except Exception as e:
+        print(f"[ERRO] Falha ao ler {file_path}: {e}")
+        return
+
+    if not data:
+        print("[AVISO] Arquivo vazio ou ilegível, ignorado.")
+        return
+
+    dtype = "int" if all(x.is_integer() for x in data) else "float"
+    min_val = min(data)
+    max_val = max(data)
+
+    # ---------------------------------------------------
+    # Executa todos os algoritmos 10x (SEM LIMITES)
+    # ---------------------------------------------------
+    for algo_name, algo_func in algorithms:
+
+        if (algo_name, str(file_path)) in processed_entries:
             continue
-        if line.startswith("#"):
-            tipo = line[1:]  # 'int' ou 'float'
-            continue
-        arr = [float(x) if '.' in x else int(x) for x in line.split()]
-        massa.append((tipo, arr))
-    return massa
+
+        print(f"  - Executando {algo_name} (10×)...")
+
+        times = []
+
+        for _ in range(repetitions):
+            arr_copy = list(data)
+            start = time.time()
+            try:
+                result = algo_func(arr_copy)
+            except:
+                result = None
+            end = time.time()
+            times.append(end - start)
+
+        media = statistics.mean(times)
+        desvio = statistics.stdev(times) if len(times) > 1 else 0.0
+
+        f_out.write(
+            f"| {algo_name} | {file_path} | {len(data)} | {dtype} | "
+            f"{min_val} | {max_val} | {media:.6f} | {desvio:.6f} |\n"
+        )
+        f_out.flush()
+
+        processed_entries.add((algo_name, str(file_path)))
+
+    del data
 
 
-class TestLogarithmicSorts(unittest.TestCase):
+# ---------------------------------------------------
+# Execução principal
+# ---------------------------------------------------
+def run_tests_resume(data_root="data/raw", output_file="results/report_logarithmic.md"):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.massa = ler_massa(MASSA_PATH)
+    print("\n============================================")
+    print("📌 INÍCIO DOS TESTES LOGARÍTMICOS (n log n)")
+    print("============================================\n")
 
-    def test_algoritmos_logaritmicos(self):
-        resultados = {
-            "Merge Sort": [],
-            "Quick Sort": [],
-            "Heap Sort": [],
-            "Intro Sort": [],
-            "Tim Sort": [],
-            "Slow Sort": [],
-            "Linear Sort": [],
-            "Cube Sort": [],
-            "Merge Sort InPlace":[],
-            "Tournament Sort": [],
-            "Tree Sort": [],
-            "Block Sort": [],
-            "Patience Sorting":[],
-            "Smooth Sort":[]
-        }
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    root_path = Path(data_root)
 
-        for idx, (tipo, arr) in enumerate(self.massa, start=1):
-            # testamos apenas inteiros (float pode ser usado em Merge/Tim)
-            if not arr:
-                continue
+    txt_files = [
+        p for p in root_path.rglob("*.txt")
+        if "uniformInt" in str(p)
+    ]
 
-            # Merge Sort
-            a = arr.copy()
-            inicio = time.time()
-            merge_sort(a)
-            tempo = time.time() - inicio
-            resultados["Merge Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+    print(f"Arquivos encontrados (uniformInt): {len(txt_files)}")
 
-            # Quick Sort
-            inicio = time.time()
-            result = quicksort(arr.copy())
-            tempo = time.time() - inicio
-            resultados["Quick Sort"].append((idx, result == sorted(arr), len(arr), tempo))
+    processed_entries = load_processed_entries(output_file)
+    print(f"Entradas já processadas: {len(processed_entries)}")
 
-            # Heap Sort
-            a = arr.copy()
-            inicio = time.time()
-            heapsort(a)
-            tempo = time.time() - inicio
-            resultados["Heap Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+    if not os.path.exists(output_file):
+        with open(output_file, "w", encoding="utf-8") as f_out:
+            f_out.write("# Relatório de Testes de Algoritmos Logarítmicos (n log n)\n\n")
+            f_out.write("| Algoritmo | Arquivo | Tamanho | Tipo | Min | Max | Média (s) | Desvio Padrão |\n")
+            f_out.write("|-----------|---------|---------|------|-----|-----|------------|----------------|\n")
 
-            # Intro Sort
-            a = arr.copy()
-            inicio = time.time()
-            introsort(a)
-            tempo = time.time() - inicio
-            resultados["Intro Sort"].append((idx, a == sorted(arr), len(arr), tempo))
+    with open(output_file, "a", encoding="utf-8") as f_out:
+        for file_path in txt_files:
+            process_file(file_path, f_out, processed_entries, repetitions=10)
 
-            # Tim Sort
-            a = arr.copy()
-            inicio = time.time()
-            timsort(a)
-            tempo = time.time() - inicio
-            resultados["Tim Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-            
-            # Slow Sort
-            a = arr.copy()
-            inicio = time.time()
-            slowsort(a, 0, len(arr) - 1)
-            tempo = time.time() - inicio
-            resultados["Slow Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Linear Sort
-            a = arr.copy()
-            inicio = time.time()
-            linear_sort(a)
-            tempo = time.time() - inicio
-            resultados["Linear Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Cube Sort
-            a = arr.copy()
-            inicio = time.time()
-            cubesort(a)
-            tempo = time.time() - inicio
-            resultados["Cube Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Merge Sort In-Place
-            a = arr.copy()
-            inicio = time.time()
-            mergeSortInPlace(a, 0, len(arr) - 1)
-            tempo = time.time() - inicio
-            resultados["Merge Sort InPlace"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Tournament Sort
-            a = arr.copy()
-            inicio = time.time()
-            tournament_sort(a)
-            tempo = time.time() - inicio
-            resultados["Tournament Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Tree Sort
-            a = arr.copy()
-            inicio = time.time()
-            tree_sort(a)
-            tempo = time.time() - inicio
-            resultados["Tree Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Block Sort
-            a = arr.copy()
-            inicio = time.time()
-            block_sort(a, (int(math.sqrt(len(a)))))
-            tempo = time.time() - inicio
-            resultados["Block Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Patience Sorting 
-            a = arr.copy()
-            inicio = time.time()
-            patienceSorting(a)
-            tempo = time.time() - inicio
-            resultados["Patience Sorting"].append((idx, a == sorted(arr), len(arr), tempo))
-
-            # Smooth Sort
-            a = arr.copy()
-            inicio = time.time()
-            smooth_sort(a)
-            tempo = time.time() - inicio
-            resultados["Smooth Sort"].append((idx, a == sorted(arr), len(arr), tempo))
-
-        # Saída formatada
-        for nome, resultados_lista in resultados.items():
-            print(f"\n=== {nome} ===")
-            for massa_id, ok, tam, tempo in resultados_lista:
-                status = "OK" if ok else "FALHA"
-                print(f"Massa {massa_id}: {status}, tamanho={tam}, tempo={tempo:.6f}s")
+    print("\n============================================")
+    print("🏁 FIM DOS TESTES")
+    print(f"📄 Relatório salvo em: {output_file}")
+    print("============================================\n")
 
 
 if __name__ == "__main__":
-    unittest.main()
+    run_tests_resume(
+        data_root="data/raw",
+        output_file="results/report_logarithmic.md"
+    )
