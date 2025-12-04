@@ -1,6 +1,8 @@
 #include "quadratic.hpp"
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
+#include <string>
 using namespace std;
 
 void bubbleSort(vector<int>& arr) {

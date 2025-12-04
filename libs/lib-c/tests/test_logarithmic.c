@@ -37,6 +37,7 @@ void introSortWrapper(int arr[], int n){ if(n>0) introSort(arr,n);}
 void timsortWrapper(int arr[], int n){ if(n>0) timsort(arr,n);}
 void slowSortWrapper(int arr[], int n){ if(n>0) slowsort(arr,0,n-1);}
 void cubeSortWrapper(int arr[], int n){ if(n>0) cubesort(arr,n);}
+void linearSortWrapper(int arr[], int n){ if(n>0) linear_sort(arr,n,0.001);}
 void MergeSortInPlaceWrapper(int arr[], int n){ if(n>0) mergeSortInPlace(arr,0,n-1);}
 void tournamentSortWrapper(int arr[], int n){ tournament_sort(arr,n);}
 void treeSortWrapper(int arr[], int n){ treeSort(arr,n);}
@@ -100,12 +101,19 @@ int main(){
     fclose(file);
 
     runAndPrint("Quick Sort", quickSortWrapper, massas,sizes,count);
+    runAndPrint("Flux Sort", fluxsort, massas,sizes,count);
+    runAndPrint("Crumb Sort", crumsort, massas,sizes,count);
+    runAndPrint("Library Sort", librarysort, massas,sizes,count);
+    runAndPrint("MSD Radix Sort", msdRadixSort, massas,sizes,count);
+    runAndPrint("MSD Radix Sort In-Place", msdRadixSortInPlace, massas,sizes,count);
+    runAndPrint("Merge Insertion Sort", mergeInsertionSort, massas,sizes,count);
     runAndPrint("Merge Sort", mergeSortWrapper, massas,sizes,count);
     runAndPrint("Heap Sort", heapSortWrapper, massas,sizes,count);
     runAndPrint("Intro Sort", introSortWrapper, massas,sizes,count);
     runAndPrint("Tim Sort", timsortWrapper, massas,sizes,count);
     runAndPrint("Slow Sort", slowSortWrapper, massas,sizes,count);
     runAndPrint("Cube Sort", cubeSortWrapper, massas,sizes,count);
+    runAndPrint("Linear Sort", linearSortWrapper, massas,sizes,count);
     runAndPrint("Merge Sort In-Place", MergeSortInPlaceWrapper, massas,sizes,count);
     runAndPrint("Tournament Sort", tournamentSortWrapper, massas,sizes,count);
     runAndPrint("Tree Sort", treeSortWrapper, massas,sizes,count);

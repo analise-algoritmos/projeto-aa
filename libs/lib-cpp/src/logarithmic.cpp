@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <limits>
+#include <chrono>
+#include <thread>
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -496,3 +498,373 @@ vector<int> smooth_sort(vector<int>& arr)
 
     return arr;
 }
+
+// Flux Sort
+static void fluxInsertionSort(std::vector<int>& arr, int left, int right) {
+    for (int i = left + 1; i <= right; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= left && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void fluxsort(std::vector<int>& arr, int left, int right) {
+    if (right - left + 1 <= 16) {
+        fluxInsertionSort(arr, left, right);
+        return;
+    }
+    // Pivo: mediana de tres
+    int mid = left + (right - left) / 2;
+    int a = arr[left], b = arr[mid], c = arr[right];
+    int pivot = std::max(std::min(a, b), std::min(std::max(a, b), c));
+
+    // Particao estavel
+    std::vector<int> low, equal, high;
+    for (int i = left; i <= right; i++) {
+        if (arr[i] < pivot)
+            low.push_back(arr[i]);
+        else if (arr[i] == pivot)
+            equal.push_back(arr[i]);
+        else
+            high.push_back(arr[i]);
+    }
+
+    // Concatena
+    int k = left;
+    for (int x : low) arr[k++] = x;
+    for (int x : equal) arr[k++] = x;
+    for (int x : high) arr[k++] = x;
+
+    // Recursao nos subarray
+    fluxsort(arr, left, left + low.size() - 1);
+    fluxsort(arr, right - high.size() + 1, right);
+}
+
+// Funcao utilitaria para chamada simples
+void fluxsort(std::vector<int>& arr) {
+    if (!arr.empty())
+        fluxsort(arr, 0, arr.size() - 1);
+}
+
+// Crumb Sort
+static void crumbInsertionSort(std::vector<int>& arr, int left, int right) {
+    for (int i = left + 1; i <= right; i++) {
+        int key = arr[i], j = i - 1;
+        while (j >= left && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void crumsort(std::vector<int>& arr, int left, int right) {
+    if (right - left + 1 <= 16) {
+        crumbInsertionSort(arr, left, right);
+        return;
+    }
+
+    // Pivo: mediana de tres
+    int mid = left + (right - left) / 2;
+    int a = arr[left], b = arr[mid], c = arr[right];
+    int pivot = std::max(std::min(a, b), std::min(std::max(a, b), c));
+
+    // Particao estavel
+    std::vector<int> low, equal, high;
+    for (int i = left; i <= right; i++) {
+        if (arr[i] < pivot)
+            low.push_back(arr[i]);
+        else if (arr[i] == pivot)
+            equal.push_back(arr[i]);
+        else
+            high.push_back(arr[i]);
+    }
+
+    // Volta resultado ao array original
+    int k = left;
+    for (int x : low) arr[k++] = x;
+    for (int x : equal) arr[k++] = x;
+    for (int x : high) arr[k++] = x;
+
+    // Recursao para as particoes
+    crumsort(arr, left, left + low.size() - 1);
+    crumsort(arr, right - high.size() + 1, right);
+}
+
+// Funcao utilitaria para uso externo
+void crumsort(std::vector<int>& arr) {
+    if (!arr.empty())
+        crumsort(arr, 0, arr.size() - 1);
+}
+
+// Library Sort
+static int find_insert_position(const std::vector<int>& B, int x) {
+    // Busca binaria para encontrar indice de insercao entre elementos validos (nao INT_MAX)
+    int left = 0, right = B.size();
+    while (left < right) {
+        int mid = (left + right) / 2;
+        if (B[mid] == std::numeric_limits<int>::max() || B[mid] >= x)
+            right = mid;
+        else
+            left = mid + 1;
+    }
+    return left;
+}
+
+void librarysort(std::vector<int>& arr) {
+    if (arr.empty()) {
+        return;
+    }
+    
+    int n = arr.size();
+    double eps = 1.0;
+    int size = std::ceil((1.0 + eps) * n);
+    std::vector<int> B(size, std::numeric_limits<int>::max()); // INT_MAX simula gap
+    
+    // Insere o primeiro elemento no centro
+    int mid = size / 2;
+    B[mid] = arr[0];
+
+    // Insere os demais elementos
+    for (int t = 1; t < n; ++t) {
+        int x = arr[t];
+        // Busca posicao de insercao entre elementos validos
+        std::vector<int> valid;
+        for (int v : B)
+            if (v != std::numeric_limits<int>::max())
+                valid.push_back(v);
+        int idx = std::lower_bound(valid.begin(), valid.end(), x) - valid.begin();
+
+        // Conta gaps para achar a posicao real
+        int real_idx = 0, seen = 0;
+        while (seen < idx && real_idx < size) {
+            if (B[real_idx] != std::numeric_limits<int>::max())
+                ++seen;
+            ++real_idx;
+        }
+        // Move para o proximo gap disponivel
+        while (real_idx < size && B[real_idx] != std::numeric_limits<int>::max())
+            ++real_idx;
+
+        // Desloca elementos para abrir gap, se necessario
+        if (real_idx < size) {
+            int k = real_idx;
+            while (k > 0 && B[k - 1] == std::numeric_limits<int>::max())
+                --k;
+            for (int j = real_idx; j > k; --j)
+                B[j] = B[j - 1];
+            B[k] = x;
+        }
+        // (Redistribuicao de gaps omitida para simplificacao)
+    }
+    
+    // Filtra valores validos e copia de volta para arr
+    arr.clear();
+    for (int v : B)
+        if (v != std::numeric_limits<int>::max())
+            arr.push_back(v);
+}
+
+// MSD Radix Sort
+static int get_digit(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+static void msd_radix_sort_rec(std::vector<int>& arr, int left, int right, int pos, int max_digits) {
+    if (right - left <= 0 || pos >= max_digits)
+        return;
+
+    // Cria os buckets (10 para digitos decimais)
+    std::vector<std::vector<int>> buckets(10);
+
+    // Distribui nos buckets
+    for (int i = left; i <= right; ++i) {
+        int digit = get_digit(arr[i], pos, max_digits);
+        buckets[digit].push_back(arr[i]);
+    }
+
+    // Junta os buckets no vetor original
+    int idx = left;
+    for (int d = 0; d < 10; ++d) {
+        for (int val : buckets[d])
+            arr[idx++] = val;
+    }
+
+    // Recursivamente ordena cada bucket
+    idx = left;
+    for (int d = 0; d < 10; ++d) {
+        int bucket_size = buckets[d].size();
+        if (bucket_size > 1) {
+            msd_radix_sort_rec(arr, idx, idx + bucket_size - 1, pos + 1, max_digits);
+        }
+        idx += bucket_size;
+    }
+}
+
+// Funcao utilitaria para chamada simples
+void msd_radix_sort(std::vector<int>& arr) {
+    if (arr.empty()) return;
+    int max_elem = *std::max_element(arr.begin(), arr.end());
+    int max_digits = 0;
+    if (max_elem == 0) {
+        max_digits = 1;
+    } else {
+        while (max_elem > 0) {
+            max_elem /= 10;
+            max_digits++;
+        }
+    }
+    msd_radix_sort_rec(arr, 0, arr.size() - 1, 0, max_digits);
+}
+
+// MSD Radix Sort In-Place
+static int get_digit_in_place(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+static void msd_radix_sort_in_place_rec(std::vector<int>& arr, int left, int right, int pos, int max_digits) {
+    if (right - left <= 0 || pos >= max_digits)
+        return;
+
+    int count[10] = {0}; // Contador de cada bucket
+    for (int i = left; i <= right; ++i)
+        count[get_digit_in_place(arr[i], pos, max_digits)]++;
+
+    // Calcula as posicoes de inicio de cada bucket
+    int start[10], cur[10];
+    start[0] = left;
+    for (int i = 1; i < 10; ++i)
+        start[i] = start[i - 1] + count[i - 1];
+    std::copy(start, start + 10, cur);
+
+    // Rearranja in-place usando ciclo de permutacao
+    int i = left;
+    while (i <= right) {
+        int d = get_digit_in_place(arr[i], pos, max_digits);
+        int j = cur[d];
+
+        if (i != j) {
+            std::swap(arr[i], arr[j]);
+        } else {
+            ++i;
+        }
+
+        if (i == cur[d]) // Avanca dentro do novo bucket se ja ajustado
+            cur[d]++;
+    }
+
+    // Recursao para cada bucket
+    for (int b = 0; b < 10; ++b) {
+        int s = start[b];
+        int e = start[b] + count[b] - 1;
+        if (count[b] > 1)
+            msd_radix_sort_in_place_rec(arr, s, e, pos + 1, max_digits);
+    }
+}
+
+// Funcao utilitaria para chamada simples
+void msd_radix_sort_in_place(std::vector<int>& arr) {
+    if (arr.empty()) return;
+    int max_elem = *std::max_element(arr.begin(), arr.end());
+    int max_digits = 0;
+    if (max_elem == 0) {
+        max_digits = 1;
+    } else {
+        while (max_elem > 0) {
+            max_elem /= 10;
+            max_digits++;
+        }
+    }
+    msd_radix_sort_in_place_rec(arr, 0, arr.size() - 1, 0, max_digits);
+}
+
+// Merge Insertion Sort
+static void binary_insert(std::vector<int>& arr, int x) {
+    auto it = std::lower_bound(arr.begin(), arr.end(), x);
+    arr.insert(it, x);
+}
+
+static std::vector<int> merge_insertion_sort_rec(const std::vector<int>& arr) {
+    int n = arr.size();
+    if (n <= 1) return arr;
+
+    // Forma pares e separa menores e maiores
+    std::vector<int> small, big;
+    for (int i = 0; i + 1 < n; i += 2) {
+        if (arr[i] < arr[i + 1]) {
+            small.push_back(arr[i]);
+            big.push_back(arr[i + 1]);
+        } else {
+            small.push_back(arr[i + 1]);
+            big.push_back(arr[i]);
+        }
+    }
+    if (n % 2 == 1) small.push_back(arr.back()); // elemento sem par
+
+    // Ordena recursivamente os menores
+    std::vector<int> result = merge_insertion_sort_rec(small);
+
+    // Para cada maior, insere na posicao correta
+    for (int x : big)
+        binary_insert(result, x);
+
+    return result;
+}
+
+void merge_insertion_sort(std::vector<int>& arr) {
+    if (arr.empty()) return;
+    arr = merge_insertion_sort_rec(arr);
+}
+
+// Linear Sort
+template <typename T>
+std::vector<T> merge_vec(const std::vector<T>& left, const std::vector<T>& right) {
+    std::vector<T> out;
+    out.reserve(left.size() + right.size());
+    size_t i = 0, j = 0;
+    while (i < left.size() && j < right.size()) {
+        if (left[i] <= right[j]) out.push_back(left[i++]);
+        else                      out.push_back(right[j++]);
+    }
+    while (i < left.size()) out.push_back(left[i++]);
+    while (j < right.size()) out.push_back(right[j++]);
+    return out;
+}
+
+template <typename T>
+std::vector<T> merge_sort(const std::vector<T>& arr) {
+    const size_t n = arr.size();
+    if (n <= 1) return arr;
+    size_t mid = n / 2;
+    std::vector<T> left(arr.begin(), arr.begin() + mid);
+    std::vector<T> right(arr.begin() + mid, arr.end());
+    left = merge_sort(left);
+    right = merge_sort(right);
+    return merge_vec(left, right);
+}
+
+template <typename T>
+std::vector<T> linear_sort(const std::vector<T>& arr, double SCALE) {
+    using clock = std::chrono::steady_clock;
+    auto t0 = clock::now();
+    auto sorted = merge_sort(arr);
+    std::chrono::duration<double> elapsed = clock::now() - t0;
+    double target_seconds = SCALE * static_cast<double>(arr.size()) - elapsed.count();
+    if (target_seconds > 0.0) {
+        std::this_thread::sleep_for(std::chrono::duration<double>(target_seconds));
+    }
+    return sorted;
+}
+
+// Explicit template instantiation for int
+template std::vector<int> merge_vec<int>(const std::vector<int>& left, const std::vector<int>& right);
+template std::vector<int> merge_sort<int>(const std::vector<int>& arr);
+template std::vector<int> linear_sort<int>(const std::vector<int>& arr, double SCALE);

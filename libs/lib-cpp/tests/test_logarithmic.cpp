@@ -106,16 +106,28 @@ void smoothSortWrapper(vector<int>& arr) {
         arr = smooth_sort(arr);  // usa o retorno e sobrescreve o vetor original
 }
 
+void linearSortWrapper(vector<int>& arr) {
+    if (!arr.empty())
+        arr = linear_sort(arr, 0.001);  // usa o retorno e sobrescreve o vetor original
+}
+
 int main() {
     vector<vector<int>> massas = carregarMassas("../../data/massa.txt");
 
     runAndPrint("Quick Sort", quickSortWrapper, massas);
+    runAndPrint("Flux Sort", fluxsort, massas);
+    runAndPrint("Crumb Sort", crumsort, massas);
+    runAndPrint("Library Sort", librarysort, massas);
+    runAndPrint("MSD Radix Sort", msd_radix_sort, massas);
+    runAndPrint("MSD Radix Sort In-Place", msd_radix_sort_in_place, massas);
+    runAndPrint("Merge Insertion Sort", merge_insertion_sort, massas);
     runAndPrint("Merge Sort", mergeSortWrapper, massas);
     runAndPrint("Heap Sort", heapSortWrapper, massas);
     runAndPrint("Intro Sort", introSortWrapper, massas);
     runAndPrint("Tim Sort", timSortWrapper, massas);
     runAndPrint("Slow Sort", slowSortWrapper, massas);
     runAndPrint("Cube Sort", cubeSortWrapper, massas);
+    runAndPrint("Linear Sort", linearSortWrapper, massas);
     runAndPrint("Merge Sort In-Place", MergeSortInPlaceWrapper, massas);
     runAndPrint("Tournament Sort", tournamentSort, massas);
     runAndPrint("Tree Sort", treeWrapper, massas);

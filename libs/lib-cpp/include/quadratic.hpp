@@ -2,6 +2,8 @@
 #define QUADRATIC_HPP
 
 #include <vector>
+#include <utility>
+#include <cstddef>
 
 void bubbleSort(std::vector<int>& arr);
 void insertionSort(std::vector<int>& arr);
@@ -20,6 +22,9 @@ void cycleSort(int arr[], int n);
 void recombinantSort(std::vector<double>& arr);
 void icbicsSort(std::vector<int>& arr);
 void spaghettiSort(std::vector<int>& arr);
-void sortingNetwork(const std::vector<T>& values, const std::vector<std::pair<size_t, size_t>>& comparators);
+
+template <typename T>
+std::vector<T> sorting_network(const std::vector<T>& values,
+                                const std::vector<std::pair<size_t, size_t>>& comparators);
 
 #endif
