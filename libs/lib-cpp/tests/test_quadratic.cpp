@@ -4,6 +4,7 @@
 #include <vector>
 #include <chrono>
 #include <iomanip>
+#include <utility>
 #include "../include/quadratic.hpp"
 using namespace std;
 
@@ -68,7 +69,29 @@ int main() {
     runAndPrint("Recombinant Sort", recombinantSort, massas);
     runAndPrint("ICBICS", icbicsSort, massas);
     runAndPrint("Spaghetti Sort", spaghettiSort, massas);
-    runAndPrint("Sorting Network", sortingNetwork, massas);
+    
+    // Sorting Network (precisa de comparadores)
+    cout << "=== Sorting Network ===" << endl;
+    int i_sn = 1;
+    for (auto arr : massas) {
+        // Gera comparadores para bubble sort network
+        vector<pair<size_t, size_t>> comparators;
+        for (size_t i = 0; i < arr.size(); i++) {
+            for (size_t j = 0; j < arr.size() - i - 1; j++) {
+                comparators.push_back({j, j + 1});
+            }
+        }
+        
+        auto start = chrono::high_resolution_clock::now();
+        vector<int> result = sorting_network(arr, comparators);
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double> dur = end - start;
+
+        cout << "Massa " << i_sn++ << ": " << (isSorted(result) ? "OK" : "ERRO")
+             << ", tamanho=" << result.size()
+             << ", tempo=" << fixed << setprecision(6) << dur.count() << "s" << endl;
+    }
+    cout << endl;
 
     // Strand Sort (recebe input e output como parâmetros)
     cout << "=== Strand Sort ===" << endl;

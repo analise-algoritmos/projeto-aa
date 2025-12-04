@@ -416,16 +416,19 @@ void spaghettiSort(int *arr, int n, int *out) {
     free(used);
 }
 
-typedef struct {
-    size_t i, j;
-} Comparator;
+// Sorting Network
+static void swap_int(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
 int* sorting_network(const int *values, size_t n,
                      const Comparator *comps, size_t m)
 {
     int *a = malloc(n * sizeof(int));
     if (!a) {
-    fprintf(stderr, "Erro: falha ao alocar memoria.\n");
+        fprintf(stderr, "Erro: falha ao alocar memoria.\n");
         exit(EXIT_FAILURE);
     }
     for (size_t k = 0; k < n; k++)

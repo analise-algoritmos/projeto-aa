@@ -11,6 +11,136 @@ def quicksort(arr):
     right = [x for x in arr[:-1] if x > pivot]
     return quicksort(left) + [pivot] + quicksort(right)
 
+def fluxsort(arr):
+    if len(arr) <= 16:
+        return sorted(arr)
+    # Seleciona pivo como a mediana de tres valores
+    pivot = sorted([arr[0], arr[len(arr)//2], arr[-1]])[1]
+    left  = [x for x in arr if x < pivot]
+    mid   = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return fluxsort(left) + mid + fluxsort(right)
+
+def crumsort(arr):
+    if len(arr) <= 16:
+        return sorted(arr)
+    # Escolhe a mediana de tres como pivo
+    pivot = sorted([arr[0], arr[len(arr)//2], arr[-1]])[1]
+    left  = [x for x in arr if x < pivot]
+    mid   = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return crumsort(left) + mid + crumsort(right)
+
+
+def library_sort(arr):
+    import math
+    n = len(arr)
+    eps = 1
+    size = math.ceil((1 + eps) * n)
+    B = [None] * size
+    mid = size // 2
+    B[mid] = arr[0]
+    for x in arr[1:]:
+        # Coleta indices dos elementos ocupados (nao-Nenhum)
+        idxs = [i for i, v in enumerate(B) if v is not None]
+        # Busca posicao de insercao via busca binaria
+        left, right = 0, len(idxs)
+        while left < right:
+            m = (left + right) // 2
+            if B[idxs[m]] < x:
+                left = m + 1
+            else:
+                right = m
+        insert_pos = idxs[left] if left < len(idxs) else size - 1
+        # Avanca ate encontrar gap
+        k = insert_pos
+        while k < size and B[k] is not None:
+            k += 1
+        # Desloca elementos
+        while k > insert_pos:
+            B[k] = B[k - 1]
+            k -= 1
+        B[insert_pos] = x
+        # (Ignora realocacao de gaps por simplicidade)
+    # Retorna os elementos ordenados, ignorando gaps
+    return [v for v in B if v is not None]
+
+def msd_radix_sort(arr, pos=None):
+    if not arr:
+        return arr
+    if pos is None:
+        max_len = len(str(max(arr)))
+        pos = max_len - 1
+    if len(arr) <= 1 or pos < 0:
+        return arr
+    buckets = [[] for _ in range(10)]
+    for n in arr:
+        s = str(n).zfill(pos + 1)
+        digit = int(s[-(pos + 1)])
+        buckets[digit].append(n)
+    out = []
+    for b in buckets:
+        if b:
+            out.extend(msd_radix_sort(b, pos - 1))
+    return out
+
+def get_digit(num, pos, max_digits):
+    return (num // 10 ** (max_digits - pos - 1)) % 10
+
+def msd_radix_sort_in_place(arr, ini=0, fim=None, pos=0, max_digits=None):
+    if fim is None:
+        fim = len(arr)
+    if not arr or fim - ini <= 1:
+        return
+    if max_digits is None:
+        max_digits = len(str(max(arr)))
+    if pos >= max_digits:
+        return
+    count = [0] * 10
+    for i in range(ini, fim):
+        d = get_digit(arr[i], pos, max_digits)
+        count[d] += 1
+    start = [ini]
+    for c in count[:-1]:
+        start.append(start[-1] + c)
+    cur = start.copy()
+    i = ini
+    while i < fim:
+        d = get_digit(arr[i], pos, max_digits)
+        j = cur[d]
+        if i != j:
+            arr[i], arr[j] = arr[j], arr[i]
+        else:
+            i += 1
+        cur[d] += (i == j)
+    for b in range(10):
+        s = start[b]
+        e = start[b] + count[b]
+        if count[b] > 1:
+            msd_radix_sort_in_place(arr, s, e, pos + 1, max_digits)
+
+def merge_insertion_sort(arr):
+    n = len(arr)
+    if n <= 1:
+        return arr.copy()
+    # Forma pares de elementos
+    pairs = [
+        (arr[i], arr[i + 1]) if i + 1 < n else (arr[i],)
+        for i in range(0, n, 2)
+    ]
+    # Ordena cada par
+    sorted_pairs = [tuple(sorted(p)) for p in pairs]
+    left = [p[0] for p in sorted_pairs]
+    right = [p[1] for p in sorted_pairs if len(p) == 2]
+    # Ordena recursivamente o lado esquerdo
+    base = merge_insertion_sort(left)
+    # Insere cada elemento do lado direito na lista base
+    from bisect import insort
+    for x in right:
+        insort(base, x)
+    return base
+
+    
 def merge_sort(arr):
     if len(arr) > 1:
         mid = len(arr) // 2

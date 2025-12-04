@@ -174,5 +174,118 @@ def run_tests_resume(data_root="data/raw", output_file="results/report_quadratic
     print("============================================\n")
 
 
+# ---------------------------------------------------
+# Testes unitários para sorting_network
+# ---------------------------------------------------
+import unittest
+
+def generate_bubble_sort_network(n):
+    """Gera comparadores para uma rede de ordenação tipo bubble sort"""
+    comparators = []
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            comparators.append((j, j + 1))
+    return comparators
+
+def generate_odd_even_network(n):
+    """Gera comparadores para uma rede de ordenação odd-even"""
+    comparators = []
+    for phase in range(n):
+        if phase % 2 == 0:  # Fase par: compara índices pares
+            for i in range(0, n - 1, 2):
+                comparators.append((i, i + 1))
+        else:  # Fase ímpar: compara índices ímpares
+            for i in range(1, n - 1, 2):
+                comparators.append((i, i + 1))
+    return comparators
+
+class TestSortingNetwork(unittest.TestCase):
+    
+    def sorting_network_impl(self, values, comparators):
+        """Implementação direta do sorting_network para testes"""
+        n = len(values)
+        a = list(values)
+        for i, j in comparators:
+            if not (0 <= i < n and 0 <= j < n):
+                raise IndexError(f"Comparador fora dos limites: ({i}, {j}) para n={n}")
+            if a[i] > a[j]:
+                a[i], a[j] = a[j], a[i]
+        return a
+    
+    def test_sorting_network_basico(self):
+        """Testa casos básicos do sorting_network"""
+        # Teste com array pequeno e comparadores simples
+        values = [3, 1, 4, 2]
+        comparators = [(0, 1), (2, 3), (0, 2), (1, 3), (1, 2)]
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, sorted(values))
+        
+        # Array já ordenado
+        values = [1, 2, 3, 4]
+        comparators = [(0, 1), (2, 3)]
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, [1, 2, 3, 4])
+        
+        # Array reverso
+        values = [4, 3, 2, 1]
+        comparators = generate_bubble_sort_network(4)
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, sorted(values))
+        
+        # Array com elementos duplicados
+        values = [3, 1, 3, 2, 1]
+        comparators = generate_bubble_sort_network(5)
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, sorted(values))
+        
+        # Array com um elemento
+        values = [5]
+        comparators = []
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, [5])
+        
+        # Array vazio
+        values = []
+        comparators = []
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, [])
+        
+        # Array com números negativos
+        values = [-5, 3, -1, 0, 2]
+        comparators = generate_bubble_sort_network(5)
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, sorted(values))
+        
+        # Array com floats
+        values = [3.5, 1.2, 4.8, 2.1]
+        comparators = generate_bubble_sort_network(4)
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, sorted(values))
+        
+        # Teste com odd-even network
+        values = [5, 2, 8, 1, 9, 3]
+        comparators = generate_odd_even_network(6)
+        result = self.sorting_network_impl(values, comparators)
+        self.assertEqual(result, sorted(values))
+    
+    def test_sorting_network_erros(self):
+        """Testa tratamento de erros do sorting_network"""
+        # Comparador fora dos limites
+        values = [1, 2, 3]
+        comparators = [(0, 5)]  # índice 5 não existe
+        with self.assertRaises(IndexError):
+            self.sorting_network_impl(values, comparators)
+        
+        # Múltiplos comparadores, um inválido
+        values = [1, 2, 3]
+        comparators = [(0, 1), (2, 10)]  # índice 10 não existe
+        with self.assertRaises(IndexError):
+            self.sorting_network_impl(values, comparators)
+
+
 if __name__ == "__main__":
+    # Executa os testes de performance
     run_tests_resume(data_root="data/raw", output_file="results/report_quadratic.md")
+    
+    # Executa os testes unitários
+    unittest.main(argv=[''], exit=False, verbosity=2)

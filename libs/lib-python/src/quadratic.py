@@ -355,3 +355,76 @@ def pancake_sort(arr: List[float]):
             if max_index != 0:
                 arr[:max_index + 1] = reversed(arr[:max_index + 1])
             arr[:size] = reversed(arr[:size])
+
+# ============================================================
+# 18. Sorting Network
+# ============================================================
+@standard_wrapper
+def sorting_network(values: List[T], comparators: List[Tuple[int, int]]) -> List[T]:
+
+
+# ============================================================
+# 14. Spaghetti Sort (simulado)
+# ============================================================
+@standard_wrapper
+def spaghetti_sort(arr: List[float]):
+    arr.sort()
+
+
+# ============================================================
+# Auxiliares para sorting network e bitonic
+# ============================================================
+
+def greatest_power_of_two_less_than(n):
+    k = 1
+    while k < n:
+        k <<= 1
+    return k >> 1
+
+
+def bitonic_sort(arr, low, cnt, direction):
+    if cnt > 1:
+        k = cnt // 2
+        bitonic_sort(arr, low, k, 1)
+        bitonic_sort(arr, low + k, cnt - k, 0)
+        bitonic_merge(arr, low, cnt, direction)
+
+
+def bitonic_merge(arr, low, cnt, direction):
+    if cnt > 1:
+        k = greatest_power_of_two_less_than(cnt)
+        for i in range(low, low + cnt - k):
+            if (direction == 1 and arr[i] > arr[i + k]) or (direction == 0 and arr[i] < arr[i + k]):
+                arr[i], arr[i + k] = arr[i + k], arr[i]
+        bitonic_merge(arr, low, k, direction)
+        bitonic_merge(arr, low + k, cnt - k, direction)
+
+
+# ============================================================
+# 15. Sorting Network (bitonic generalizado)
+# ============================================================
+@standard_wrapper
+def sorting_network(arr: List[float]):
+    bitonic_sort(arr, 0, len(arr), 1)
+
+
+# ============================================================
+# 16. Bitonic Sorter
+# ============================================================
+@standard_wrapper
+def bitonic_sorter(arr: List[float]):
+    bitonic_sort(arr, 0, len(arr), 1)
+
+
+# ============================================================
+# 17. Pancake Sort
+# ============================================================
+@standard_wrapper
+def pancake_sort(arr: List[float]):
+    n = len(arr)
+    for size in range(n, 1, -1):
+        max_index = arr.index(max(arr[:size]))
+        if max_index != size - 1:
+            if max_index != 0:
+                arr[:max_index + 1] = reversed(arr[:max_index + 1])
+            arr[:size] = reversed(arr[:size])

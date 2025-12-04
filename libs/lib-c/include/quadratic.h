@@ -1,6 +1,12 @@
 #ifndef QUADRATIC_H
 #define QUADRATIC_H
 
+#include <stddef.h>
+
+typedef struct {
+    size_t i, j;
+} Comparator;
+
 void bubbleSort(int arr[], int n);
 void insertionSort(int arr[], int n);
 void combSort(int arr[], int n);
@@ -17,6 +23,6 @@ void exchangeSort(int arr[], int n);
 void recombinantSort(double arr[], int n);
 void icbicsSort(int arr[], int n);
 void spaghettiSort(int *arr, int n, int *out);
-void sortingNetwork(const int *values, size_t n, const Comparator *comps, size_t m);
+int* sorting_network(const int *values, size_t n, const Comparator *comps, size_t m);
 
 #endif

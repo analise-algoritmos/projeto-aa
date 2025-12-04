@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <limits.h>
+#include <unistd.h>
+#include <sys/time.h>
 
 #define RUN 32
 int partition(int arr[], int low, int high) {
@@ -562,4 +564,338 @@ int* smooth_sort(int *arr, int n) {
     }
 
     return arr; 
+}
+
+// Flux Sort
+static void fluxInsertionSort(int *arr, int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i], j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void fluxsort(int *arr, int n) {
+    if (n <= 16) {
+        fluxInsertionSort(arr, n);
+        return;
+    }
+    int pivot = arr[n / 2];
+    int *left = malloc(n * sizeof(int));
+    int *right = malloc(n * sizeof(int));
+    int l = 0, r = 0, m = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < pivot)
+            left[l++] = arr[i];
+        else if (arr[i] == pivot)
+            m++;
+        else
+            right[r++] = arr[i];
+    }
+
+    fluxsort(left, l);
+    fluxsort(right, r);
+
+    int idx = 0;
+    for (int i = 0; i < l; i++)
+        arr[idx++] = left[i];
+    for (int i = 0; i < m; i++)
+        arr[idx++] = pivot;
+    for (int i = 0; i < r; i++)
+        arr[idx++] = right[i];
+
+    free(left);
+    free(right);
+}
+
+// Crumb Sort
+static void crumbInsertionSort(int *arr, int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i], j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void crumsort(int *arr, int n) {
+    if (n <= 16) {
+        crumbInsertionSort(arr, n);
+        return;
+    }
+    int pivot = arr[n / 2];
+    int *left = malloc(n * sizeof(int));
+    int *right = malloc(n * sizeof(int));
+    int l = 0, r = 0, m = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < pivot)
+            left[l++] = arr[i];
+        else if (arr[i] == pivot)
+            m++;
+        else
+            right[r++] = arr[i];
+    }
+
+    crumsort(left, l);
+    crumsort(right, r);
+
+    int idx = 0;
+    for (int i = 0; i < l; i++)
+        arr[idx++] = left[i];
+    for (int i = 0; i < m; i++)
+        arr[idx++] = pivot;
+    for (int i = 0; i < r; i++)
+        arr[idx++] = right[i];
+
+    free(left);
+    free(right);
+}
+
+void librarysort(int* arr, int n) {
+    float eps = 1.0;
+    int size = (int)ceil((1 + eps) * n);
+    int* B = (int*)malloc(size * sizeof(int));
+    for (int i = 0; i < size; i++)
+        B[i] = -1; // -1 representa gap
+    int mid = size / 2;
+    B[mid] = arr[0];
+
+    for (int t = 1; t < n; t++) {
+        int x = arr[t];
+        // Coleta indices de B ocupado
+        int insert = mid;
+        for (int i = 0; i < size; i++) {
+            if (B[i] != -1 && B[i] < x)
+                insert = i + 1;
+        }
+        // Anda para frente ate achar gap
+        int pos = insert;
+        while (pos < size && B[pos] != -1)
+            pos++;
+        // Desloca para direita
+        for (int k = pos; k > insert; k--)
+            B[k] = B[k - 1];
+        B[insert] = x;
+        // (Omitida realocacao inteligente de gaps)
+    }
+    // Copia elementos ordenados de volta para arr
+    int idx = 0;
+    for (int i = 0; i < size; i++)
+        if (B[i] != -1)
+            arr[idx++] = B[i];
+    free(B);
+}
+
+// MSD Radix Sort
+static int getDigit(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+static int getMaxDigits(int *arr, int n) {
+    if (n == 0) return 0;
+    int max = arr[0];
+    for (int i = 1; i < n; i++)
+        if (arr[i] > max)
+            max = arr[i];
+    int digits = 0;
+    if (max == 0) return 1;
+    while (max > 0) {
+        digits++;
+        max /= 10;
+    }
+    return digits;
+}
+
+static void msdRadixSortRec(int *arr, int n, int pos, int max_digits) {
+    if (n <= 1 || pos >= max_digits)
+        return;
+    int counts[10] = {0};
+    for (int i = 0; i < n; i++) {
+        int digit = getDigit(arr[i], pos, max_digits);
+        counts[digit]++;
+    }
+    int **buckets = malloc(10 * sizeof(int*));
+    for (int i = 0; i < 10; i++)
+        buckets[i] = malloc(counts[i] * sizeof(int));
+    int idx[10] = {0};
+    for (int i = 0; i < n; i++) {
+        int digit = getDigit(arr[i], pos, max_digits);
+        buckets[digit][idx[digit]++] = arr[i];
+    }
+    int k = 0;
+    for (int d = 0; d < 10; d++) {
+        if (counts[d] > 0) {
+            msdRadixSortRec(buckets[d], counts[d], pos + 1, max_digits);
+            for (int i = 0; i < counts[d]; i++)
+                arr[k++] = buckets[d][i];
+        }
+        free(buckets[d]);
+    }
+    free(buckets);
+}
+
+void msdRadixSort(int *arr, int n) {
+    if (n <= 0) return;
+    int max_digits = getMaxDigits(arr, n);
+    msdRadixSortRec(arr, n, 0, max_digits);
+}
+
+// MSD Radix Sort In-Place
+static int get_digit_in_place(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+static void msdRadixSortInPlaceRec(int *arr, int ini, int fim, int pos, int max_digits) {
+    if (fim - ini <= 1 || pos >= max_digits)
+        return;
+
+    int count[10] = {0}, start[10], cur[10];
+    for (int i = ini; i < fim; i++)
+        count[get_digit_in_place(arr[i], pos, max_digits)]++;
+
+    start[0] = ini;
+    for (int i = 1; i < 10; i++)
+        start[i] = start[i - 1] + count[i - 1];
+
+    for (int i = 0; i < 10; i++)
+        cur[i] = start[i];
+
+    int i = ini;
+    while (i < fim) {
+        int d = get_digit_in_place(arr[i], pos, max_digits);
+        int j = cur[d];
+
+        if (i != j) {
+            int tmp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = tmp;
+        } else {
+            i++;
+        }
+
+        if (i == cur[d])
+            cur[d]++;
+    }
+
+    for (int b = 0; b < 10; b++) {
+        int s = start[b];
+        int e = start[b] + count[b];
+        if (count[b] > 1)
+            msdRadixSortInPlaceRec(arr, s, e, pos + 1, max_digits);
+    }
+}
+
+void msdRadixSortInPlace(int *arr, int n) {
+    if (n <= 0) return;
+    int max_digits = getMaxDigits(arr, n);
+    msdRadixSortInPlaceRec(arr, 0, n, 0, max_digits);
+}
+
+// Merge Insertion Sort
+static void binaryInsert(int *arr, int *n, int x) {
+    int left = 0, right = *n, mid;
+    while (left < right) {
+        mid = (left + right) / 2;
+        if (arr[mid] < x)
+            left = mid + 1;
+        else
+            right = mid;
+    }
+    for (int i = *n; i > left; i--)
+        arr[i] = arr[i - 1];
+    arr[left] = x;
+    (*n)++;
+}
+
+static void mergeInsertionSortRec(int *arr, int n, int *out) {
+    if (n <= 1) {
+        if (n == 1)
+            out[0] = arr[0];
+        return;
+    }
+    int npairs = n / 2;
+    int *left = malloc((npairs + 1) * sizeof(int));
+    int *right = malloc(npairs * sizeof(int));
+    for (int i = 0; i < npairs; i++) {
+        if (arr[2 * i] < arr[2 * i + 1]) {
+            left[i] = arr[2 * i];
+            right[i] = arr[2 * i + 1];
+        } else {
+            left[i] = arr[2 * i + 1];
+            right[i] = arr[2 * i];
+        }
+    }
+    if (n % 2)
+        left[npairs] = arr[n - 1];
+    mergeInsertionSortRec(left, npairs + (n % 2), out);
+    int count = npairs + (n % 2);
+    for (int i = 0; i < npairs; i++)
+        binaryInsert(out, &count, right[i]);
+    free(left);
+    free(right);
+}
+
+void mergeInsertionSort(int *arr, int n) {
+    if (n <= 0) return;
+    int *out = malloc(n * sizeof(int));
+    mergeInsertionSortRec(arr, n, out);
+    // Copia o resultado de volta para arr
+    for (int i = 0; i < n; i++)
+        arr[i] = out[i];
+    free(out);
+}
+
+// Linear Sort
+static void linear_merge(int *arr, int *left, int leftCount, int *right, int rightCount) {
+    int i = 0, j = 0, k = 0;
+    while (i < leftCount && j < rightCount) {
+        if (left[i] <= right[j]) arr[k++] = left[i++];
+        else                     arr[k++] = right[j++];
+    }
+    while (i < leftCount)  arr[k++] = left[i++];
+    while (j < rightCount) arr[k++] = right[j++];
+}
+
+static void linear_merge_sort(int *arr, int n) {
+    if (n <= 1) return;
+    int mid = n / 2;
+    int *left  = (int *) malloc(mid * sizeof(int));
+    int *right = (int *) malloc((n - mid) * sizeof(int));
+    for (int i = 0; i < mid; i++)
+        left[i] = arr[i];
+    for (int i = mid; i < n; i++)
+        right[i - mid] = arr[i];
+    linear_merge_sort(left, mid);
+    linear_merge_sort(right, n - mid);
+    linear_merge(arr, left, mid, right, n - mid);
+    free(left);
+    free(right);
+}
+
+static double now_sec() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double) tv.tv_sec + (double) tv.tv_usec * 1e-6;
+}
+
+void linear_sort(int *arr, int n, double SCALE) {
+    double t0 = now_sec();
+    linear_merge_sort(arr, n);
+    double elapsed = now_sec() - t0;
+    double target  = SCALE * (double) n;
+    double remaining = target - elapsed;
+    if (remaining > 0.0) {
+        usleep((useconds_t)(remaining * 1e6));
+    }
 }
