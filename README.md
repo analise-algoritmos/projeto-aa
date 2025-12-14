@@ -18,18 +18,18 @@ Este projeto tem como objetivo:
 ---
 
 ## 📁 Estrutura do Repositório
+
+```text
 📦 projeto-aa
-├── 📂 data/ # Instâncias de entrada (datasets usados nos testes)
-├── 📂 libs/ # Implementações de algoritmos por linguagem
-│ ├── C/
-│ ├── C++/
-│ └── Python/
-├── 📂 results/ # Resultados experimentais (tempos, desvios, logs)
-├── 📂 tutorials/ # Exemplos e guias de uso
-├── 📂 latex/ # Fonte da monografia/relatório em LaTeX
-├── 📂 .github/ # Workflows de CI (se houver)
-├── 📜 README.md # Este arquivo
-└── 📜 .gitignore
+├── 📂 data/        # Instâncias de entrada (datasets usados nos testes)
+├── 📂 libs/        # Implementações de algoritmos por linguagem
+│   ├── C/
+│   ├── C++/
+│   └── Python/
+├── 📂 results/     # Resultados experimentais (tempos, desvios, logs)
+├── 📂 tutorials/   # Exemplos e guias de uso
+├── 📂 latex/       # Fonte da monografia/relatório
+```
 
 
 > A estrutura organiza código, dados, resultados e documentação de forma modular e reutilizável.
