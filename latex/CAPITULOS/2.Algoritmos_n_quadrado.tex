@@ -1,0 +1,4084 @@
+\chapter{Algoritmos com complexidades de tempo quadráticas}
+Neste capítulo apresentamos algoritmos de ordenação cujos números de operações de comparações são da forma $cn^2$, onde $n$ é o número de elementos a serem ordenados no multiconjunto e $c$ é um número real positivo.
+
+\section{Bubble sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Bubble Sort} é um algoritmo de ordenação simples e baseado em comparações. 
+Ele percorre repetidamente o vetor de entrada, comparando elementos adjacentes e trocando-os de posição caso estejam na ordem incorreta. 
+Esse processo se repete até que o vetor esteja completamente ordenado.
+
+\medskip
+Apesar de ser intuitivo e fácil de implementar, o \textit{Bubble Sort} não é eficiente para grandes conjuntos de dados, apresentando complexidade quadrática no pior caso.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [5.0, 2.0, 4.0, 1.0, 3.0]$. O objetivo é ordená-lo utilizando o \textit{Bubble Sort}.
+
+\begin{enumerate}
+    \item \textbf{Primeira passagem:}  
+    Comparamos cada par de elementos adjacentes e realizamos trocas se necessário:
+    \[
+    [5.0, 2.0, 4.0, 1.0, 3.0] \rightarrow [2.0, 5.0, 4.0, 1.0, 3.0] \rightarrow [2.0, 4.0, 5.0, 1.0, 3.0] \rightarrow [2.0, 4.0, 1.0, 5.0, 3.0] \rightarrow [2.0, 4.0, 1.0, 3.0, 5.0]
+    \]
+    O maior elemento (5.0) "borbulhou" para a última posição.
+
+    \item \textbf{Segunda passagem:}  
+    Repetimos o processo para os quatro primeiros elementos:
+    \[
+    [2.0, 4.0, 1.0, 3.0, 5.0] \rightarrow [2.0, 1.0, 4.0, 3.0, 5.0] \rightarrow [2.0, 1.0, 3.0, 4.0, 5.0]
+    \]
+    
+    \item \textbf{Terceira passagem:}  
+    Continuamos comparando e trocando:
+    \[
+    [2.0, 1.0, 3.0, 4.0, 5.0] \rightarrow [1.0, 2.0, 3.0, 4.0, 5.0]
+    \]
+    
+    \item \textbf{Vetor ordenado:}  
+    Nenhuma troca adicional é necessária e o vetor final é:
+    \[
+    [1.0, 2.0, 3.0, 4.0, 5.0]
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{bubbleSort(values: array of float, n: integer)}
+
+\For{$i \gets 0$ \KwTo $n-2$}{
+    \For{$j \gets 0$ \KwTo $n-i-2$}{
+        \If{$values[j] > values[j+1]$}{
+            $temp \gets values[j]$\;
+            $values[j] \gets values[j+1]$\;
+            $values[j+1] \gets temp$\;
+        }
+    }
+}
+\caption{Bubble Sort}
+\label{lab:alg-bubbleSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Bubble sort otimizado em Python},captionpos=t]
+def bubbleSort(values, n):
+    for i in range(0,n):
+        swapped = False  
+        for j in range(0,n-i-1):
+            if values[j] > values[j+1]:
+                values[j],values[j+1] = values[j+1], values[j]
+                swapped = True
+        if not swapped: break
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Bubble sort em C},captionpos=t]
+void bubbleSort(int values[], int n){
+    for(int i = 0; i < n - 1; i++){
+        for(int j = 0; j < n - i - 1; j++){
+            if (values[j] > values[j + 1]){
+                swap(values[j], values[j + 1]);
+            }
+        }
+    }
+}
+\end{lstlisting}
+Para tratar o caso do vetor estar inicialmente ordenado, e assim não precisar ordená-lo, podemos usar a seguinte versão: 
+\begin{lstlisting}[language=C,caption={Bubble sort otimizado em C},captionpos=t]
+void bubbleSort(int values[], int n){
+    bool swapped = true;
+    for(int i = 0; i < n - 1; i++){
+        swapped = false;
+        for(int j = 0; j < n - i - 1; j++){
+            if (values[j] > values[j + 1]){
+                swap(values[j], values[j + 1]);
+                swapped = true;
+            }
+        }
+        if (swapped == false) break;
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Bubble sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void bubbleSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        bool swapped = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.
+
+O algoritmo \textit{Bubble Sort} executa as seguintes etapas principais:
+
+\begin{enumerate}
+    \item Comparações de elementos adjacentes em cada passagem — custo de $O(n-i)$ por passagem.
+    \item Trocas realizadas quando necessário — no pior caso, cada comparação pode resultar em uma troca.
+\end{enumerate}
+
+Assim, o tempo total de execução $T(n)$ no pior caso é:
+
+\[
+T(n) = \sum_{i=0}^{n-2} (n-i-1) = \frac{n(n-1)}{2}
+\]
+
+\begin{equation}
+T(n) \in O(n^2)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+O somatório de comparações é dado por:
+\[
+\sum_{i=0}^{n-2} (n-i-1) = 1 + 2 + \dots + (n-1) = \frac{n(n-1)}{2} \leq c n^2
+\]
+para $c = 1/2$.  
+Portanto, $T(n) \in O(n^2)$.
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+No melhor caso, quando o vetor já está ordenado, o Bubble Sort pode ser otimizado para detectar que nenhuma troca ocorreu, resultando em complexidade $O(n)$.  
+Entretanto, no caso médio e no pior caso, o algoritmo permanece com complexidade quadrática, tornando-o ineficiente para grandes entradas.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo utiliza apenas variáveis auxiliares constantes para trocas e índices:
+
+\begin{itemize}
+    \item Vetor de entrada $values[0 \ldots n-1]$ — espaço $O(n)$.
+    \item Variável temporária $temp$ — espaço $O(1)$.
+\end{itemize}
+
+\begin{equation}
+S(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Como o vetor é modificado \textit{in-place} e a memória adicional é constante:
+\[
+S(n) = n + 1 \leq c n
+\]
+para alguma constante $c \geq 1$.  
+Portanto, $S(n) \in O(n)$.
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Bubble Sort} é um algoritmo \textit{in-place} e não requer memória auxiliar significativa além do vetor de entrada e de uma variável temporária.  
+Isso o torna simples de implementar, mas sua eficiência de tempo limitada impede uso em grandes conjuntos de dados.
+\section{Insertion sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Insertion Sort} é um algoritmo de ordenação estável e baseado em comparações.  
+Ele constrói o vetor ordenado de forma incremental, inserindo cada elemento do vetor de entrada em sua posição correta dentro da sequência já ordenada.  
+A lógica do algoritmo é análoga à ordenação de cartas na mão: a cada iteração, um novo elemento é comparado com os anteriores e deslocado até encontrar sua posição correta.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [5.0, 2.0, 4.0, 6.0, 1.0]$. O objetivo é ordená-lo utilizando o \textit{Insertion Sort}.
+
+\begin{enumerate}
+    \item \textbf{Iteração 1 (elemento 2.0):}  
+    Comparamos 2.0 com 5.0 e movemos 5.0 para a direita. Inserimos 2.0 na posição 0:
+    \[
+    A = [2.0, 5.0, 4.0, 6.0, 1.0]
+    \]
+
+    \item \textbf{Iteração 2 (elemento 4.0):}  
+    Comparamos 4.0 com 5.0, movemos 5.0 para a direita e inserimos 4.0 na posição correta:
+    \[
+    A = [2.0, 4.0, 5.0, 6.0, 1.0]
+    \]
+
+    \item \textbf{Iteração 3 (elemento 6.0):}  
+    6.0 é maior que 5.0, permanece na posição:
+    \[
+    A = [2.0, 4.0, 5.0, 6.0, 1.0]
+    \]
+
+    \item \textbf{Iteração 4 (elemento 1.0):}  
+    Comparamos 1.0 com 6.0, 5.0, 4.0 e 2.0, movemos todos para a direita e inserimos 1.0 na posição inicial:
+    \[
+    A = [1.0, 2.0, 4.0, 5.0, 6.0]
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{insertionSort(values: array of float, n: integer)}
+
+\For{$i \gets 1$ \KwTo $n-1$}{
+    $key \gets values[i]$\;
+    $j \gets i-1$\;
+    \While{$j \geq 0$ \textbf{and} $values[j] > key$}{
+        $values[j+1] \gets values[j]$\;
+        $j \gets j-1$\;
+    }
+    $values[j+1] \gets key$\;
+}
+\caption{Insertion sort}
+\label{lab:alg-insertionSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=python,caption={Insertion sort em Python},captionpos=t]
+def insertionSort(values, n):
+    if n <= 1: return  # array is already sorted
+    for i in range(1, n):  
+        x = values[i]  
+        j = i-1
+        while j >= 0 and x < values[j]:  
+            values[j+1] = values[j]  
+            j -= 1
+        values[j+1] = x  
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Insertion sort em C},captionpos=t]
+void insertionSort(int values[], int n) {
+    if (n <= 1){
+       return   // array is already sorted
+    }  
+    for (int i = 1; i < n; i++) {
+        int x = values[i];
+        int j = i - 1;
+        while (j >= 0 &&  x < values[j]) {
+            values[j + 1] = values[j];
+            j = j - 1;
+        }
+        values[j + 1] = x;
+    }
+}    
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Insertion sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void insertionSort(vector<int>& arr) {
+    for (int i = 1; i < arr.size(); i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+\end{lstlisting}
+
+
+
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Insertion Sort}, que é baseado em comparações e reorganizações incrementais.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.  
+O algoritmo executa as seguintes etapas principais:
+
+\begin{enumerate}
+    \item Iteração sobre cada elemento do vetor a partir da segunda posição — $O(n)$.
+    \item Comparações e deslocamentos para inserir o elemento na posição correta — no pior caso (vetor em ordem decrescente), cada elemento pode exigir $O(i)$ comparações e deslocamentos, totalizando $O(1+2+...+n-1) = O(n^2)$.
+\end{enumerate}
+
+Assim, o tempo total de execução $T(n)$ pode ser expresso como:
+
+\[
+T(n) = a_1 \cdot n + a_2 \cdot \sum_{i=1}^{n-1} i + b
+\]
+
+onde $a_1$, $a_2$ e $b$ são constantes positivas.
+
+\begin{equation}
+T(n) \in O(n^2)
+\end{equation}
+
+\noindent{\textbf{Prova:}}
+
+Sabemos que:
+\[
+\sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} \leq \frac{n^2}{2}
+\]
+
+Logo:
+\[
+T(n) \leq a_1 n + a_2 \frac{n^2}{2} + b \leq c \cdot n^2
+\]
+para $c = \max(a_1, a_2/2, b)$ e $n$ suficientemente grande.  
+Portanto,
+\[
+T(n) \in O(n^2).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+No melhor caso (vetor já ordenado), cada elemento exige apenas uma comparação, resultando em complexidade linear $O(n)$.  
+No caso médio e pior caso, o algoritmo tem desempenho quadrático $O(n^2)$, sendo menos eficiente que algoritmos baseados em divisão e conquista para grandes conjuntos de dados.
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Insertion Sort} é um algoritmo \textit{in-place}, utilizando apenas um número constante de variáveis auxiliares:
+
+\begin{itemize}
+    \item $key$ para armazenar temporariamente o elemento sendo inserido.
+    \item Índices auxiliares $i$ e $j$.
+\end{itemize}
+
+Portanto, o espaço total $S(n)$ é constante:
+
+\begin{equation}
+S(n) \in O(1)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+O algoritmo não utiliza estruturas adicionais proporcionais ao tamanho do vetor.  
+Logo, existe $c>0$ tal que $S(n) \leq c$ para todo $n \geq 1$, implicando
+\[
+S(n) \in O(1).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Insertion Sort} é eficiente em termos de memória e estável, tornando-o adequado para conjuntos pequenos ou quase ordenados, apesar de seu custo de tempo quadrático para entradas grandes e desordenadas.
+
+\section{Comb sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Comb Sort} é um algoritmo de ordenação baseado em comparação, desenvolvido para melhorar o desempenho do \textit{Bubble Sort} ao eliminar rapidamente valores pequenos e grandes que estão fora de posição, conhecidos como \textit{turtles}.  
+A principal ideia é comparar elementos distantes e reduzir gradualmente a lacuna (\textit{gap}) entre eles até que a ordenação seja finalizada com um \textit{Bubble Sort} tradicional.
+
+\medskip
+O algoritmo segue os seguintes princípios:
+\begin{enumerate}
+    \item Inicialmente, define-se a lacuna (\textit{gap}) como o tamanho do vetor.
+    \item A cada iteração, a lacuna é reduzida multiplicando-se por um fator de \textit{shrink} (geralmente 1.3).
+    \item Elementos separados pela lacuna são comparados e trocados se estiverem fora de ordem.
+    \item O processo continua até que a lacuna seja 1 e nenhuma troca seja necessária, garantindo a ordenação.
+\end{enumerate}
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [0.9, 0.1, 0.7, 0.3, 0.5]$. O objetivo é ordená-lo utilizando o \textit{Comb Sort}.
+
+\begin{enumerate}
+    \item \textbf{Inicialização:}  
+    Gap inicial: $gap = 5$, \textit{shrink factor} = 1.3.
+
+    \item \textbf{Primeira iteração (gap = 3):}  
+    Comparamos elementos separados por 3 posições:
+    \[
+    0.9 \leftrightarrow 0.3 \quad \text{(troca)}, \quad 0.1 \leftrightarrow 0.5 \quad \text{(troca)}
+    \]  
+    Vetor após primeira iteração: $[0.3, 0.1, 0.7, 0.9, 0.5]$.
+
+    \item \textbf{Segunda iteração (gap = 2):}  
+    Comparamos elementos separados por 2 posições:
+    \[
+    0.3 \leftrightarrow 0.7 \quad \text{(sem troca)}, \quad 0.1 \leftrightarrow 0.9 \quad \text{(sem troca)}, \quad 0.7 \leftrightarrow 0.5 \quad \text{(troca)}
+    \]  
+    Vetor após segunda iteração: $[0.3, 0.1, 0.5, 0.9, 0.7]$.
+
+    \item \textbf{Terceira iteração (gap = 1):}  
+    Comparações adjacentes, equivalente a \textit{Bubble Sort}:
+    \[
+    0.3 \leftrightarrow 0.1 \quad \text{(troca)}, \quad 0.3 \leftrightarrow 0.5 \quad \text{(sem troca)}, \quad 0.5 \leftrightarrow 0.9 \quad \text{(sem troca)}, \quad 0.9 \leftrightarrow 0.7 \quad \text{(troca)}
+    \]  
+    Vetor final ordenado: $[0.1, 0.3, 0.5, 0.7, 0.9]$.
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{combSort(values: array of float, n: integer)} 
+
+$gap \gets n$\;
+$shrink \gets 1.3$\;
+$sorted \gets \text{false}$\;
+\While{$gap > 1$ \textbf{or} $not\ sorted$}{
+    $gap \gets \max(1, \lfloor gap / shrink \rfloor)$\;
+    $sorted \gets \text{true}$\;
+    \For{$i \gets 0$ \KwTo $n - gap - 1$}{
+        \If{$values[i] > values[i+gap]$}{
+            swap(values[i], values[i+gap])\;
+            $sorted \gets \text{false}$\;
+        }
+    }
+}
+\caption{Comb sort}
+\label{lab:alg-combSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=python,caption={Comb sort em Python},captionpos=t]
+def combSort(values):
+    n = len(values)
+    gap = n
+    shrink = 1.3
+    sorted = False
+    while not sorted:
+        gap = int(gap / shrink)
+        if gap <= 1:
+            gap = 1
+            sorted = True
+        i = 0
+        while i + gap < n:
+            if values[i] > values[i + gap]:
+                values[i], values[i + gap] = values[i + gap], values[i]
+                sorted = False
+            i += 1
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Comb sort em C},captionpos=t]
+void combSort(int arr[], int n) {
+    int gap = n;
+    const float shrink = 1.3;
+    int sorted = 0;
+
+    while (!sorted) {
+        gap = (int)(gap / shrink);
+        if (gap <= 1) {
+            gap = 1;
+            sorted = 1;
+        }
+        sorted = 1;
+        for (int i = 0; i + gap < n; i++) {
+            if (arr[i] > arr[i + gap]) {
+                int temp = arr[i];
+                arr[i] = arr[i + gap];
+                arr[i + gap] = temp;
+                sorted = 0;
+            }
+        }
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Comb sort em C++},captionpos=t]
+#include <vector>
+#include <cmath>
+using namespace std;
+
+void combSort(vector<int>& arr) {
+    int n = arr.size();
+    int gap = n;
+    bool swapped = true;
+
+    while (gap > 1 || swapped) {
+        gap = max(1, (int)(gap / 1.3));
+        swapped = false;
+        for (int i = 0; i + gap < n; i++) {
+            if (arr[i] > arr[i + gap]) {
+                swap(arr[i], arr[i + gap]);
+                swapped = true;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Comb Sort}.  
+Embora seja baseado em comparações, o uso de lacunas decrescentes permite reduzir o número de trocas necessárias em relação ao \textit{Bubble Sort}.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.  
+O algoritmo realiza comparações ao longo de várias iterações, cada uma com lacuna $gap$ decrescente.
+
+\begin{enumerate}
+    \item Iterações com $gap > 1$ — número de comparações aproximadamente $O(n \log n)$.
+    \item Última iteração (\textit{gap} = 1) — equivalente a \textit{Bubble Sort}, custo no pior caso $O(n^2)$.
+\end{enumerate}
+
+Portanto, o tempo total $T(n)$ pode ser expresso como:
+
+\begin{equation}
+T(n) \in O(n^2) \quad \text{(pior caso)}, \quad T(n) \in O(n \log n) \quad \text{(média prática)}
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+O fator de \textit{shrink} reduz rapidamente a lacuna, eliminando os elementos mais fora de posição, o que diminui o número total de trocas em comparação ao \textit{Bubble Sort}.  
+No pior caso, todas as comparações ainda podem ocorrer na última fase, resultando em $O(n^2)$.  
+Em entradas aleatórias uniformes, estudos empíricos mostram desempenho médio próximo de $O(n \log n)$.  
+$\hfill\Box$
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Comb Sort} é um algoritmo \textit{in-place}, utilizando apenas algumas variáveis auxiliares (\textit{gap}, \textit{shrink}, índice de iteração).
+
+O espaço total $S(n)$ pode ser expresso como:
+
+\begin{equation}
+S(n) \in O(1)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Não há necessidade de estruturas adicionais proporcionais a $n$, apenas contadores e variáveis temporárias para troca.  
+Portanto, o consumo de memória é constante independente do tamanho do vetor.  
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Comb Sort} é eficiente em termos de memória e geralmente mais rápido que \textit{Bubble Sort} em entradas médias.  
+É especialmente útil para ordenar baldes individuais em algoritmos de ordenação em tempo linear, como \textit{Bucket Sort}, mantendo simplicidade de implementação e baixo uso de espaço.  
+
+
+
+
+
+
+
+\section{Selection sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Selection Sort} é um algoritmo de ordenação comparativo, simples e intuitivo. Ele funciona dividindo o vetor em duas partes: a sublista ordenada, inicialmente vazia, e a sublista não ordenada, que contém todos os elementos. A cada iteração, o algoritmo seleciona o menor (ou maior) elemento da sublista não ordenada e o troca com o primeiro elemento dessa sublista, expandindo assim a sublista ordenada.
+
+\medskip
+O algoritmo não é estável por padrão, mas é \textit{in-place}, ou seja, não requer memória auxiliar significativa além do vetor de entrada.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [0.5, 0.2, 0.9, 0.3, 0.7]$. O objetivo é ordená-lo utilizando o \textit{Selection Sort}.
+
+\begin{enumerate}
+    \item \textbf{Primeira iteração:}  
+    O menor elemento na sublista $[0.5, 0.2, 0.9, 0.3, 0.7]$ é $0.2$.  
+    Troca-se $0.2$ com o primeiro elemento $0.5$:
+    \[
+    A = [0.2, 0.5, 0.9, 0.3, 0.7].
+    \]
+
+    \item \textbf{Segunda iteração:}  
+    O menor elemento na sublista $[0.5, 0.9, 0.3, 0.7]$ é $0.3$.  
+    Troca-se $0.3$ com o primeiro elemento da sublista $0.5$:
+    \[
+    A = [0.2, 0.3, 0.9, 0.5, 0.7].
+    \]
+
+    \item \textbf{Terceira iteração:}  
+    O menor elemento na sublista $[0.9, 0.5, 0.7]$ é $0.5$.  
+    Troca-se $0.5$ com $0.9$:
+    \[
+    A = [0.2, 0.3, 0.5, 0.9, 0.7].
+    \]
+
+    \item \textbf{Quarta iteração:}  
+    O menor elemento na sublista $[0.9, 0.7]$ é $0.7$.  
+    Troca-se $0.7$ com $0.9$:
+    \[
+    A = [0.2, 0.3, 0.5, 0.7, 0.9].
+    \]
+
+    \item \textbf{Quinta iteração:}  
+    Resta apenas um elemento $[0.9]$, que já está na posição correta.
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{selectionSort(values: array of float, n: integer)}
+
+\For{$i \gets 0$ \KwTo $n-2$}{
+    $minIndex \gets i$\;
+    \For{$j \gets i+1$ \KwTo $n-1$}{
+        \If{$values[j] < values[minIndex]$}{
+            $minIndex \gets j$\;
+        }
+    }
+    \textbf{swap}($values[i], values[minIndex]$)\;
+}
+\caption{Selection sort}
+\label{lab:alg-selectionSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=python,caption={Selection sort em Python},captionpos=t]
+def selectionSort(values, n):
+    for i in range(n):
+        min_index = i
+        for j in range(i+1, n):
+            if values[j] < values[min_index]:
+                min_index = j
+        values[i], values[min_index] = values[min_index], values[i]
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Selection sort em C},captionpos=t]
+void selectionSort(int values[], int n){
+    for(int i = 0; i < n-1; i++){
+        int minIndex = i;
+        for(int j = i+1; j < n; j++){
+            if(values[j] < values[minIndex]){
+                minIndex = j;
+            }
+        }
+        if(minIndex != i){
+            int temp = values[i];
+            values[i] = values[minIndex];
+            values[minIndex] = temp;
+        }
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Selection sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void selectionSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        int minIndex = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex])
+                minIndex = j;
+        }
+        swap(arr[i], arr[minIndex]);
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Selection Sort}, que é baseado em comparações diretas entre elementos.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada. O algoritmo executa as seguintes etapas principais:
+
+\begin{enumerate}
+    \item Para cada posição $i$, encontra-se o menor elemento na sublista não ordenada — custo de $O(n-i)$ comparações.
+    \item Realiza uma troca (swap) do menor elemento encontrado com o elemento na posição $i$ — custo de $O(1)$.
+\end{enumerate}
+
+O número total de comparações $C(n)$ é:
+\[
+C(n) = (n-1) + (n-2) + \dots + 1 = \frac{n(n-1)}{2}.
+\]
+
+\begin{equation}
+T(n) \in O(n^2)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+\[
+C(n) = \sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} \leq \frac{n^2}{2} \in O(n^2)
+\]  
+Logo, para todo $n \geq 1$, existe uma constante $c = 1/2$ tal que $T(n) \leq c n^2$, garantindo que
+\[
+T(n) \in O(n^2).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Selection Sort} tem o mesmo custo de comparações no melhor, pior e caso médio, ou seja, $O(n^2)$, independentemente da distribuição dos elementos. É ineficiente para grandes conjuntos de dados, mas seu comportamento é previsível e sua implementação simples.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo \textit{Selection Sort} utiliza apenas um número constante de variáveis auxiliares, como $minIndex$ e temporários para troca, além do vetor de entrada, que é modificado \textit{in-place}.
+
+\begin{equation}
+S(n) \in O(1)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Sejam $c_1, c_2$ constantes correspondentes às variáveis auxiliares, temos
+\[
+S(n) = c_1 + c_2 \leq c
+\]  
+para todo $n \geq 0$, implicando que
+\[
+S(n) \in O(1).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Selection Sort} é um algoritmo \textit{in-place}, exigindo espaço constante, o que o torna adequado quando a memória é limitada. No entanto, sua baixa eficiência em tempo o restringe a conjuntos de dados pequenos ou como sub-rotina em algoritmos híbridos, como no \textit{Bucket Sort}.
+
+\section{Shell sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Shell Sort} é um algoritmo de ordenação baseado em comparação e uma generalização do \textit{Insertion Sort}.  
+A ideia central do Shell Sort é permitir que elementos distantes troquem de posição, acelerando a ordenação inicial de elementos que estão muito fora de posição.  
+O algoritmo utiliza uma sequência de incrementos (gaps) que diminuem progressivamente até 1. Em cada incremento, aplica-se um \textit{insertion sort} considerando apenas elementos separados pelo gap atual.
+
+\medskip
+O Shell Sort melhora o desempenho do Insertion Sort, especialmente para vetores grandes, reduzindo o número de deslocamentos necessários para ordenar elementos.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução.
+
+\begin{exmp}
+Considere o vetor $A = [9.0, 8.0, 3.0, 7.0, 5.0]$. O objetivo é ordená-lo utilizando o \textit{Shell Sort} com sequência de gaps \([3,1]\).
+
+\begin{enumerate}
+    \item \textbf{Gap inicial 3:}  
+    Comparamos e ordenamos elementos separados por 3 posições:
+    \[
+    \text{pares a comparar: } (9,7), (8,5)
+    \]
+    Após esta etapa:
+    \[
+    A = [7.0, 5.0, 3.0, 9.0, 8.0]
+    \]
+
+    \item \textbf{Gap 1 (Insertion Sort final):}  
+    Agora, aplicamos o Insertion Sort tradicional:
+    \begin{itemize}
+        \item Inserimos 5.0 na posição correta: $[5.0,7.0,3.0,9.0,8.0]$
+        \item Inserimos 3.0 na posição correta: $[3.0,5.0,7.0,9.0,8.0]$
+        \item Inserimos 9.0 e 8.0 nas posições corretas: $[3.0,5.0,7.0,8.0,9.0]$
+    \end{itemize}
+\end{enumerate}
+
+O vetor final ordenado é:
+\[
+A = [3.0,5.0,7.0,8.0,9.0]
+\]
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{shellSort(values: array of float, n: integer)}
+
+$gap \gets \lfloor n/2 \rfloor$\;
+\While{$gap > 0$}{
+    \For{$i \gets gap$ \KwTo $n-1$}{
+        $temp \gets values[i]$\;
+        $j \gets i$\;
+        \While{$j \ge gap \text{ and } values[j-gap] > temp$}{
+            $values[j] \gets values[j-gap]$\;
+            $j \gets j - gap$\;
+        }
+        $values[j] \gets temp$\;
+    }
+    $gap \gets \lfloor gap/2 \rfloor$\;
+}
+\caption{Shell sort}
+\label{lab:alg-shellSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+
+\subsection{Implementações}
+\begin{lstlisting}[language=python,caption={Shell sort em Python},captionpos=t]
+def shellSort(arr):
+    n = len(arr)
+    gap = n // 2
+    while gap > 0:
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            while j >= gap and arr[j-gap] > temp:
+                arr[j] = arr[j-gap]
+                j -= gap
+            arr[j] = temp
+        gap //= 2
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Shell sort em C},captionpos=t]
+void shellSort(int arr[], int n) {
+    for (int gap = n/2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            int temp = arr[i];
+            int j = i;
+            while (j >= gap && arr[j-gap] > temp) {
+                arr[j] = arr[j-gap];
+                j -= gap;
+            }
+            arr[j] = temp;
+        }
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Shell sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void shellSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; i++) {
+            int temp = arr[i];
+            int j = i;
+            while (j >= gap && arr[j - gap] > temp) {
+                arr[j] = arr[j - gap];
+                j -= gap;
+            }
+            arr[j] = temp;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Shell Sort}.  
+O desempenho depende fortemente da sequência de gaps escolhida.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.
+
+O algoritmo executa múltiplos \textit{gapped insertion sorts}, com o seguinte comportamento:
+
+\begin{enumerate}
+    \item Cada \textit{pass} com gap $g$ realiza $O(n)$ comparações e deslocamentos em média.
+    \item Para sequências de gaps clássicas (como $n/2, n/4, \dots, 1$), o custo total médio é aproximadamente $O(n^{3/2})$.
+    \item No pior caso, dependendo da sequência de gaps, o custo pode atingir $O(n^2)$.
+\end{enumerate}
+
+Assim, o tempo total de execução $T(n)$ pode ser expresso como:
+
+\[
+T(n) = a \cdot n^{3/2} + b
+\]
+
+\begin{equation}
+T(n) \in O(n^{3/2})
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Considerando $k$ passagens com gaps decrescentes, cada passagem executa no máximo $n$ inserções deslocando elementos. Para a sequência clássica $n/2, n/4, \dots, 1$, o somatório do número de movimentos leva a:
+
+\[
+\sum_{i=1}^{\log_2 n} O(n/i) \approx O(n \log n)
+\]
+
+A análise mais refinada considerando o número total de comparações e movimentos nos passes intermediários resulta em:
+
+\[
+T(n) \in O(n^{3/2})
+\]
+
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O Shell Sort é significativamente mais rápido que o Insertion Sort para vetores grandes. A escolha da sequência de gaps é crucial para o desempenho, e várias sequências propostas na literatura podem reduzir a complexidade média abaixo de $O(n^{3/2})$.
+
+\subsubsection{Complexidade de Espaço}
+
+O Shell Sort é um algoritmo \textit{in-place}, utilizando apenas variáveis auxiliares para troca de elementos:
+
+\begin{itemize}
+    \item Vetor de entrada $A[1 \ldots n]$ — espaço $O(n)$.
+    \item Variável temporária para troca — espaço $O(1)$.
+\end{itemize}
+
+O espaço total $S(n)$ é, portanto:
+
+\begin{equation}
+S(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Como o algoritmo manipula o vetor original sem alocar estruturas adicionais significativas, temos:
+
+\[
+S(n) = O(n) + O(1) \in O(n)
+\]
+
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Por ser \textit{in-place}, o Shell Sort é adequado quando a memória extra é limitada. Ele combina simplicidade de implementação com desempenho relativamente eficiente para entradas de tamanho moderado a grande, especialmente quando usado para ordenar sublistas em algoritmos como o Bucket Sort.
+
+
+
+
+
+
+
+\section{Gnome sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Gnome Sort} é um algoritmo de ordenação simples e baseado em comparação, semelhante ao \textit{Insertion Sort}, mas com uma abordagem intuitiva inspirada no movimento de um gnomo que anda para frente e para trás ajustando elementos fora de ordem. Ele percorre o vetor sequencialmente e, sempre que encontra um par de elementos fora de ordem, realiza uma troca e retrocede uma posição; caso contrário, avança para o próximo elemento. O processo se repete até que o vetor esteja completamente ordenado.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [0.4, 0.2, 0.5, 0.1, 0.3]$. O objetivo é ordená-lo utilizando o \textit{Gnome Sort}.
+
+\begin{enumerate}
+    \item \textbf{Posição inicial:}  
+    Começamos na posição $i = 1$ (segundo elemento).
+
+    \item \textbf{Passo 1:}  
+    Comparamos $A[1]=0.2$ com $A[0]=0.4$. Como $0.2 < 0.4$, trocamos os elementos:
+    \[
+    A = [0.2, 0.4, 0.5, 0.1, 0.3].
+    \]  
+    Retrocedemos para $i=0$, mas como não há elemento anterior, avançamos para $i=1$.
+
+    \item \textbf{Passo 2:}  
+    Comparamos $A[1]=0.4$ com $A[0]=0.2$. Como $0.4 \geq 0.2$, avançamos para $i=2$.
+
+    \item \textbf{Passo 3:}  
+    Comparamos $A[2]=0.5$ com $A[1]=0.4$. Como $0.5 \geq 0.4$, avançamos para $i=3$.
+
+    \item \textbf{Passo 4:}  
+    Comparamos $A[3]=0.1$ com $A[2]=0.5$. Como $0.1 < 0.5$, trocamos:
+    \[
+    A = [0.2, 0.4, 0.1, 0.5, 0.3].
+    \]  
+    Retrocedemos para $i=2$, comparamos $0.1 < 0.4$, trocamos:
+    \[
+    A = [0.2, 0.1, 0.4, 0.5, 0.3].
+    \]  
+    Retrocedemos para $i=1$, comparamos $0.1 < 0.2$, trocamos:
+    \[
+    A = [0.1, 0.2, 0.4, 0.5, 0.3].
+    \]  
+    Retrocedemos para $i=0$, avançamos para $i=1$.
+
+    \item \textbf{Passo 5:}  
+    Comparamos $A[1]=0.2$ com $A[0]=0.1$. Como $0.2 \geq 0.1$, avançamos para $i=2$.
+
+    \item \textbf{Passo 6:}  
+    Comparamos $A[2]=0.4$ com $A[1]=0.2$. Como $0.4 \geq 0.2$, avançamos para $i=3$.
+
+    \item \textbf{Passo 7:}  
+    Comparamos $A[3]=0.5$ com $A[2]=0.4$. Como $0.5 \geq 0.4$, avançamos para $i=4$.
+
+    \item \textbf{Passo 8:}  
+    Comparamos $A[4]=0.3$ com $A[3]=0.5$. Como $0.3 < 0.5$, trocamos:
+    \[
+    A = [0.1, 0.2, 0.4, 0.3, 0.5].
+    \]  
+    Retrocedemos para $i=3$, comparamos $0.3 < 0.4$, trocamos:
+    \[
+    A = [0.1, 0.2, 0.3, 0.4, 0.5].
+    \]  
+    Retrocedemos para $i=2$, $0.3 \geq 0.2$, avançamos para $i=3$, $0.4 \geq 0.3$, avançamos para $i=4$, $0.5 \geq 0.4$, avançamos para $i=5$ (fim).
+
+\end{enumerate}
+Vetor ordenado final:
+\[
+A = [0.1, 0.2, 0.3, 0.4, 0.5].
+\]
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{gnomeSort(values: array of float, n: integer)}
+
+$i \gets 1$\;
+\While{$i < n$}{
+    \If{$i = 0$ \textbf{or} $values[i] \geq values[i-1]$}{
+        $i \gets i + 1$\;
+    }
+    \Else{
+        trocar $values[i]$ e $values[i-1]$\;
+        $i \gets i - 1$\;
+    }
+}
+\caption{Gnome sort}
+\label{lab:alg-gnomeSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=python,caption={Gnome sort em Python},captionpos=t]
+def gnomeSort(arr):
+    i = 0
+    n = len(arr)
+    while i < n:
+        if i == 0 or arr[i] >= arr[i-1]:
+            i += 1
+        else:
+            arr[i], arr[i-1] = arr[i-1], arr[i]
+            i -= 1
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Gnome sort em C},captionpos=t]
+void gnomeSort(int arr[], int n) {
+    int i = 0;
+    while (i < n) {
+        if (i == 0 || arr[i] >= arr[i-1]) {
+            i++;
+        } else {
+            int temp = arr[i];
+            arr[i] = arr[i-1];
+            arr[i-1] = temp;
+            i--;
+        }
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Gnome sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void gnomeSort(vector<int>& arr) {
+    int n = arr.size();
+    int i = 0;
+    while (i < n) {
+        if (i == 0 || arr[i] >= arr[i - 1])
+            i++;
+        else {
+            swap(arr[i], arr[i - 1]);
+            i--;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Gnome Sort}.  
+Apesar de sua simplicidade, este algoritmo é eficiente apenas para vetores pequenos ou quase ordenados.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.
+
+\begin{enumerate}
+    \item No \textbf{pior caso}, o vetor está ordenado de forma inversa. Cada elemento pode precisar ser movido para o início, resultando em aproximadamente $\frac{n(n-1)}{2}$ comparações e trocas. Portanto:
+    \begin{equation}
+        T_{worst}(n) \in O(n^2)
+    \end{equation}
+
+    \item No \textbf{melhor caso}, o vetor já está ordenado. O algoritmo realiza uma única passagem, realizando $n-1$ comparações sem trocas:
+    \begin{equation}
+        T_{best}(n) \in O(n)
+    \end{equation}
+
+    \item No \textbf{caso médio}, para uma entrada aleatória, o número médio de comparações e trocas também cresce quadraticamente:
+    \begin{equation}
+        T_{avg}(n) \in O(n^2)
+    \end{equation}
+\end{enumerate}
+
+\noindent{\textbf{Prova:}}  
+Para o pior caso, cada elemento $i$ é comparado e possivelmente trocado até alcançar a posição correta, somando:
+\[
+1 + 2 + \dots + (n-1) = \frac{n(n-1)}{2} \in O(n^2).
+\]  
+Para o melhor caso, cada elemento é comparado apenas uma vez, somando $n-1 \in O(n)$, provando as fórmulas acima.
+$\hfill\Box$
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Gnome Sort} é um algoritmo \textit{in-place}:
+
+\begin{itemize}
+    \item O vetor de entrada $A[1 \ldots n]$ é reordenado sem necessidade de espaço auxiliar.
+\end{itemize}
+
+Portanto, a complexidade de espaço é:
+
+\begin{equation}
+S(n) \in O(1)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+O algoritmo apenas utiliza variáveis auxiliares para índices e temporários para troca de elementos, independentes de $n$. Logo, o consumo de memória é constante.
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Gnome Sort} é simples de implementar e conceitualmente intuitivo, mas não é adequado para grandes entradas devido à complexidade quadrática no pior e caso médio. É útil principalmente para vetores pequenos ou quase ordenados, e pode ser empregado como sub-rotina em algoritmos como \textit{Bucket Sort} para ordenar baldes individuais.
+
+\section{Odd-Even sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Odd-Even Sort}, também conhecido como Brick Sort, é um algoritmo de ordenação comparativo baseado em trocas, projetado para ser simples e facilmente paralelizável.  
+Ele é uma variação do Bubble Sort, alternando entre fases de comparação de pares ímpares e pares pares. Durante cada fase, elementos adjacentes são comparados e trocados se estiverem fora de ordem. O processo é repetido até que nenhuma troca seja necessária, garantindo que o vetor esteja ordenado.
+
+\medskip
+O algoritmo segue a seguinte lógica:
+\begin{enumerate}
+    \item Em uma fase ímpar, comparamos e trocamos os elementos nos índices (1,2), (3,4), (5,6), \dots.
+    \item Em uma fase par, comparamos e trocamos os elementos nos índices (0,1), (2,3), (4,5), \dots.
+    \item Repetimos alternadamente as fases ímpar e par até que não ocorram trocas em nenhuma das fases.
+\end{enumerate}
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução.
+
+\begin{exmp}
+Considere o vetor $A = [5.0, 3.0, 2.0, 4.0]$. O objetivo é ordená-lo utilizando o \textit{Odd-Even Sort}.
+
+\begin{enumerate}
+    \item \textbf{Fase ímpar:}  
+    Comparações de índices (1,2):
+    \[
+    [5.0, 3.0, 2.0, 4.0] \to [5.0, 2.0, 3.0, 4.0]
+    \]
+    Nenhuma outra troca na fase ímpar (pares além do limite).
+
+    \item \textbf{Fase par:}  
+    Comparações de índices (0,1) e (2,3):
+    \[
+    [5.0, 2.0, 3.0, 4.0] \to [2.0, 5.0, 3.0, 4.0] \to [2.0, 5.0, 3.0, 4.0] \to [2.0, 3.0, 4.0, 5.0]
+    \]
+
+    \item \textbf{Próximas fases:}  
+    Repetindo alternadamente ímpar e par, nenhuma troca ocorre, indicando que o vetor está ordenado:
+    \[
+    B = [2.0, 3.0, 4.0, 5.0].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{oddEvenSort(values: array of float, n: integer)}\\[3pt]
+$isSorted \gets false$\;
+\While{not $isSorted$}{
+    $isSorted \gets true$\;
+    \textbf{Fase ímpar:}\;
+    \For{$i \gets 1$ \KwTo $n-2$ \textbf{step} 2}{
+        \If{$values[i] > values[i+1]$}{
+            trocar $values[i] \leftrightarrow values[i+1]$\;
+            $isSorted \gets false$\;
+        }
+    }
+    \textbf{Fase par:}\;
+    \For{$i \gets 0$ \KwTo $n-2$ \textbf{step} 2}{
+        \If{$values[i] > values[i+1]$}{
+            trocar $values[i] \leftrightarrow values[i+1]$\;
+            $isSorted \gets false$\;
+        }
+    }
+}
+\caption{Odd-Even Sort}
+\label{lab:alg-oddEvenSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=python,caption={Odd-Even sort em Python},captionpos=t]
+def oddEvenSort(arr):
+    n = len(arr)
+    sorted = False
+    while not sorted:
+        sorted = True
+        for i in range(1, n-1, 2):
+            if arr[i] > arr[i+1]:
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                sorted = False
+        for i in range(0, n-1, 2):
+            if arr[i] > arr[i+1]:
+                arr[i], arr[i+1] = arr[i+1], arr[i]
+                sorted = False
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Odd-Even sort em C},captionpos=t]
+void oddEvenSort(int arr[], int n) {
+    int sorted = 0;
+    while (!sorted) {
+        sorted = 1;
+        for (int i = 1; i < n-1; i += 2) {
+            if (arr[i] > arr[i+1]) {
+                int temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+                sorted = 0;
+            }
+        }
+        for (int i = 0; i < n-1; i += 2) {
+            if (arr[i] > arr[i+1]) {
+                int temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+                sorted = 0;
+            }
+        }
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Odd-even sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void oddEvenSort(vector<int>& arr) {
+    int n = arr.size();
+    bool sorted = false;
+
+    while (!sorted) {
+        sorted = true;
+        for (int i = 1; i < n - 1; i += 2) {
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                sorted = false;
+            }
+        }
+        for (int i = 0; i < n - 1; i += 2) {
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                sorted = false;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Odd-Even Sort}.  
+Trata-se de um algoritmo baseado em comparações, com comportamento semelhante ao Bubble Sort, porém com melhor paralelização possível.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.  
+O algoritmo realiza no máximo $n$ fases (uma fase ímpar e uma par contam como uma iteração completa), e cada fase envolve até $n/2$ comparações e trocas. Portanto, no pior caso, o número total de comparações é proporcional a $n \cdot n = n^2$.
+
+\begin{equation}
+T(n) \in O(n^2)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Cada iteração completa consiste em $n/2 + n/2 \leq n$ comparações. No pior caso (vetor em ordem inversa), precisamos de $n$ iterações para ordenar totalmente:
+\[
+T(n) \leq n \cdot n = n^2.
+\]
+Portanto,
+\[
+T(n) \in O(n^2).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+Embora o caso médio seja geralmente mais rápido que o pior caso, a complexidade quadrática permanece dominante, tornando o algoritmo ineficiente para grandes conjuntos de dados.  
+Sua vantagem reside na paralelização, onde cada fase pode ser executada simultaneamente em processadores diferentes.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo \textit{Odd-Even Sort} realiza trocas \textit{in-place} entre elementos adjacentes e não requer memória auxiliar significativa além do vetor de entrada e uma variável booleana de controle.
+
+\begin{equation}
+S(n) \in O(1)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+O vetor de entrada ocupa $O(n)$ espaço por definição, mas nenhum espaço adicional proporcional a $n$ é necessário. Apenas variáveis temporárias constantes (como $isSorted$ e índice $i$) são usadas. Logo,
+\[
+S(n) \in O(1).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+\textit{Odd-Even Sort} é um algoritmo \textit{in-place} e estável.  
+Apesar de sua simplicidade e facilidade de paralelização, não é recomendado para grandes entradas devido à sua complexidade de tempo $O(n^2)$ no pior caso.  
+Entretanto, ele é útil para ordenar baldes em algoritmos de \textit{Bucket Sort} de maneira local, onde o número de elementos por balde é pequeno.
+
+
+
+
+
+
+
+\section{Pancake sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Pancake Sort} é um algoritmo de ordenação baseado em uma analogia culinária: ordenar uma pilha de panquecas de tamanhos diferentes utilizando apenas uma espátula que permite inverter o topo da pilha até uma determinada posição.  
+Em termos de computação, isso significa que podemos reverter qualquer prefixo do vetor de entrada, e o objetivo é ordenar o vetor completo utilizando um número mínimo de reversões.
+
+\medskip
+O algoritmo funciona iterativamente, selecionando o maior elemento não ordenado, trazendo-o para o topo do vetor (caso não esteja já lá) e depois invertendo o prefixo correspondente para levá-lo à sua posição correta no final do vetor ainda não ordenado. Esse processo é repetido para os próximos maiores elementos até que todo o vetor esteja ordenado.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [3.0, 6.0, 1.0, 5.0, 4.0]$. O objetivo é ordená-lo utilizando o \textit{Pancake Sort}.
+
+\begin{enumerate}
+    \item \textbf{Primeira iteração:}  
+    O maior elemento no prefixo completo é $6.0$, que está na posição 2.  
+    - Invertendo o prefixo até a posição 2: $[6.0, 3.0, 1.0, 5.0, 4.0]$  
+    - Invertendo o prefixo até a posição 4 (tamanho da sublista não ordenada): $[1.0, 3.0, 6.0, 5.0, 4.0]$
+
+    \item \textbf{Segunda iteração:}  
+    O próximo maior elemento é $5.0$, na posição 3 do subvetor não ordenado $[1.0, 3.0, 6.0, 5.0]$.  
+    - Invertendo até a posição 3: $[6.0, 3.0, 1.0, 5.0, 4.0]$  
+    - Invertendo o prefixo correspondente à sublista: $[5.0, 1.0, 3.0, 6.0, 4.0]$
+
+    \item \textbf{Iterações seguintes:}  
+    Repetindo o procedimento para $4.0$, $3.0$ e $1.0$, até que todo o vetor esteja ordenado:  
+    \[
+    B = [1.0, 3.0, 4.0, 5.0, 6.0].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{pancakeSort(values: array of float, n: integer)}\\[3pt]
+\textbf{function} flip(values: array of float, k: integer)\\
+\For{$i \gets 0$ \KwTo $\lfloor k/2 \rfloor - 1$}{
+    swap(values[i], values[k-i-1])\;
+}
+\textbf{end function}\\[2pt]
+\For{$curr\_size \gets n$ \KwTo $2$}{
+    $max\_idx \gets$ índice do maior elemento em $values[0..curr\_size-1]$\;
+    \If{$max\_idx \neq curr\_size-1$}{
+        \If{$max\_idx \neq 0$}{
+            flip(values, max\_idx+1)\;
+        }
+        flip(values, curr\_size)\;
+    }
+}
+\caption{Pancake sort}
+\label{lab:alg-pancakeSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=python,caption={Pancake sort em Python},captionpos=t]
+def flip(arr, i):
+    arr[:i+1] = arr[:i+1][::-1]
+
+def findMaxIndex(arr, n):
+    mi = 0
+    for i in range(1, n):
+        if arr[i] > arr[mi]:
+            mi = i
+    return mi
+
+def pancakeSort(arr):
+    n = len(arr)
+    for currSize in range(n, 1, -1):
+        mi = findMaxIndex(arr, currSize)
+        if mi != currSize-1:
+            flip(arr, mi)
+            flip(arr, currSize-1)
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Pancake sort em C},captionpos=t]
+void flip(int arr[], int i) {
+    int start = 0;
+    while (start < i) {
+        int temp = arr[start];
+        arr[start] = arr[i];
+        arr[i] = temp;
+        start++;
+        i--;
+    }
+}
+int findMaxIndex(int arr[], int n) {
+    int mi = 0;
+    for (int i = 1; i < n; i++)
+        if (arr[i] > arr[mi]) mi = i;
+    return mi;
+}
+void pancakeSort(int arr[], int n) {
+    for (int currSize = n; currSize > 1; currSize--) {
+        int mi = findMaxIndex(arr, currSize);
+        if (mi != currSize-1) {
+            flip(arr, mi);
+            flip(arr, currSize-1);
+        }
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Pancake sort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int findMaxIndex(vector<int>& arr, int n) {
+    int mi = 0;
+    for (int i = 1; i < n; i++)
+        if (arr[i] > arr[mi]) mi = i;
+    return mi;
+}
+
+void flip(vector<int>& arr, int i) {
+    reverse(arr.begin(), arr.begin() + i + 1);
+}
+
+void pancakeSort(vector<int>& arr) {
+    for (int curr_size = arr.size(); curr_size > 1; curr_size--) {
+        int mi = findMaxIndex(arr, curr_size);
+        if (mi != curr_size - 1) {
+            flip(arr, mi);
+            flip(arr, curr_size - 1);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Pancake Sort}.  
+O algoritmo realiza múltiplas reversões de prefixos, cada uma operando sobre parte do vetor.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.  
+Em cada iteração, buscamos o maior elemento não ordenado (custo $O(curr\_size)$) e realizamos no máximo duas inversões de prefixo (cada uma também $O(curr\_size)$).  
+Somando para todas as iterações do tamanho $n$ até 2, temos:
+
+\[
+T(n) = \sum_{curr\_size=2}^{n} O(3 \cdot curr\_size) = O(3 \sum_{i=2}^{n} i) = O(n^2)
+\]
+
+\begin{equation}
+T(n) \in O(n^2)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+O somatório $\sum_{i=2}^{n} i = \frac{n(n+1)}{2} - 1 \in O(n^2)$.  
+Multiplicando por constantes positivas (o fator 3 das operações por iteração) não altera a ordem de crescimento. Portanto, para alguma constante $c>0$ e $n_0 \geq 0$:
+
+\[
+T(n) \leq c n^2, \quad \forall n \geq n_0.
+\]
+Logo,
+\[
+T(n) \in O(n^2).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+Embora visualmente interessante e útil como sub-rotina em técnicas como Bucket Sort, o \textit{Pancake Sort} é menos eficiente do que algoritmos clássicos de comparação ($O(n\log n)$) em grandes vetores.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo utiliza essencialmente o vetor de entrada e algumas variáveis auxiliares para índices e temporários durante a reversão.  
+Não há necessidade de estruturas adicionais proporcionais a $n$, caracterizando o algoritmo como \textit{in-place}.
+
+\begin{equation}
+S(n) \in O(1)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+A quantidade de memória adicional é constante, independente de $n$. Portanto, existe $c>0$ tal que:
+
+\[
+S(n) \leq c, \quad \forall n \geq 0.
+\]
+Logo,
+\[
+S(n) \in O(1).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Pancake Sort} é eficiente em termos de espaço, pois todas as operações ocorrem no vetor original, sem alocação de memória adicional proporcional ao tamanho da entrada.
+
+
+
+
+
+
+
+
+
+% \section{Recombinant sort}
+% \label{lab:alg-recombinantSort}
+
+% \begin{lstlisting}[language=C,caption={Recombinant sort em C},captionpos=t]
+% #include <stdio.h>
+% #include <stdlib.h>
+
+% // Funcao para mesclar dois subarrays
+% void merge(int arr[], int left[], int leftSize, int right[], int rightSize) {
+%     int i = 0, j = 0, k = 0;
+%     while (i < leftSize && j < rightSize) {
+%         if (left[i] < right[j])
+%             arr[k++] = left[i++];
+%         else
+%             arr[k++] = right[j++];
+%     }
+%     while (i < leftSize) arr[k++] = left[i++];
+%     while (j < rightSize) arr[k++] = right[j++];
+% }
+
+% // Recombinant Sort (recursivo)
+% void recombinantSort(int arr[], int n) {
+%     if (n <= 1) return;
+
+%     int mid = n / 2;
+%     int* left = (int*)malloc(mid * sizeof(int));
+%     int* right = (int*)malloc((n - mid) * sizeof(int));
+
+%     for (int i = 0; i < mid; i++) left[i] = arr[i];
+%     for (int i = mid; i < n; i++) right[i - mid] = arr[i];
+
+%     recombinantSort(left, mid);
+%     recombinantSort(right, n - mid);
+%     merge(arr, left, mid, right, n - mid);
+
+%     free(left);
+%     free(right);
+% }
+% \end{lstlisting}
+
+% \begin{lstlisting}[language=C++,caption={Recombinant sort em C++},captionpos=t]
+% #include <vector>
+% using namespace std;
+
+% void merge(vector<int>& arr, vector<int>& left, vector<int>& right) {
+%     int i = 0, j = 0, k = 0;
+%     while (i < left.size() && j < right.size()) {
+%         if (left[i] < right[j])
+%             arr[k++] = left[i++];
+%         else
+%             arr[k++] = right[j++];
+%     }
+%     while (i < left.size()) arr[k++] = left[i++];
+%     while (j < right.size()) arr[k++] = right[j++];
+% }
+
+% void recombinantSort(vector<int>& arr) {
+%     int n = arr.size();
+%     if (n <= 1) return;
+
+%     int mid = n / 2;
+%     vector<int> left(arr.begin(), arr.begin() + mid);
+%     vector<int> right(arr.begin() + mid, arr.end());
+
+%     recombinantSort(left);
+%     recombinantSort(right);
+%     merge(arr, left, right);
+% }
+% \end{lstlisting}
+
+% \begin{lstlisting}[language=Python,caption={Recombinant sort em Python},captionpos=t]
+% def recombinant_sort(arr):
+%     if len(arr) <= 1:
+%         return arr
+
+%     mid = len(arr) // 2
+%     left = recombinant_sort(arr[:mid])
+%     right = recombinant_sort(arr[mid:])
+
+%     merged = []
+%     i = j = 0
+%     while i < len(left) and j < len(right):
+%         if left[i] < right[j]:
+%             merged.append(left[i])
+%             i += 1
+%         else:
+%             merged.append(right[j])
+%             j += 1
+
+%     merged.extend(left[i:])
+%     merged.extend(right[j:])
+%     return merged
+% \end{lstlisting}
+
+% \noindent
+% O algoritmo \textbf{Recombinant Sort} segue o paradigma de \textit{divisão e conquista}, dividindo o vetor em duas partes, ordenando-as recursivamente e combinando os resultados. A etapa de recombinação é semelhante à do Merge Sort, garantindo estabilidade e ordenação eficiente.
+
+% \subsection{Análise de complexidade do algoritmo}
+
+% Considerando que o vetor $arr$ tem tamanho $n$, o algoritmo divide o problema em dois subproblemas de tamanho $n/2$ e realiza uma operação de mesclagem linear.
+
+% O tempo total pode ser expresso pela recorrência:
+% \[
+% T(n) = 2T(n/2) + O(n)
+% \]
+
+% Aplicando o Teorema Mestre, obtemos:
+% \[
+% T(n) = O(n \log n)
+% \]
+
+% Assim, temos:
+% \begin{itemize}
+%     \item Melhor caso: $O(n \log n)$
+%     \item Caso médio: $O(n \log n)$
+%     \item Pior caso: $O(n \log n)$
+% \end{itemize}
+
+% O espaço adicional necessário é $O(n)$ devido à criação dos subarrays durante as chamadas recursivas.
+
+\section{Cocktail Shaker Sort}
+
+\textbf{Descrição:}
+O Cocktail Shaker Sort, também conhecido como Shake Sort ou Bidirectional Bubble Sort, é uma variação do Bubble Sort em que a varredura na lista é feita alternadamente nas direções esquerda-direita e direita-esquerda. Isso permite que elementos grandes “afundem” para o final e elementos pequenos “subam” para o início mais rapidamente em cada ciclo, reduzindo o número de iterações em listas parcialmente ordenadas.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [4, 3, 2, 1]$ com o Cocktail Shaker Sort:
+\begin{enumerate}
+\item {Primeira passagem (esquerda-direita):} compara e troca adjacentes, movendo o maior para a última posição. Agora $[3, 2, 1, 4]$.
+\item {Primeira passagem (direita-esquerda):} volta comparando e trocando, movendo o menor para a primeira posição. Agora $[1, 3, 2, 4]$.
+\item Passagens seguintes repetem direita-esquerda e esquerda-direita, até o vetor ficar ordenado: $[1, 2, 3, 4]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.4cm}\textbf{cocktailShakerSort(A: array, n: int)}\;
+inicio $\gets 0$\;
+fim $\gets n - 1$\;
+troca $\gets true$\;
+\While{troca}{
+   troca $\gets false$\;
+   \For{$i \gets inicio$ \textbf{até} $fim - 1$}{
+      \If{$A[i] > A[i + 1]$}{
+         trocar($A[i],A[i + 1]$)\;
+         troca $\gets true$\;
+      }
+   }
+   fim $\gets fim - 1$\;
+   \For{$i \gets fim$ \textbf{até} $inicio + 1$}{
+      \If{$A[i] < A[i - 1]$}{
+         trocar ($A[i],A[i - 1]$)\;
+         troca $\gets true$\;
+      }
+   }
+   inicio $\gets inicio + 1$\;
+}
+\caption{Cocktail Shaker Sort (simplificado)}
+\label{lab:alg-cocktailshaker}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Cocktail Shaker Sort em Python}, ,captionpos=t,label=code:cocktailshakerPy]
+def cocktail_shaker_sort(arr):
+    n = len(arr)
+    start = 0
+    end = n - 1
+    swapped = True
+    while swapped:
+        swapped = False
+        # Passagem da esquerda para a direita
+        for i in range(start, end):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+        end -= 1
+        # Passagem da direita para a esquerda
+        for i in range(end, start, -1):
+            if arr[i] < arr[i - 1]:
+                arr[i], arr[i - 1] = arr[i - 1], arr[i]
+                swapped = True
+        start += 1
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Cocktail Shaker Sort em C}, ,captionpos=t,label=code:cocktailshakerC]
+#include <stdio.h>
+#include <stdbool.h>
+
+void cocktailShakerSort(int arr[], int n) {
+    int start = 0, end = n - 1;
+    bool swapped = 1;
+    while (swapped) {
+        swapped = 0;
+        // Passagem esquerda-direita
+        for (int i = start; i < end; i++) {
+            if (arr[i] > arr[i + 1]) {
+                int temp = arr[i];
+                arr[i] = arr[i + 1];
+                arr[i + 1] = temp;
+                swapped = 1;
+            }
+        }
+        end--;
+        // Passagem direita-esquerda
+        for (int i = end; i > start; i--) {
+            if (arr[i] < arr[i - 1]) {
+                int temp = arr[i];
+                arr[i] = arr[i - 1];
+                arr[i - 1] = temp;
+                swapped = 1;
+            }
+        }
+        start++;
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Cocktail Shaker Sort em C++}, ,captionpos=t,label=code:cocktailshakerC++]
+#include <iostream>
+#include <vector>
+
+void cocktailShakerSort(std::vector<int>& arr) {
+    int n = arr.size();
+    bool swapped = true;
+    int start = 0;
+    int end = n - 1;
+
+    while (swapped) {
+        swapped = false;
+
+        // Passagem esquerda para direita
+        for (int i = start; i < end; ++i) {
+            if (arr[i] > arr[i + 1]) {
+                std::swap(arr[i], arr[i + 1]);
+                swapped = true;
+            }
+        }
+
+        // Se nao houve trocas, o array esta ordenado
+        if (!swapped)
+            break;
+
+        swapped = false;
+        --end;
+
+        // Passagem direita para esquerda
+        for (int i = end; i > start; --i) {
+            if (arr[i] < arr[i - 1]) {
+                std::swap(arr[i], arr[i - 1]);
+                swapped = true;
+            }
+        }
+        ++start;
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Algoritmo}
+
+\subsubsection{Complexidade de Tempo}
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Array já ordenado
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item Na primeira passagem esquerda-direita, não há trocas (\texttt{swapped = false})
+\item O algoritmo termina após verificar todos os $n-1$ pares adjacentes
+\item \textbf{Total de comparações:} $n-1 = O(n)$
+\item \textbf{Total de trocas:} $0$
+\end{itemize}
+
+\paragraph{Pior Caso: $O(n^2)$}
+\textbf{Cenário:} Array em ordem completamente reversa
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item Em cada iteração $k$, o algoritmo realiza:
+\begin{itemize}
+\item Passagem esquerda-direita: $(n-1-k)$ comparações
+\item Passagem direita-esquerda: $(n-1-k)$ comparações
+\end{itemize}
+\item Número total de iterações: $\lceil n/2 \rceil$
+\item \textbf{Cálculo das comparações:}
+\end{itemize}
+
+\begin{align}
+\sum_{k=0}^{\lceil n/2 \rceil - 1} 2(n-1-k) &= 2\sum_{k=0}^{\lceil n/2 \rceil - 1}(n-1-k) \\
+&= 2\left[(n-1)\lceil n/2 \rceil - \sum_{k=0}^{\lceil n/2 \rceil - 1}k\right] \\
+&= 2\left[(n-1)\lceil n/2 \rceil - \frac{\lceil n/2 \rceil(\lceil n/2 \rceil - 1)}{2}\right] \\
+&\approx 2\left[(n-1)(n/2) - \frac{(n/2)(n/2-1)}{2}\right] \\
+&= n^2-n-\frac{n^2}{4}+\frac{n}{2} \\
+&= \frac{3n^2}{4} - \frac{n}{2} = O(n^2)
+\end{align}
+
+\paragraph{Caso Médio: $O(n^2)$}
+\textbf{Prova:}
+\begin{itemize}
+\item Número esperado de inversões em um array aleatório: $\frac{n(n-1)}{4}$
+\item Cada passagem bidirecional remove uma quantidade constante de inversões
+\item Número esperado de passagens: $O(n)$
+\item \textbf{Complexidade total:} $O(n^2)$
+\end{itemize}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(1)$}
+\textbf{Prova:}
+\begin{itemize}
+\item Variáveis utilizadas:
+\begin{itemize}
+\item \texttt{start}, \texttt{end}: ponteiros para limites $\rightarrow O(1)$
+\item \texttt{swapped}: flag booleana $\rightarrow O(1)$
+\item \texttt{i}: contador de loop $\rightarrow O(1)$
+\item Variável temporária para swap $\rightarrow O(1)$
+\end{itemize}
+\item \textbf{Total:} $O(1)$ - algoritmo in-place
+\end{itemize}
+
+\subsubsection{Análise Prática}
+
+\textbf{Constante multiplicativa reduzida:}
+O Cocktail Shaker Sort reduz aproximadamente pela metade o número de passadas necessárias em comparação ao Bubble Sort tradicional. Para arrays parcialmente ordenados, pode ser significativamente mais rápido na prática, embora mantenha a mesma complexidade assintótica.
+
+\subsection{Análise de Complexidade do Algoritmo}
+
+\subsubsection{Complexidade de Tempo}
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Array já ordenado
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item Na primeira passagem esquerda-direita, não há trocas (\texttt{swapped = false})
+\item O algoritmo termina após verificar todos os $n-1$ pares adjacentes
+\item \textbf{Total de comparações:} $n-1 = O(n)$
+\item \textbf{Total de trocas:} $0$
+\end{itemize}
+
+\paragraph{Pior Caso: $O(n^2)$}
+\textbf{Cenário:} Array em ordem completamente reversa
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item Em cada iteração $k$, o algoritmo realiza:
+\begin{itemize}
+\item Passagem esquerda-direita: $(n-1-k)$ comparações
+\item Passagem direita-esquerda: $(n-1-k)$ comparações
+\end{itemize}
+\item Número total de iterações: $\lceil n/2 \rceil$
+\item \textbf{Cálculo das comparações:}
+\end{itemize}
+
+\begin{align}
+\sum_{k=0}^{\lceil n/2 \rceil - 1} 2(n-1-k) &= 2\sum_{k=0}^{\lceil n/2 \rceil - 1}(n-1-k) \\
+&= 2\left[(n-1)\lceil n/2 \rceil - \sum_{k=0}^{\lceil n/2 \rceil - 1}k\right] \\
+&= 2\left[(n-1)\lceil n/2 \rceil - \frac{\lceil n/2 \rceil(\lceil n/2 \rceil - 1)}{2}\right] \\
+&\approx 2\left[(n-1)(n/2) - \frac{(n/2)(n/2-1)}{2}\right] \\
+&= n^2-n-\frac{n^2}{4}+\frac{n}{2} \\
+&= \frac{3n^2}{4} - \frac{n}{2} = O(n^2)
+\end{align}
+
+\paragraph{Caso Médio: $O(n^2)$}
+\textbf{Prova:}
+\begin{itemize}
+\item Número esperado de inversões em um array aleatório: $\frac{n(n-1)}{4}$
+\item Cada passagem bidirecional remove uma quantidade constante de inversões
+\item Número esperado de passagens: $O(n)$
+\item \textbf{Complexidade total:} $O(n^2)$
+\end{itemize}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(1)$}
+\textbf{Prova:}
+\begin{itemize}
+\item Variáveis utilizadas:
+\begin{itemize}
+\item \texttt{start}, \texttt{end}: ponteiros para limites $\rightarrow O(1)$
+\item \texttt{swapped}: flag booleana $\rightarrow O(1)$
+\item \texttt{i}: contador de loop $\rightarrow O(1)$
+\item Variável temporária para swap $\rightarrow O(1)$
+\end{itemize}
+\item \textbf{Total:} $O(1)$ - algoritmo in-place
+\end{itemize}
+
+\subsubsection{Características do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Estável - elementos iguais mantêm sua ordem relativa original
+\item \textbf{In-place:} Sim - ordena o array sem usar estruturas auxiliares significativas
+\item \textbf{Adaptativo:} Sim - performance melhora com arrays parcialmente ordenados
+\item \textbf{Método:} Troca (exchanging)
+\item \textbf{Comparações:} Sempre $O(n^2)$ no pior caso
+\item \textbf{Trocas:} Mínimo $0$ (melhor caso), máximo $O(n^2)$ (pior caso)
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item Melhor caso: $O(n)$ - vetor já ordenado
+\item Caso médio: $O(n^2)$
+\item Pior caso: $O(n^2)$ - vetor em ordem reversa
+\item Espaço auxiliar: $O(1)$ - algoritmo in-place
+\item Vantagem: Elementos pequenos "sobem" mais rapidamente que no Bubble Sort tradicional
+\end{itemize}
+
+\section{Cycle Sort}
+
+\textbf{Descrição:}
+O Cycle Sort é um algoritmo de ordenação por comparação que procura minimizar o número de movimentações (trocas) realizadas. Ele identifica ciclos de permutação nos elementos e realiza uma série de trocas para colocar cada elemento em sua posição correta final, movimentando cada valor o mínimo necessário. É especialmente eficiente quando o custo de escrita é alto, pois cada elemento é movido apenas uma vez, sempre que possível. O Cycle Sort é também um algoritmo in-place.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [3, 1, 4, 2]$ por Cycle Sort:
+
+\begin{enumerate}
+\item O 3 deve ir para a posição 2 (pois há dois menores que ele). Troca 3 com 4: $[4, 1, 3, 2]$.
+\item O 3 deve ir para a posição 2 (continua). Troca 3 com 2: $[4, 1, 2, 3]$.
+\item O 3 já está na posição correta. Agora analisa o 4, 1, e 2... até todos estarem ordenados: $[1, 2, 3, 4]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{cycleSort(A: array, n: int)};
+\For{$cycle_start = 0$ até $n-2$}{
+   $item \gets A[cycle_start]$;
+   pos $\gets$ número de elementos menores que item a partir de $cycle_start$;
+   \If{$pos == cycle_start$}{
+      continuar para próximo ciclo;
+   }
+   \While{$item == A[pos]$}{
+      $pos \gets pos + 1$;
+   }
+   trocar item $\leftrightarrow$ A[pos];
+   \While{$pos != cycle_start$}{
+      pos $\gets$ número de elementos menores que item a partir de $cycle_start$;
+      \While{$item == A[pos]$}{
+         $pos \gets pos + 1$;
+      }
+    trocar item $\leftrightarrow A[pos]$;
+   }
+}
+\caption{Cycle Sort (simplificado)}
+\label{lab:alg-cyclesort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Cycle Sort em Python},captionpos=t, label=code:cyclesortPy]
+def cycle_sort(arr):
+    n = len(arr)
+    for cycle_start in range(n - 1):
+        item = arr[cycle_start]
+        pos = cycle_start
+        # Encontra a posicao correta do item
+        for i in range(cycle_start + 1, n):
+            if arr[i] < item:
+                pos += 1
+        # Pula se o item ja esta na posicao correta
+        if pos == cycle_start:
+            continue
+        while item == arr[pos]:
+            pos += 1
+        arr[pos], item = item, arr[pos]
+        # Continua com novos ciclos ate retornar ao inicio
+        while pos != cycle_start:
+            pos = cycle_start
+            for i in range(cycle_start + 1, n):
+                if arr[i] < item:
+                    pos += 1
+            while item == arr[pos]:
+                pos += 1
+            arr[pos], item = item, arr[pos]
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Cycle Sort em C},,captionpos=t, label=code:cyclesortC]
+#include <stdio.h>
+
+void cycleSort(int arr[], int n) {
+    for (int cycle_start = 0; cycle_start < n - 1; cycle_start++) {
+        int item = arr[cycle_start];
+        int pos = cycle_start;
+        // Encontra a posicao correta do item
+        for (int i = cycle_start + 1; i < n; i++) {
+            if (arr[i] < item)
+                pos++;
+        }
+        // Se ja esta no lugar certo, pula
+        if (pos == cycle_start)
+            continue;
+        // Pula valores duplicados
+        while (item == arr[pos])
+            pos++;
+        // Troca
+        int temp = arr[pos];
+        arr[pos] = item;
+        item = temp;
+        // Continua o ciclo ate retornar ao inicio
+        while (pos != cycle_start) {
+            pos = cycle_start;
+            for (int i = cycle_start + 1; i < n; i++) {
+                if (arr[i] < item)
+                    pos++;
+            }
+            while (item == arr[pos])
+                pos++;
+            temp = arr[pos];
+            arr[pos] = item;
+            item = temp;
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Cycle Sort em C++},,captionpos=t, label=code:cyclesortC++]
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void cycleSort(int arr[], int n) {
+    for (int start = 0; start < n - 1; ++start) {
+        int item = arr[start];
+        int pos = start;
+
+        // Encontra a posicao correta para o elemento atual
+        for (int i = start + 1; i < n; ++i)
+            if (arr[i] < item)
+                ++pos;
+
+        // Se o elemento ja esta na posicao correta, continue
+        if (pos == start)
+            continue;
+
+        // Ignora duplicatas
+        while (item == arr[pos])
+            ++pos;
+
+        // Faz o swap do elemento para a posicao correta
+        if (pos != start)
+            swap(item, arr[pos]);
+
+        // Rotaciona o resto do ciclo
+        while (pos != start) {
+            pos = start;
+            for (int i = start + 1; i < n; ++i)
+                if (arr[i] < item)
+                    ++pos;
+            while (item == arr[pos])
+                ++pos;
+            if (item != arr[pos])
+                swap(item, arr[pos]);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Cycle Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+O Cycle Sort é único entre os algoritmos de ordenação por comparação, pois minimiza o número de escritas (trocas) no array. Vamos analisar sua complexidade em detalhes:
+
+\paragraph{Análise Geral das Operações}
+
+O algoritmo executa os seguintes passos para cada elemento:
+\begin{enumerate}
+\item Encontra a posição correta do elemento atual
+\item Conta quantos elementos são menores que ele
+\item Realiza a troca para a posição correta
+\item Continua o ciclo até retornar à posição inicial
+\end{enumerate}
+
+\paragraph{Melhor Caso: $O(n^2)$}
+\textbf{Cenário:} Array já ordenado em ordem crescente
+\\
+\textbf{Prova:}
+
+Para cada elemento na posição $i$ (onde $i = 0, 1, \ldots, n-2$):
+\begin{itemize}
+\item \textbf{Contagem da posição:} Compara com $(n-1-i)$ elementos à direita
+\item \textbf{Trocas:} $0$ (elemento já está na posição correta)
+\item \textbf{Verificação de duplicatas:} $O(1)$ em média
+\end{itemize}
+
+Total de comparações:
+\begin{align}
+C_{\text{melhor}}(n) &= \sum_{i=0}^{n-2} (n-1-i) \\
+&= \sum_{k=1}^{n-1} k \quad \text{(substituindo } k = n-1-i\text{)} \\
+&= \frac{(n-1)n}{2} = O(n^2)
+\end{align}
+
+\paragraph{Pior Caso: $O(n^2)$}
+\textbf{Cenário:} Array em qualquer configuração
+\\
+\textbf{Prova:}
+
+O Cycle Sort sempre executa o mesmo número de comparações, independente da configuração inicial:
+
+\begin{itemize}
+\item Para cada posição inicial $i$, conta elementos menores em posições $j > i$
+\item Número de comparações por posição $i$: $(n-1-i)$
+\item \textbf{Comparações totais:} $\sum_{i=0}^{n-2}(n-1-i) = \frac{n(n-1)}{2}$
+\end{itemize}
+
+\textbf{Análise das escritas (característica única):}
+\begin{itemize}
+\item \textbf{Melhor caso:} $0$ escritas (array ordenado)
+\item \textbf{Pior caso:} $n-1$ escritas (cada elemento fora do lugar)
+\item \textbf{Escritas mínimas:} O Cycle Sort garante o número mínimo de escritas possível
+\end{itemize}
+
+\paragraph{Caso Médio: $O(n^2)$}
+\textbf{Cenário:} Array com elementos em ordem aleatória
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Comparações:} $\frac{n(n-1)}{2} = O(n^2)$ (sempre constante)
+\item \textbf{Escritas esperadas:} 
+\end{itemize}
+
+Para um elemento na posição $i$, a probabilidade de estar na posição errada é $\frac{n-1}{n}$.
+
+Número esperado de escritas:
+\begin{align}
+E[W(n)] &= \sum_{i=0}^{n-1} P(\text{elemento } i \text{ fora da posição}) \\
+&= \sum_{i=0}^{n-1} \frac{n-1}{n} \\
+&= n \cdot \frac{n-1}{n} = n-1 = O(n)
+\end{align}
+
+\subsubsection{Análise Detalhada do Algoritmo}
+
+\textbf{Complexidade por ciclo:}
+
+Para cada ciclo que começa na posição $start$:
+\begin{enumerate}
+\item \textbf{Encontrar posição:} $O(n-start)$ comparações
+\item \textbf{Lidar com duplicatas:} $O(k)$ onde $k$ é número de duplicatas
+\item \textbf{Realizar troca:} $O(1)$
+\item \textbf{Continuar ciclo:} Repetir até retornar ao início
+\end{enumerate}
+
+\textbf{Teorema da Complexidade Total:}
+\begin{align}
+T(n) &= \sum_{\text{ciclos}} (\text{comparações por ciclo}) \\
+&= \sum_{i=0}^{n-2} \sum_{j=i+1}^{n-1} 1 \\
+&= \frac{n(n-1)}{2} = O(n^2)
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(1)$}
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Variáveis utilizadas:}
+\begin{itemize}
+\item \texttt{start}: posição inicial do ciclo $\rightarrow O(1)$
+\item \texttt{pos}: posição correta do elemento $\rightarrow O(1)$
+\item \texttt{item}: elemento sendo processado $\rightarrow O(1)$
+\item Contadores de loop $\rightarrow O(1)$
+\end{itemize}
+\item \textbf{Espaço total:} $O(1)$ - algoritmo in-place
+\item \textbf{Nenhuma estrutura auxiliar} é necessária
+\end{itemize}
+
+\subsubsection{Características Distintivas do Cycle Sort}
+
+\begin{thm}[Minimalidade das Escritas]
+O Cycle Sort realiza o número mínimo de escritas necessárias para ordenar um array, sendo este número igual ao número de elementos que não estão em suas posições corretas.
+\end{thm}
+
+\textbf{Prova:} Cada elemento é movido diretamente para sua posição final através de ciclos, sem escritas desnecessárias.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Métrica} & \textbf{Melhor Caso} & \textbf{Caso Médio} & \textbf{Pior Caso} \\
+\hline
+Comparações & $\frac{n(n-1)}{2}$ & $\frac{n(n-1)}{2}$ & $\frac{n(n-1)}{2}$ \\
+\hline
+Escritas & $0$ & $n-1$ & $n-1$ \\
+\hline
+Complexidade Temporal & $O(n^2)$ & $O(n^2)$ & $O(n^2)$ \\
+\hline
+Complexidade Espacial & $O(1)$ & $O(1)$ & $O(1)$ \\
+\hline
+\end{tabular}
+\caption{Análise Completa do Cycle Sort}
+\end{table}
+
+\subsubsection{Vantagens e Aplicações Específicas}
+
+\textbf{Vantagens únicas:}
+\begin{itemize}
+\item \textbf{Escritas mínimas:} Ideal quando escritas são custosas (ex: flash memory)
+\item \textbf{Determinístico:} Sempre o mesmo número de comparações
+\item \textbf{In-place:} Não requer memória adicional
+\item \textbf{Estável em escritas:} Minimiza desgaste em dispositivos de armazenamento
+\end{itemize}
+
+\textbf{Casos de uso ideais:}
+\begin{itemize}
+\item Sistemas embarcados com memória flash limitada
+\item Situações onde o custo de escrita é muito maior que o de leitura
+\item Quando o número de escritas deve ser minimizado
+\end{itemize}
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Não estável - ordem de elementos iguais pode mudar
+\item \textbf{In-place:} Sim - utiliza apenas $O(1)$ espaço extra
+\item \textbf{Adaptativo:} Não - sempre $O(n^2)$ comparações
+\item \textbf{Método:} Ciclos e posicionamento direto
+\item \textbf{Especialização:} Otimizado para minimizar escritas
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Todos os casos:} $O(n^2)$ em tempo, $O(1)$ em espaço
+\item \textbf{Característica única:} Número mínimo de escritas ($\leq n-1$)
+\item \textbf{Aplicação ideal:} Situações onde escritas são custosas
+\item \textbf{Invariante:} Sempre $\frac{n(n-1)}{2}$ comparações, independente dos dados
+\end{itemize}
+
+
+\section{Spaghetti Sort}
+
+\textbf{Descrição:}
+O Spaghetti Sort é um algoritmo de ordenação não convencional, inspirado em uma analogia física: imagine que cada elemento do vetor é representado por um espaguete de comprimento proporcional ao seu valor. Ao segurar todos os espaguetes verticalmente sobre uma superfície, o mais longo toca a superfície primeiro, o segundo mais longo em seguida, e assim por diante, permitindo a ordenação ao “retirar” os espaguetes em ordem. No contexto computacional, simula-se esse processo selecionando repetidamente o maior valor ainda não escolhido.
+
+\begin{exmp}
+Para ordenar $A = [3, 1, 4, 2]$ com Spaghetti Sort:
+\begin{enumerate}
+\item Cada número é representado por um espaguete do respectivo comprimento.
+\item O mais longo ($4$) “encosta” primeiro, depois $3$, depois $2$, depois $1$.
+\item Ordem crescente: $[1, 2, 3, 4]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{spaghettiSort(A: array, n: int)};
+marcar todos os elementos como "não utilizados";
+\For{$k$ de $1$ até $n$}{
+encontrar o maior elemento ainda não utilizado;
+colocar esse elemento na próxima posição do resultado;
+marcar o elemento como “utilizado”;
+}
+copiar o resultado ordenado de volta para $A$;
+\caption{Spaghetti Sort (simulação computacional)}
+\label{lab:alg-spaghettisort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Spaghetti Sort em Python (simulação)},captionpos=t, label=code:spaghettisortPy]
+def spaghetti_sort(arr):
+    n = len(arr)
+    used = [False] * n
+    result = []
+    for _ in range(n):
+        max_val = float('-inf')
+        idx = -1
+        for i in range(n):
+            if not used[i] and arr[i] > max_val:
+                max_val = arr[i]
+                idx = i
+        result.insert(0, max_val)  # Insere no inicio para ficar em ordem crescente
+        used[idx] = True
+    return result
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Spaghetti Sort em C (simulado)},captionpos=t, label=code:spaghettisortC]
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+void spaghettiSort(int *arr, int n, int *out) {
+    bool *used = (bool*)calloc(n, sizeof(bool));
+    for (int k = n - 1; k >= 0; k--) {
+        int max_val = arr[0], idx = 0;
+        for (int i = 0; i < n; i++) {
+            if (!used[i] && arr[i] > max_val) {
+                max_val = arr[i];
+                idx = i;
+            }
+        }
+        out[k] = max_val;
+        used[idx] = true;
+    }
+    free(used);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Spaghetti Sort em C++ (simulado)},captionpos=t, label=code:spaghettisortC++]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void spaghettiSort(vector<int>& arr) {
+    if (arr.empty()) return;
+    
+    // Encontra o valor maximo para determinar a "altura"
+    int maxVal = *max_element(arr.begin(), arr.end());
+    
+    vector<int> sorted;
+    vector<bool> used(arr.size(), false);
+    
+    // Simula a "queda" dos espaguetes
+    // Comeca do menor valor 
+    for (int height = 0; height <= maxVal; ++height) {
+        for (int i = 0; i < arr.size(); ++i) {
+            if (!used[i] && arr[i] == height) {
+                sorted.push_back(arr[i]);
+                used[i] = true;
+            }
+        }
+    }
+    
+    arr = sorted;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Spaghetti Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+O Spaghetti Sort é baseado em uma analogia física onde "espaguetes" de diferentes comprimentos são soltos verticalmente, e os mais curtos tocam o chão primeiro. Na implementação, funciona como uma variante do algoritmo de contagem (Counting Sort).
+
+\paragraph{Análise das Fases do Algoritmo}
+
+O algoritmo executa as seguintes fases sequenciais:
+\begin{enumerate}
+\item \textbf{Encontrar valor máximo:} $O(n)$
+\item \textbf{Inicializar array de contagem:} $O(k)$ onde $k = \max(A) + 1$
+\item \textbf{Contar ocorrências:} $O(n)$
+\item \textbf{Reconstruir array ordenado:} $O(n + k)$
+\end{enumerate}
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Quando o range dos valores é pequeno e proporcional a $n$
+\\
+\textbf{Prova:}
+
+Seja $k = \max(A) - \min(A) + 1$ o range dos valores distintos.
+
+No melhor caso, $k = O(n)$:
+\begin{align}
+T_{\text{melhor}}(n) &= O(n) + O(k) + O(n) + O(n + k) \\
+&= O(n) + O(n) + O(n) + O(n + n) \\
+&= O(n) + O(n) + O(n) + O(n) \\
+&= O(n)
+\end{align}
+
+\textbf{Exemplo:} Array $[1, 2, 3, 4, 5]$ tem $n = 5$ e $k = 5$.
+
+\paragraph{Pior Caso: $O(k)$}
+\textbf{Cenário:} Quando o range dos valores é muito maior que $n$
+\\
+\textbf{Prova:}
+
+No pior caso, $k \gg n$ (valores muito esparsos):
+\begin{align}
+T_{\text{pior}}(n) &= O(n) + O(k) + O(n) + O(n + k) \\
+&= O(n) + O(k) + O(n) + O(k) \quad \text{(pois } k \gg n\text{)} \\
+&= O(k)
+\end{align}
+
+\textbf{Exemplo:} Array $[1, 1000000]$ tem $n = 2$ mas $k = 1000000$.
+
+\paragraph{Caso Médio: $O(n + k)$}
+\textbf{Cenário:} Distribuição típica de valores
+\\
+\textbf{Prova:}
+
+Para uma distribuição geral, ambos $n$ e $k$ contribuem significativamente:
+\begin{align}
+T_{\text{médio}}(n) &= O(n) + O(k) + O(n) + O(n + k) \\
+&= O(n + k)
+\end{align}
+
+\textbf{Análise detalhada de cada fase:}
+\begin{itemize}
+\item \textbf{Busca do máximo:} $\sum_{i=0}^{n-1} O(1) = O(n)$
+\item \textbf{Inicialização contadores:} $\sum_{i=0}^{k-1} O(1) = O(k)$
+\item \textbf{Contagem:} $\sum_{i=0}^{n-1} O(1) = O(n)$
+\item \textbf{Reconstrução:} $O(n)$ elementos + $O(k)$ iteração sobre contadores $= O(n + k)$
+\end{itemize}
+
+\subsubsection{Análise Dependente do Range}
+
+\paragraph{Classificação por Range}
+\textbf{Caso 1: Range pequeno ($k = O(n)$)}
+\begin{align}
+T(n) &= O(n + k) = O(n + n) = O(n) \\
+\text{Eficiência} &= \text{Linear}
+\end{align}
+
+\textbf{Caso 2: Range moderado ($k = O(n \log n)$)}
+\begin{align}
+T(n) &= O(n + k) = O(n + n \log n) = O(n \log n) \\
+\text{Eficiência} &= \text{Linearítmica}
+\end{align}
+
+\textbf{Caso 3: Range grande ($k = O(n^c)$ para $c > 1$)}
+\begin{align}
+T(n) &= O(n + k) = O(n + n^c) = O(n^c) \\
+\text{Eficiência} &= \text{Polinomial}
+\end{align}
+
+\textbf{Caso 4: Range exponencial ($k = O(2^n)$)}
+\begin{align}
+T(n) &= O(n + k) = O(n + 2^n) = O(2^n) \\
+\text{Eficiência} &= \text{Exponencial}
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(k)$}
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Array de contagem:} \texttt{count[0..k-1]} $\rightarrow O(k)$
+\item \textbf{Variáveis auxiliares:}
+\begin{itemize}
+\item \texttt{maxVal}: valor máximo $\rightarrow O(1)$
+\item \texttt{index}: índice de reconstrução $\rightarrow O(1)$
+\item Contadores de loop: $i, j$ $\rightarrow O(1)$
+\end{itemize}
+\item \textbf{Espaço total:} $O(k) + O(1) = O(k)$
+\end{itemize}
+
+\paragraph{Análise do Espaço por Cenário}
+\textbf{Melhor caso (espaço):} $k = O(n) \Rightarrow S(n) = O(n)$
+\\
+\textbf{Pior caso (espaço):} $k = O(\max(A)) \Rightarrow S(n) = O(\max(A))$
+
+\subsubsection{Características da Analogia Física}
+
+\paragraph{Modelo Matemático da ``Queda dos Espaguetes''}
+\textbf{Interpretação física:}
+\begin{itemize}
+\item Espaguete de comprimento $\ell$ representa valor $\ell$
+\item Tempo para tocar o chão: $t(\ell) = \sqrt{\frac{2h}{\ell}} \propto \ell^{-1/2}$
+\item Ordem de chegada: crescente por comprimento
+\end{itemize}
+
+\textbf{Mapeamento computacional:}
+\begin{itemize}
+\item "Empilhar espaguetes": fase de contagem $O(n)$
+\item "Soltar espaguetes": ordenação implícita $O(1)$
+\item "Coletar por ordem de chegada": reconstrução $O(n + k)$
+\end{itemize}
+
+\subsubsection{Análise de Estabilidade Temporal}
+
+\paragraph{Invariantes do Algoritmo}
+\begin{itemize}
+\item \textbf{Preservação de frequências:} $\sum_{i} \text{count}[i] = n$
+\item \textbf{Ordenação por construção:} elementos reconstruídos em ordem
+\item \textbf{Completude:} todos elementos originais são preservados
+\end{itemize}
+
+\paragraph{Limitações Dependentes de Dados}
+\textbf{Teorema da Dependência do Range:}
+\begin{thm}
+O Spaghetti Sort tem complexidade temporal $\Theta(n + k)$ onde $k$ é o range dos valores de entrada, tornando-o eficiente apenas quando $k = O(n^c)$ para $c \leq 1$.
+\end{thm}
+
+\textbf{Prova:} A necessidade de inicializar e iterar sobre o array de contagem de tamanho $k$ torna impossível reduzir a dependência de $k$.
+
+\subsubsection{Casos Especiais de Desempenho}
+
+\paragraph{Valores Negativos}
+\textbf{Ajuste para range $[\min, \max]$:}
+\begin{align}
+k &= \max(A) - \min(A) + 1 \\
+\text{offset} &= -\min(A) \\
+T(n) &= O(n + k) \text{ (inalterado)}
+\end{align}
+
+\paragraph{Valores Duplicados}
+\textbf{Comportamento com multiplicidades:}
+\begin{itemize}
+\item Contagem preserva multiplicidades: $O(1)$ por elemento
+\item Reconstrução mantém estabilidade: $O(\text{multiplicidade})$ por valor
+\item Complexidade total: $O(n + k)$ (inalterado)
+\end{itemize}
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Estável - preserva ordem relativa de elementos iguais
+\item \textbf{In-place:} Não - requer $O(k)$ espaço adicional
+\item \textbf{Adaptativo:} Não - complexidade independe da configuração inicial
+\item \textbf{Método:} Contagem e distribuição
+\item \textbf{Restrições:} Eficiente apenas para ranges pequenos
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(n)$ quando $k = O(n)$
+\item \textbf{Caso geral:} $O(n + k)$ onde $k$ é o range dos valores
+\item \textbf{Pior caso:} $O(k)$ quando $k \gg n$
+\item \textbf{Espaço auxiliar:} $O(k)$ - não é in-place
+\item \textbf{Aplicabilidade:} Ideal para valores inteiros com range limitado
+\end{itemize}
+
+
+
+
+\section{I Can't Believe It Can Sort}
+
+\textbf{Descrição:}
+O I Can't Believe It Can Sort (ICBICS, também conhecido como ICBINS, “I Can't Believe It's Not Sorting”) é um algoritmo de ordenação por comparação criado como curioso experimento algorítmico. A ideia é partir de um array já ordenado chamado “ordenação canônica” e gerar permutações através de trocas parciais usando algoritmos derivados de busca binária, até retornar à ordenação desejada. Apesar do nome e da intenção humorística, ele funciona corretamente para ordenar, mas sem ganho de eficiência prática ou teórica. O algoritmo ilustra propriedades de permutação, busca e é um exemplo didático notório.
+
+\begin{exmp}
+Considere ordenar $A = [5, 1, 4, 2, 3]$ com ICBICS.
+\begin{enumerate}
+\item Gera-se um “array canônico” $B = [1, 2, 3, 4, 5]$.
+\item Para cada elemento de $A$, busca-se a posição correta em $B$ e realiza-se o movimento equivalente no $A$, por meio de trocas com busca binária.
+\item Repetido para todos os elementos, o array original vai convergindo até se tornar igual ao array ordenado.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{ICBICS(A: array, n: int)};
+B $\gets$ array canônico de $A$, ordenado;
+\For{$i$ de $0$ até $n-1$}{
+buscar onde $A[i]$ deveria ir em $B$ (busca binária);
+trocar $A[i]$ e $A[pos]$ se necessário;
+}
+repetir até $A = B$
+\caption{I Can't Believe It Can Sort}
+\label{lab:alg-icbics}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={I Can’t Believe It Can Sort em Python},captionpos=t,label=code:icbicsPy]
+def icbics(arr):
+    B = sorted(arr)
+    n = len(arr)
+    while arr != B:
+        for i in range(n):
+            # Busca binaria na ordenacao canonica
+            left, right = 0, n - 1
+            while left <= right:
+                mid = (left + right) // 2
+                if B[mid] == arr[i]:
+                    if i != mid:
+                        arr[i], arr[mid] = arr[mid], arr[i]
+                    break
+                elif B[mid] < arr[i]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+    return arr
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={I Can't Believe It Can Sort em C (simplificado)},captionpos=t, label=code:icbicsC]
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+void icbics(int *arr, int n) {
+    int *B = malloc(n * sizeof(int));
+    memcpy(B, arr, n * sizeof(int));
+
+    // Ordenacao canonica (Bubble Sort didatico)
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (B[j] > B[j + 1]) {
+                int temp = B[j];
+                B[j] = B[j + 1];
+                B[j + 1] = temp;
+            }
+
+    bool sorted = false;
+    while (!sorted) {
+        sorted = true;
+        for (int i = 0; i < n; i++) {
+            // Busca binaria de arr[i] em B
+            int left = 0, right = n - 1;
+            while (left <= right) {
+                int mid = (left + right) / 2;
+                if (B[mid] == arr[i]) {
+                    if (i != mid) {
+                        int temp = arr[i];
+                        arr[i] = arr[mid];
+                        arr[mid] = temp;
+                        sorted = false;
+                    }
+                    break;
+                } else if (B[mid] < arr[i]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+    }
+    free(B);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={I Canct Believe It Can Sort em C++ (simplificado)},captionpos=t, label=code:icbicsC++]
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+using namespace std;
+
+// Funcao para checar se o vetor esta ordenado
+bool isSorted(const vector<int>& arr) {
+    for (size_t i = 1; i < arr.size(); ++i)
+        if (arr[i-1] > arr[i]) return false;
+    return true;
+}
+
+void icbicsSort(vector<int>& arr) {
+    srand(time(0));
+    while (!isSorted(arr)) {
+        int i = rand() % arr.size();
+        int j = rand() % arr.size();
+        swap(arr[i], arr[j]);
+    }
+}
+
+int main() {
+    vector<int> arr = {3, 1, 4, 2};
+
+    icbicsSort(arr);
+
+    cout << "Sorted array: ";
+    for (auto n : arr) cout << n << " ";
+    cout << endl;
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do I Can't Believe It Can Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+O "I Can't Believe It Can Sort" (ICBICS) é um algoritmo probabilístico que embaralha aleatoriamente o array e verifica se está ordenado, repetindo até conseguir a ordenação desejada.
+
+\paragraph{Análise Probabilística Fundamental}
+
+Para um array de $n$ elementos distintos:
+\begin{itemize}
+\item \textbf{Total de permutações possíveis:} $n!$
+\item \textbf{Permutações ordenadas:} $1$ (apenas a sequência crescente)
+\item \textbf{Probabilidade de sucesso por tentativa:} $P = \frac{1}{n!}$
+\end{itemize}
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Array já ordenado ou ordenado na primeira tentativa
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Tentativas necessárias:} $1$
+\item \textbf{Custo de verificação:} $O(n)$ para checar se está ordenado
+\item \textbf{Custo de embaralhamento:} $O(n)$ (se necessário)
+\item \textbf{Complexidade total:} $O(n) + O(n) = O(n)$
+\end{itemize}
+
+\paragraph{Pior Caso: $O(\infty)$}
+\textbf{Cenário:} Teoricamente, o algoritmo pode nunca terminar
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item Cada tentativa é independente das anteriores
+\item Não há garantia de que uma permutação ordenada será gerada
+\item \textbf{Limite superior:} $\lim_{k \to \infty} O(k \cdot n) = O(\infty)$
+\end{itemize}
+
+\textbf{Análise probabilística do pior caso:}
+A probabilidade de não conseguir ordenar após $k$ tentativas é:
+\begin{align}
+P(\text{falha após } k \text{ tentativas}) &= \left(1 - \frac{1}{n!}\right)^k \\
+&= \left(\frac{n! - 1}{n!}\right)^k
+\end{align}
+
+Para $k \to \infty$: $P(\text{falha}) \to 0$, mas nunca é exatamente zero.
+
+\paragraph{Caso Médio (Esperado): $O(n! \cdot n)$}
+\textbf{Cenário:} Análise do número esperado de tentativas
+\\
+\textbf{Prova:}
+
+Seja $X$ a variável aleatória que representa o número de tentativas até o sucesso. $X$ segue uma distribuição geométrica com parâmetro $p = \frac{1}{n!}$.
+
+\textbf{Número esperado de tentativas:}
+\begin{align}
+E[X] &= \frac{1}{p} = \frac{1}{\frac{1}{n!}} = n!
+\end{align}
+
+\textbf{Custo por tentativa:}
+\begin{itemize}
+\item Embaralhamento: $O(n)$
+\item Verificação de ordenação: $O(n)$
+\item Total por tentativa: $O(n)$
+\end{itemize}
+
+\textbf{Complexidade temporal esperada:}
+\begin{align}
+E[T(n)] &= E[X] \times \text{custo por tentativa} \\
+&= n! \times O(n) \\
+&= O(n! \cdot n)
+\end{align}
+
+\subsubsection{Análise Detalhada por Operação}
+
+\paragraph{Embaralhamento Aleatório}
+\textbf{Algoritmo Fisher-Yates (usado internamente):}
+\begin{align}
+T_{\text{shuffle}}(n) &= \sum_{i=0}^{n-1} O(1) = O(n)
+\end{align}
+
+\paragraph{Verificação de Ordenação}
+\textbf{Verificação sequencial:}
+\begin{align}
+T_{\text{check}}(n) &= \sum_{i=0}^{n-2} O(1) = O(n-1) = O(n)
+\end{align}
+
+\paragraph{Análise da Variância}
+Para uma distribuição geométrica com parâmetro $p = \frac{1}{n!}$:
+\begin{align}
+\text{Var}[X] &= \frac{1-p}{p^2} = \frac{1-\frac{1}{n!}}{\left(\frac{1}{n!}\right)^2} \\
+&= (n!)^2 - n! \\
+&= n!(n! - 1)
+\end{align}
+
+\textbf{Desvio padrão:} $\sigma = \sqrt{n!(n! - 1)} \approx n!$
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(1)$}
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Variáveis utilizadas:}
+\begin{itemize}
+\item Índices para embaralhamento: $i, j$ $\rightarrow O(1)$
+\item Variável temporária para troca: \texttt{temp} $\rightarrow O(1)$
+\item Flag booleana para verificação: \texttt{sorted} $\rightarrow O(1)$
+\item Gerador de números aleatórios (estado): $\rightarrow O(1)$
+\end{itemize}
+\item \textbf{Modificação in-place:} O array é embaralhado no próprio espaço
+\item \textbf{Espaço total:} $O(1)$ - algoritmo in-place
+\end{itemize}
+
+\subsubsection{Análise Assintótica Detalhada}
+
+\paragraph{Crescimento Factorial}
+\textbf{Comportamento de $n!$:}
+\begin{align}
+n! &\approx \sqrt{2\pi n} \left(\frac{n}{e}\right)^n \quad \text{(Fórmula de Stirling)} \\
+\log(n!) &= O(n \log n) \\
+n! &= \Omega(2^n) \text{ e } n! = O(n^n)
+\end{align}
+
+\textbf{Implicações práticas:}
+\begin{itemize}
+\item Para $n = 10$: $E[X] = 3.628.800$ tentativas
+\item Para $n = 15$: $E[X] \approx 1.3 \times 10^{12}$ tentativas
+\item Para $n = 20$: $E[X] \approx 2.4 \times 10^{18}$ tentativas
+\end{itemize}
+
+\subsubsection{Características Probabilísticas}
+
+\paragraph{Distribuição do Tempo de Execução}
+\textbf{Função de distribuição acumulada:}
+\begin{align}
+P(X \leq k) &= 1 - \left(1 - \frac{1}{n!}\right)^k \\
+&= 1 - \left(\frac{n! - 1}{n!}\right)^k
+\end{align}
+
+\paragraph{Mediana do Número de Tentativas}
+\textbf{Valor mediano:}
+\begin{align}
+P(X \leq m) &= 0.5 \\
+\left(\frac{n! - 1}{n!}\right)^m &= 0.5 \\
+m &= \frac{\ln(0.5)}{\ln\left(\frac{n! - 1}{n!}\right)} \\
+&\approx n! \ln(2) \approx 0.693 \cdot n!
+\end{align}
+
+\subsubsection{Limitações e Impracticabilidade}
+
+\begin{thm}[Impracticabilidade Assintótica]
+Para $n \geq 10$, o tempo esperado de execução do ICBICS torna-se computacionalmente impraticável, crescendo mais rapidamente que qualquer polinômio.
+\end{thm}
+
+\textbf{Prova:} $O(n! \cdot n)$ cresce mais rapidamente que $O(n^k)$ para qualquer $k$ constante.
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Não aplicável - embaralhamento aleatório
+\item \textbf{In-place:} Sim - utiliza apenas $O(1)$ espaço extra
+\item \textbf{Adaptativo:} Não - comportamento independe da configuração inicial
+\item \textbf{Método:} Embaralhamento aleatório repetitivo
+\item \textbf{Terminação:} Quase certamente termina, mas sem garantia temporal
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(n)$ - sucesso imediato
+\item \textbf{Caso esperado:} $O(n! \cdot n)$ - número esperado de tentativas
+\item \textbf{Pior caso:} $O(\infty)$ - pode nunca terminar
+\item \textbf{Espaço auxiliar:} $O(1)$ - algoritmo in-place
+\item \textbf{Natureza:} Algoritmo probabilístico de interesse puramente teórico
+\end{itemize}
+
+
+\section{Exchange Sort}
+\textbf{Descrição:}
+O Exchange Sort é um algoritmo simples de ordenação por comparação semelhante ao Selection Sort. O algoritmo compara cada elemento com todos os seguintes e troca elementos quando necessário, até todo o vetor estar ordenado.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [4, 2, 3, 1]$ com Exchange Sort:
+\begin{enumerate}
+\item O 4 é comparado com 2, 3 e 1. Sempre que encontra um valor menor, realiza a troca imediatamente.
+\item O 2 é comparado e trocado se necessário; segue até o fim.
+\item O processo se repete até o vetor ficar ordenado: $[1, 2, 3, 4]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{exchangeSort(A: array, n: int)};
+\For{$i = 0$ até $n-2$}{
+\For{$j = i+1$ até $n-1$}{
+\If{$A[i] > A[j]$}{
+trocar $A[i] \leftrightarrow A[j]$;
+}
+}
+}
+\caption{Exchange Sort}
+\label{lab:alg-exchangesort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Exchange Sort em Python},captionpos=t, label=code:exchangesortPy]
+def exchange_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            if arr[i] > arr[j]:
+                arr[i], arr[j] = arr[j], arr[i]
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Exchange Sort em C},captionpos=t, label=code:exchangesortC]
+#include <stdio.h>
+
+void exchangeSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (arr[i] > arr[j]) {
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Exchange Sort em C++},captionpos=t, label=code:exchangesortC++]
+#include <iostream>
+using namespace std;
+
+void exchangeSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (arr[i] > arr[j]) {
+                // Troca se fora de ordem
+                swap(arr[i], arr[j]);
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Exchange Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+O Exchange Sort possui uma característica única: o número de comparações é sempre o mesmo, independente da configuração inicial do array. Vamos analisar cada caso:
+
+\paragraph{Análise Geral das Comparações}
+\textbf{Cálculo do número total de comparações:}
+
+O algoritmo executa dois loops aninhados:
+\begin{itemize}
+\item Loop externo: $i$ varia de $0$ até $n-2$
+\item Loop interno: $j$ varia de $i+1$ até $n-1$
+\end{itemize}
+
+O número total de comparações é:
+\begin{align}
+C(n) &= \sum_{i=0}^{n-2} \sum_{j=i+1}^{n-1} 1 \\
+&= \sum_{i=0}^{n-2} (n-1-i) \\
+&= \sum_{i=0}^{n-2} (n-1) - \sum_{i=0}^{n-2} i \\
+&= (n-1)^2 - \frac{(n-2)(n-1)}{2} \\
+&= \frac{2(n-1)^2 - (n-2)(n-1)}{2} \\
+&= \frac{(n-1)[2(n-1) - (n-2)]}{2} \\
+&= \frac{(n-1)(n)}{2} \\
+&= \frac{n(n-1)}{2}
+\end{align}
+
+Portanto, $C(n) = \frac{n(n-1)}{2} = O(n^2)$ para todos os casos.
+
+\paragraph{Melhor Caso: $O(n^2)$}
+\textbf{Cenário:} Array já ordenado em ordem crescente
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Comparações:} $\frac{n(n-1)}{2} = O(n^2)$
+\item \textbf{Trocas:} $0$ (nenhuma troca necessária)
+\item \textbf{Complexidade total:} $O(n^2) + O(0) = O(n^2)$
+\end{itemize}
+
+\paragraph{Pior Caso: $O(n^2)$}
+\textbf{Cenário:} Array em ordem completamente decrescente
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Comparações:} $\frac{n(n-1)}{2} = O(n^2)$
+\item \textbf{Trocas:} $\frac{n(n-1)}{2}$ (todas as comparações resultam em troca)
+\item \textbf{Complexidade total:} $O(n^2) + O(n^2) = O(n^2)$
+\end{itemize}
+
+\textbf{Demonstração das trocas no pior caso:}
+Para um array decrescente $[n, n-1, n-2, \ldots, 1]$:
+\begin{itemize}
+\item Elemento na posição $i$ é trocado com todos os elementos nas posições $j > i$
+\item Número de trocas para elemento $i$: $(n-1-i)$
+\item Total de trocas: $\sum_{i=0}^{n-2}(n-1-i) = \frac{n(n-1)}{2}$
+\end{itemize}
+
+\paragraph{Caso Médio: $O(n^2)$}
+\textbf{Cenário:} Array com elementos em ordem aleatória
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Comparações:} $\frac{n(n-1)}{2} = O(n^2)$ (sempre o mesmo)
+\item \textbf{Trocas esperadas:} 
+\end{itemize}
+
+Para cada par $(i,j)$ onde $i < j$, a probabilidade de $A[i] > A[j]$ é $\frac{1}{2}$.
+
+Número esperado de trocas:
+\begin{align}
+E[T(n)] &= \sum_{i=0}^{n-2} \sum_{j=i+1}^{n-1} P(A[i] > A[j]) \\
+&= \sum_{i=0}^{n-2} \sum_{j=i+1}^{n-1} \frac{1}{2} \\
+&= \frac{1}{2} \cdot \frac{n(n-1)}{2} \\
+&= \frac{n(n-1)}{4} = O(n^2)
+\end{align}
+
+\textbf{Complexidade total:} $O(n^2) + O(n^2) = O(n^2)$
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(1)$}
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Variáveis utilizadas:}
+\begin{itemize}
+\item $i$, $j$: contadores de loop $\rightarrow O(1)$
+\item \texttt{temp}: variável temporária para troca $\rightarrow O(1)$
+\item Nenhum array ou estrutura auxiliar é criada
+\end{itemize}
+\item \textbf{Espaço total:} $O(1)$ - algoritmo in-place
+\item \textbf{Modificações:} O algoritmo modifica o array original, sem criar cópias
+\end{itemize}
+
+\subsubsection{Características Distintivas do Exchange Sort}
+
+\begin{thm}[Invariabilidade das Comparações]
+O Exchange Sort sempre realiza exatamente $\frac{n(n-1)}{2}$ comparações, independente da configuração inicial do array.
+\end{thm}
+
+\textbf{Prova:} A estrutura de loops aninhados garante que cada par $(i,j)$ com $i < j$ seja comparado exatamente uma vez.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Métrica} & \textbf{Melhor Caso} & \textbf{Caso Médio} & \textbf{Pior Caso} \\
+\hline
+Comparações & $\frac{n(n-1)}{2}$ & $\frac{n(n-1)}{2}$ & $\frac{n(n-1)}{2}$ \\
+\hline
+Trocas & $0$ & $\frac{n(n-1)}{4}$ & $\frac{n(n-1)}{2}$ \\
+\hline
+Complexidade & $O(n^2)$ & $O(n^2)$ & $O(n^2)$ \\
+\hline
+\end{tabular}
+\caption{Análise Detalhada do Exchange Sort}
+\end{table}
+
+\subsubsection{Comparação com Outros Algoritmos}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Algoritmo} & \textbf{Melhor Caso} & \textbf{Pior Caso} & \textbf{Espaço} \\
+\hline
+Exchange Sort & $O(n^2)$ & $O(n^2)$ & $O(1)$ \\
+\hline
+Selection Sort & $O(n^2)$ & $O(n^2)$ & $O(1)$ \\
+\hline
+Bubble Sort & $O(n)$ & $O(n^2)$ & $O(1)$ \\
+\hline
+\end{tabular}
+\caption{Comparação entre Algoritmos Similares}
+\end{table}
+
+\subsubsection{Características do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Não estável - elementos iguais podem ter ordem alterada
+\item \textbf{In-place:} Sim - ordena sem espaço auxiliar significativo
+\item \textbf{Adaptativo:} Não - sempre $O(n^2)$, mesmo para arrays ordenados
+\item \textbf{Método:} Comparação e troca direta (direct exchange)
+\item \textbf{Comportamento:} Determinístico - sempre o mesmo número de comparações
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item Melhor caso: $O(n^2)$ - array já ordenado
+\item Caso médio: $O(n^2)$ - distribuição aleatória
+\item Pior caso: $O(n^2)$ - array em ordem reversa
+\item Espaço auxiliar: $O(1)$ - algoritmo in-place
+\item \textbf{Peculiaridade:} Único algoritmo simples com complexidade sempre $O(n^2)$
+\end{itemize}
+
+
+\section{Strand Sort}
+
+\textbf{Descrição:}
+O Strand Sort é um algoritmo de ordenação por comparação que constrói repetidamente sublistas ordenadas (strands) a partir da lista original. Em cada etapa, extrai-se uma strand crescente da lista de entrada, mescla-se com a lista resultante ordenada, e repete-se até a lista original estar vazia.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [4, 2, 3, 1]$ com Strand Sort:
+\begin{enumerate}
+\item A primeira strand extraída é $[4]$. A nova lista fica $[2,3,1]$.
+\item Na segunda passagem, a strand $[2,3]$ é retirada. Mescla-se com $[4]$ para $[2,3,4]$; nova lista $[1]$.
+\item O $[1]$ é a última strand, e a mesclagem final resulta em $[1,2,3,4]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{strandSort(A: lista)}\;
+result $\gets$ lista vazia\;
+\While{A não está vazia}{
+extrair primeira strand ordenada de A para S;
+result $\gets$ merge(result, S)
+}
+\textbf{retorn} result
+\caption{Strand Sort (simplificado)}
+\label{lab:alg-strandsort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Strand Sort em Python},captionpos=t, label=code:strandsortPy]
+def merge(a, b):
+    result = []
+    i = j = 0
+    while i < len(a) and j < len(b):
+        if a[i] < b[j]:
+            result.append(a[i])
+            i += 1
+        else:
+            result.append(b[j])
+            j += 1
+    result.extend(a[i:])
+    result.extend(b[j:])
+    return result
+
+def strand_sort(arr):
+    result = []
+    arr = arr[:]  # Evita modificar lista original
+    while arr:
+        strand = [arr.pop(0)]
+        i = 0
+        while i < len(arr):
+            if arr[i] >= strand[-1]:
+                strand.append(arr.pop(i))
+            else:
+                i += 1
+        result = merge(result, strand)
+    return result
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Strand Sort em C (simplificado)},captionpos=t, label=code:strandsortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+void merge(int *a, int na, int *b, int nb, int *out) {
+    int i = 0, j = 0, k = 0;
+    while (i < na && j < nb) {
+        if (a[i] < b[j])
+            out[k++] = a[i++];
+        else
+            out[k++] = b[j++];
+    }
+    while (i < na) out[k++] = a[i++];
+    while (j < nb) out[k++] = b[j++];
+}
+
+void strandSort(int *arr, int n, int *out, int *outSz) {
+    int *input = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++)
+        input[i] = arr[i];
+    int inSz = n, resSz = 0;
+    int *result = malloc(n * sizeof(int));
+    while (inSz > 0) {
+        int *strand = malloc(n * sizeof(int));
+        int strandSz = 0;
+        int last = input[0], si = 1;
+        strand[strandSz++] = last;
+        for (int i = 1; i < inSz; i++) {
+            if (input[i] >= last) {
+                strand[strandSz++] = input[i];
+                last = input[i];
+            } else {
+                input[si++] = input[i];
+            }
+        }
+        inSz = si - 1;
+        int *merged = malloc(n * sizeof(int));
+        merge(result, resSz, strand, strandSz, merged);
+        resSz = resSz + strandSz;
+        for (int i = 0; i < resSz; i++)
+            result[i] = merged[i];
+        free(merged);
+        free(strand);
+    }
+    for (int i = 0; i < resSz; i++)
+        out[i] = result[i];
+    *outSz = resSz;
+    free(result);
+    free(input);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Strand Sort em C++ (simplificado)},captionpos=t, label=code:strandsortC++]
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Funcao para mesclar dois vetores ordenados
+void merge(vector<int>& mainList, vector<int>& strand) {
+    vector<int> merged;
+    int i = 0, j = 0;
+    while (i < mainList.size() && j < strand.size()) {
+        if (mainList[i] < strand[j]) {
+            merged.push_back(mainList[i++]);
+        } else {
+            merged.push_back(strand[j++]);
+        }
+    }
+    // Adiciona elementos restantes
+    while (i < mainList.size()) merged.push_back(mainList[i++]);
+    while (j < strand.size())   merged.push_back(strand[j++]);
+    mainList = merged;
+}
+
+// Funcao principal do Strand Sort
+void strandSort(vector<int>& input, vector<int>& output) {
+    while (!input.empty()) {
+        vector<int> strand;
+        strand.push_back(input[0]);
+        input.erase(input.begin());
+        // Cria a strand ordenada
+        for (auto it = input.begin(); it != input.end(); ) {
+            if (*it >= strand.back()) {
+                strand.push_back(*it);
+                it = input.erase(it); // Remove elemento adicionado a strand
+            } else {
+                ++it;
+            }
+        }
+        // Mescla a strand com a lista resultado
+        merge(output, strand);
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Strand Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Array já ordenado em ordem crescente
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item A lista inteira é extraída como uma única strand na primeira passagem
+\item \textbf{Extração da strand:} $O(n)$ - percorre toda a lista uma vez
+\item \textbf{Merge:} $O(n)$ - mescla a strand de tamanho $n$ com lista vazia
+\item \textbf{Total de passagens:} 1
+\item \textbf{Complexidade total:} $O(n) + O(n) = O(n)$
+\end{itemize}
+
+\paragraph{Pior Caso: $O(n^2)$}
+\textbf{Cenário:} Array em ordem completamente decrescente
+\\
+\textbf{Prova:}
+\begin{itemize}
+\item Cada passagem extrai apenas um elemento (strand de tamanho 1)
+\item \textbf{Número de passagens:} $n$ (uma para cada elemento)
+\item \textbf{Análise por passagem $i$ ($i = 1, 2, \ldots, n$):}
+\begin{itemize}
+\item Extração da strand: $O(n-i+1)$ para percorrer lista restante
+\item Merge com resultado: $O(i)$ para mesclar strand com lista resultado de tamanho $i-1$
+\end{itemize}
+\end{itemize}
+
+\textbf{Cálculo total:}
+\begin{align}
+\sum_{i=1}^{n} [O(n-i+1) + O(i)] &= \sum_{i=1}^{n} O(n+1) \\
+&= n \times O(n+1) \\
+&= O(n^2)
+\end{align}
+
+\textbf{Demonstração detalhada:}
+\begin{align}
+\text{Passagem 1:} &\quad O(n) + O(1) = O(n) \\
+\text{Passagem 2:} &\quad O(n-1) + O(2) = O(n+1) \\
+\text{Passagem 3:} &\quad O(n-2) + O(3) = O(n+1) \\
+&\vdots \\
+\text{Passagem } n: &\quad O(1) + O(n) = O(n+1) \\
+\text{Total:} &\quad n \times O(n+1) = O(n^2)
+\end{align}
+
+\paragraph{Caso Médio: $O(n^2)$}
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Tamanho esperado da strand:} constante (dependendo da distribuição)
+\item \textbf{Número esperado de passagens:} $O(n)$
+\item \textbf{Custo médio por passagem:} $O(n)$ (extração + merge)
+\item \textbf{Complexidade total:} $O(n) \times O(n) = O(n^2)$
+\end{itemize}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(n)$}
+\textbf{Prova:}
+\begin{itemize}
+\item \textbf{Estruturas auxiliares necessárias:}
+\begin{itemize}
+\item \texttt{result}: lista resultado $\rightarrow O(n)$
+\item \texttt{strand}: strand atual $\rightarrow O(k)$, onde $k \leq n$
+\item \texttt{merged}: array temporário durante merge $\rightarrow O(n)$
+\item Variáveis de controle (índices, iteradores) $\rightarrow O(1)$
+\end{itemize}
+\item \textbf{Análise detalhada:}
+\begin{itemize}
+\item \textbf{Lista resultado:} cresce de 0 até $n$ elementos $\rightarrow O(n)$
+\item \textbf{Strand atual:} máximo $n$ elementos (melhor caso) $\rightarrow O(n)$
+\item \textbf{Merge temporário:} sempre $O(n)$ para mesclar
+\item \textbf{Lista de entrada modificada:} mantém cópia $\rightarrow O(n)$
+\end{itemize}
+\item \textbf{Espaço total:} $O(n) + O(n) + O(n) + O(n) = O(n)$
+\end{itemize}
+
+\subsubsection{Resumo das Complexidades}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Caso} & \textbf{Complexidade de Tempo} & \textbf{Justificativa} \\
+\hline
+Melhor & $O(n)$ & Lista já ordenada - 1 passagem \\
+\hline
+Médio & $O(n^2)$ & Strands de tamanho médio constante \\
+\hline
+Pior & $O(n^2)$ & Lista decrescente - $n$ passagens \\
+\hline
+\end{tabular}
+\caption{Complexidade de Tempo do Strand Sort}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Espaço} & \textbf{Complexidade} & \textbf{Justificativa} \\
+\hline
+Auxiliar & $O(n)$ & Listas resultado, strand e temporárias \\
+\hline
+\end{tabular}
+\caption{Complexidade de Espaço do Strand Sort}
+\end{table}
+
+\begin{thm}[Complexidade do Strand Sort]
+Para o Strand Sort operando em uma lista de $n$ elementos:
+\begin{itemize}
+\item $T(n) = O(n^2)$ no pior caso, quando cada strand contém exatamente 1 elemento
+\item $S(n) = O(n)$ sempre, devido às estruturas auxiliares necessárias
+\end{itemize}
+\end{thm}
+
+\textbf{Prova do limite inferior:} No pior caso (lista decrescente), o algoritmo deve fazer $n$ passagens, cada uma custando $O(n)$ operações, resultando em $\Omega(n^2)$.
+
+\subsubsection{Características do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Estável - mantém ordem relativa de elementos iguais
+\item \textbf{In-place:} Não - requer $O(n)$ espaço auxiliar
+\item \textbf{Adaptativo:} Sim - performa melhor em listas com subsequências crescentes
+\item \textbf{Método:} Extração e mesclagem (extracting and merging)
+\item \textbf{Otimização:} Eficiente para listas com muitas subsequências crescentes
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item Melhor caso: $O(n)$ - lista já ordenada
+\item Caso médio: $O(n^2)$
+\item Pior caso: $O(n^2)$ - lista em ordem decrescente
+\item Espaço auxiliar: $O(n)$ - não é in-place
+\end{itemize}
+
+
+\section{Recombinant Sort}
+
+\textbf{Descrição:} O Recombinant Sort é um algoritmo de ordenação linear (O(n)) que combina ideias exploradas em outras estruturas já conhecidas da computação como o Hashing e Programação dinâmica, além de outros algoritmos de ordenação como: Counting Sort, Bucket Sort, Radix Sort.
+A ideia central é mapear cada número diretamente para uma posição em um espaço N-dimensional, baseado em seus dígitos — como se os dígitos fossem coordenadas de um hiper-cubo.
+
+\begin{algorithm}[H]
+\caption{Recombinant Sort}
+\KwIn{Array $A$ contendo $N$ elementos numéricos ou strings}
+\KwOut{Array $A$ ordenado}
+
+\textbf{Preprocessamento:} Padronizar os elementos para terem o mesmo número de dígitos\;
+\textbf{Criar:} Espaço cartesiano $S$ de tamanho adequado (1D, 2D, ..., $k$-dimensional)\;
+\textbf{Criar:} Mapas de travessia $H_{\min}$ e $H_{\max}$ inicializados com nulos\;
+
+\textbf{Hashing Cycle:}
+
+\For{$i \gets 0$ \textbf{to} $N-1$}{
+    Converter $A[i]$ para representação com dígitos uniformes\;
+    Decompor em dígitos: $d_1, d_2, \dots, d_k$\;
+    Incrementar célula correspondente: $S[d_1][d_2]\dots [d_k] \gets S[d_1][d_2]\dots[d_k] + 1$\;
+    Atualizar $H_{\min}$ e $H_{\max}$ para cada dimensão\;
+}
+
+\textbf{Extraction Cycle:}
+$j \gets 0$\tcp*{Próxima posição de escrita em $A$}
+
+\ForEach{índice válido $(i_1, i_2, \dots, i_k)$ no espaço $S$ em ordem crescente}{
+    \If{$H_{\min}$ e $H_{\max}$ indicam que a posição é alcançável}{
+        \While{$S[i_1][i_2]\dots[i_k] > 0$}{
+            Recuperar valor correspondente aos dígitos $(i_1, \dots, i_k)$\;
+            Escrever valor em $A[j]$\;
+            $j \gets j+1$\;
+            $S[i_1][i_2]\dots[i_k] \gets S[i_1][i_2]\dots[i_k] - 1$\;
+        }
+    }
+}
+
+\Return{$A$}
+\end{algorithm}
+
+
+\begin{lstlisting}[language=Python, caption={Recombinant Sort em Python}, captionpos=t, label=code:RecombinantSortPy]
+from typing import List
+
+def recombinant_sort(arr: List[float]) -> None:
+    """
+    Recombinant Sort para numeros em [0,10) com 1 casa decimal.
+    Ordena o array IN PLACE.
+
+    Ex.: [4.5, 0.3, 2.3, 8.8, 7.0, 9.2, 4.5, 4.3, 8.0, 3.2]
+    """
+    # Count array 10x10
+    S = [[0 for _ in range(10)] for _ in range(10)]
+    H_min = [10] * 10
+    H_max = [-1] * 10
+
+    # ---------- Hashing Cycle ----------
+    for x in arr:
+        scaled = int(round(x * 10.0))  # 4.5 -> 45
+
+        if scaled < 0 or scaled > 99:
+            # fora do intervalo suportado
+            continue
+
+        i = scaled // 10
+        j = scaled % 10
+
+        S[i][j] += 1
+        if j < H_min[i]:
+            H_min[i] = j
+        if j > H_max[i]:
+            H_max[i] = j
+
+    # ---------- Extraction Cycle ----------
+    idx = 0
+    for i in range(10):
+        if H_max[i] == -1:
+            continue
+
+        for j in range(H_min[i], H_max[i] + 1):
+            while S[i][j] > 0:
+                arr[idx] = i + j / 10.0
+                idx += 1
+                S[i][j] -= 1
+
+if __name__ == "__main__":
+    data = [4.5, 0.3, 2.3, 8.8, 7.0, 9.2, 4.5, 4.3, 8.0, 3.2]
+    print("Antes:", data)
+    recombinant_sort(data)
+    print("Depois:", data)
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do Recombinant Sort em C}, captionpos=t, label=code:RecombinantSortC]
+#include <stdio.h>
+#include <math.h>   // round
+
+// Recombinant Sort para numeros em [0,10) com 1 casa decimal
+void recombinant_sort(double *arr, int n) {
+    int S[10][10] = {0};   // count array
+    int H_min[10];         // menor coluna usada em cada linha
+    int H_max[10];         // maior coluna usada em cada linha
+
+    // inicializa H_min/H_max
+    for (int i = 0; i < 10; i++) {
+        H_min[i] = 10;   // sentinel "nenhuma coluna"
+        H_max[i] = -1;
+    }
+
+    // ---------- Hashing Cycle ----------
+    for (int k = 0; k < n; k++) {
+        double x = arr[k];
+
+        // assume x em [0,10) com 1 casa decimal (ou arredondado para isso)
+        int scaled = (int)llround(x * 10.0); // ex.: 4.5 -> 45
+
+        if (scaled < 0 || scaled > 99) {
+            // fora do intervalo suportado, aqui soh ignoro;
+            // em codigo real voce trataria isso (erro ou normalizacao).
+            continue;
+        }
+
+        int i = scaled / 10;  // parte inteira
+        int j = scaled % 10;  // digito apos a virgula
+
+        S[i][j]++;
+
+        if (j < H_min[i]) H_min[i] = j;
+        if (j > H_max[i]) H_max[i] = j;
+    }
+
+    // ---------- Extraction Cycle ----------
+    int idx = 0;
+    for (int i = 0; i < 10; i++) {
+        if (H_max[i] == -1) continue;  // linha vazia
+
+        for (int j = H_min[i]; j <= H_max[i]; j++) {
+            while (S[i][j] > 0) {
+                arr[idx++] = (double)i + (double)j / 10.0;
+                S[i][j]--;
+            }
+        }
+    }
+}
+
+// Exemplo de uso
+int main(void) {
+    double arr[] = {4.5, 0.3, 2.3, 8.8, 7.0, 9.2, 4.5, 4.3, 8.0, 3.2};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    printf("Antes:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%.1f ", arr[i]);
+    }
+    printf("\n");
+
+    recombinant_sort(arr, n);
+
+    printf("Depois:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%.1f ", arr[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do Recombinant Sort em C++}, captionpos=t, label=code:RecombinantSortCpp]
+#include <iostream>
+#include <vector>
+#include <cmath>    // std::round
+
+// Recombinant Sort para numeros em [0,10) com 1 casa decimal
+void recombinant_sort(std::vector<double>& arr) {
+    int S[10][10] = {0};
+    int H_min[10];
+    int H_max[10];
+
+    for (int i = 0; i < 10; i++) {
+        H_min[i] = 10;
+        H_max[i] = -1;
+    }
+
+    // ---------- Hashing Cycle ----------
+    for (double x : arr) {
+        int scaled = static_cast<int>(std::llround(x * 10.0));
+
+        if (scaled < 0 || scaled > 99) {
+            // fora do intervalo suportado - tratar conforme necessidade
+            continue;
+        }
+
+        int i = scaled / 10;
+        int j = scaled % 10;
+
+        S[i][j]++;
+
+        if (j < H_min[i]) H_min[i] = j;
+        if (j > H_max[i]) H_max[i] = j;
+    }
+
+    // ---------- Extraction Cycle ----------
+    int idx = 0;
+    for (int i = 0; i < 10; i++) {
+        if (H_max[i] == -1) continue;
+
+        for (int j = H_min[i]; j <= H_max[i]; j++) {
+            while (S[i][j] > 0) {
+                arr[idx++] = static_cast<double>(i) + static_cast<double>(j) / 10.0;
+                S[i][j]--;
+            }
+        }
+    }
+}
+
+// Exemplo de uso
+int main() {
+    std::vector<double> arr = {4.5, 0.3, 2.3, 8.8, 7.0, 9.2, 4.5, 4.3, 8.0, 3.2};
+
+    std::cout << "Antes:\n";
+    for (double x : arr) {
+        std::cout << x << " ";
+    }
+    std::cout << "\n";
+
+    recombinant_sort(arr);
+
+    std::cout << "Depois:\n";
+    for (double x : arr) {
+        std::cout << x << " ";
+    }
+    std::cout << "\n";
+
+    return 0;
+}
+
+
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Recombinant Sort}.
+
+\subsubsection{Complexidade de Tempo}
+
+Esse algoritmo é composto por duas fases principais: o \textit{Hashing Cycle}, onde cada elemento é mapeado para uma célula do espaço cartesiano multidimensional, e o \textit{Extraction Cycle}, que percorre apenas as regiões preenchidas desse espaço para reconstruir o array ordenado.
+Segundo a análise formal do artigo análisado, o \textit{Recombinant Sort} possui tempo de execução descrito por
+\[
+T(n) = O(n + k),
+\]
+onde $n$ é o número de elementos e $k$ representa o custo da fase de extração. O ponto crucial estabelecido é que o custo de extração $k$ é sempre limitado por
+\[
+k \le n,
+\]
+e, portanto, nunca cresce além da mesma ordem de grandeza de $n$. Com isso, segue que
+\[
+T(n) = O(n + k) = O(n + n) = O(n).
+\]
+
+Além disso, esse limite superior vale uniformemente para os casos melhor, médio e pior, uma vez que o algoritmo não depende da distribuição inicial dos elementos: o mapeamento para o espaço multidimensional e a travessia controlada pelas estruturas auxiliares garantem o mesmo padrão de execução em todos os cenários.
+
+Portanto,
+\[
+T_{\text{melhor}}(n) = 
+T_{\text{médio}}(n) =
+T_{\text{pior}}(n) = 
+O(n).
+\]
+
+$\hfill\Box$
+
+\bigskip
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Recombinant Sort} utiliza um espaço cartesiano multidimensional (o \textit{count array}) e dois mapas auxiliares, $H_{\min}$ e $H_{\max}$. A dimensão desse espaço depende exclusivamente do número de dígitos ou caracteres possíveis nos elementos a serem ordenados, e não do tamanho da entrada $n$.
+
+Se cada elemento é decomposto em $d$ dígitos, cada um pertencente a um domínio finito de tamanho fixo $D$, então o espaço necessário é
+\[
+S(n) = O(D^d),
+\]
+uma quantidade independente de $n$. Como esses domínios são constantes na maioria das aplicações práticas, o consumo adicional de memória não cresce com a entrada.
+
+Assim, em termos assintóticos relativamente a $n$,
+\[
+S(n) = O(1).
+\]
+
+\noindent\textbf{Prova:}  
+Durante a execução, o algoritmo mantém apenas o espaço multidimensional de contagem e os mapas auxiliares, todos de tamanho fixo definido pelo domínio dos dígitos, e não pelo número de elementos da entrada. Dessa forma, nenhuma estrutura cresce proporcionalmente a $n$, caracterizando o uso de memória constante.
+
+\[
+S(n) = c = O(1).
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent\textbf{Discussão:}  
+O \textit{Recombinant Sort} apresenta comportamento linear em seu tempo de execução, superando limitações de algoritmos derivados como \textit{Counting Sort}, \textit{Radix Sort} e \textit{Bucket Sort}. Sua capacidade de tratar números inteiros, reais e cadeias de caracteres com a mesma estrutura o torna uma escolha versátil. Embora a dimensão do espaço cartesiano cresça com o número de dígitos, essa expansão é limitada na prática e não afeta a análise assintótica em termos de $n$.
+
+
+\section{Sorting network}
+
+\href{https://www.csunplugged.org/en/topics/sorting-networks/whats-it-all-about/}{Veja Sorting network}\\
+\textbf{Descrição:} Redes de ordenação são dispositivos abstratos compostos por um número fixo de “fios”, que transportam valores, e por módulos comparadores, responsáveis por conectar pares desses fios. Cada comparador tem a função de verificar a ordem dos valores nos fios e trocá-los, caso não estejam dispostos corretamente. Essas redes são projetadas para ordenar um conjunto fixo de valores, executando uma sequência predefinida de comparações e trocas, independentemente dos dados de entrada. Por isso, constituem uma abordagem determinística e paralelizável para o problema da ordenação, amplamente utilizada em contextos teóricos e em implementações de hardware ou software.\\
+Os fios são dispostos da esquerda para a direita e cada um transporta um valor. Esses valores percorrem a rede ao mesmo tempo.
+Os comparadores conectam dois fios e verificam se os valores estão na ordem correta. Quando um comparador encontra dois valores — digamos, x no fio de cima e y no fio de baixo — ele os troca apenas se o valor de cima for maior que o de baixo. Assim, depois da comparação, o fio de cima fica com o menor valor (x' = min(x, y)) e o fio de baixo fica com o maior valor (y' = max(x, y)), garantindo que os dois estejam ordenados.\\
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\small
+\textbf{função} \texttt{SORTING\_NETWORK(vetor, comparadores)} \;
+
+\ForEach{$(i, j)$ \textbf{em} comparadores}{
+    \If{$vetor[i] > vetor[j]$}{
+        trocar($vetor[i], vetor[j]$)\;
+    }
+}
+
+\Return vetor\;
+
+\caption{Sorting Network}
+\label{lab:alg-SortingNet}
+\end{algorithm}
+
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Sorting network em Python}, captionpos=t, label=code:SortingPy]
+from typing import List, Tuple, TypeVar
+
+T = TypeVar("T")
+
+def sorting_network(values: List[T], comparators: List[Tuple[int, int]]) -> List[T]:
+
+    n = len(values)
+    a = list(values) 
+    for i, j in comparators:
+        if not (0 <= i < n and 0 <= j < n):
+            raise IndexError(f"Comparador fora dos limites: ({i}, {j}) para n={n}")
+        if a[i] > a[j]:
+            a[i], a[j] = a[j], a[i]
+    return a
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Sorting network em C},captionpos=t, label=code:SortingC]
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    size_t i, j;
+} Comparator;
+
+void swap_int(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int* sorting_network(const int *values, size_t n,
+                     const Comparator *comps, size_t m)
+{
+    int *a = malloc(n * sizeof(int));
+    if (!a) {
+    fprintf(stderr, "Erro: falha ao alocar memoria.\n");
+        exit(EXIT_FAILURE);
+    }
+    for (size_t k = 0; k < n; k++)
+        a[k] = values[k];
+
+    for (size_t k = 0; k < m; k++) {
+        size_t i = comps[k].i;
+        size_t j = comps[k].j;
+
+        if (i >= n || j >= n) {
+            fprintf(stderr,
+                "Erro: comparador fora dos limites: (%zu, %zu) para n=%zu\n",
+                i, j, n);
+            free(a);
+            exit(EXIT_FAILURE);
+        }
+
+        if (a[i] > a[j]) {
+            swap_int(&a[i], &a[j]);
+        }
+    }
+
+    return a;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Sorting network em C++},captionpos=t, label=code:SortingCpp]
+#include <bits/stdc++.h>
+using namespace std;
+
+template <typename T>
+vector<T> sorting_network(const vector<T>& values,
+                          const vector<pair<size_t, size_t>>& comparators) {
+    vector<T> a = values; // copia
+    const size_t n = a.size();
+    for (auto [i, j] : comparators) {
+        if (i >= n || j >= n) {
+            throw out_of_range("Comparador fora dos limites: (" + to_string(i) +
+                               ", " + to_string(j) + ") para n=" + to_string(n));
+        }
+        if (a[i] > a[j]) {
+            swap(a[i], a[j]);
+        }
+    }
+    return a;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço das \textit{Sorting Networks}.  
+
+\subsubsection{Complexidade de Tempo}
+
+Uma \textit{Sorting Network} consiste em uma lista fixa de comparadores do tipo $(i,j)$, onde cada comparador executa no máximo uma comparação e, se necessário, uma troca.  
+Seja $C$ o número total de comparadores da rede. Como cada comparador realiza tempo constante $O(1)$, o tempo de execução sequencial é:
+
+\[
+T(n) = O(C)
+\]
+
+Redes de ordenação assintoticamente eficientes, como a \textit{Batcher Bitonic Sort} ou \textit{Odd-Even Merge Sort}, possuem número de comparadores proporcional a:
+
+\[
+C = O(n \log^2 n)
+\]
+
+Portanto, a complexidade de tempo total no modelo sequencial é:
+
+\[
+T(n) = O(n \log^2 n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Seja $a_1$ o custo constante de processar um comparador.  
+Então:
+
+\[
+T(n) = a_1 \cdot C
+\]
+
+Substituindo $C = O(n \log^2 n)$, obtemos:
+
+\[
+T(n) = a_1 \cdot O(n \log^2 n) = O(n \log^2 n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Diferente de algoritmos adaptativos, como \textit{QuickSort} ou \textit{Insertion Sort}, o número de operações em uma sorting network não depende da ordem dos dados de entrada.  
+Assim, mesmo entradas já ordenadas ou totalmente reversas levam o mesmo tempo.  
+
+\subsubsection{Complexidade de Espaço}
+
+Uma sorting network opera \textit{in-place}, modificando diretamente o vetor de entrada.  
+O custo de memória dividido em duas partes é:
+
+\[
+\text{Vetor de dados: } O(n)
+\]
+\[
+\text{Lista de comparadores: } O(C) = O(n \log^2 n)
+\]
+
+Portanto, a complexidade de espaço total é:
+
+\[
+S(n) = O(n + n \log^2 n) = O(n \log^2 n)
+\]
+
+\noindent{\textbf{Prova:}}  
+O vetor de entrada ocupa espaço proporcional a $n$ e a lista estática de comparadores ocupa espaço proporcional a $C$.  
+Como $C = O(n \log^2 n)$, então:
+
+\[
+S(n) = O(n) + O(n \log^2 n) = O(n \log^2 n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Se a rede for estática (pré-gerada e codificada no binário), nenhum espaço adicional é alocado em tempo de execução, reduzindo o consumo de memória dinâmica para:
+
+\[
+S(n) = O(n)
+\]
+
+\section{Bitonic sorter}
+
+\href{https://sortvisualizer.com/bitonicsort/}{Veja Bitonic sorter}\\
+\textbf{Descrição:} O Bitonic Sort é um algoritmo de ordenação baseado em comparações que utiliza propriedades de sequências bitônicas — ou seja, sequências que primeiro crescem e depois decrescem (ou vice-versa). Por essa razão, ele só pode ser aplicado a conjuntos de dados cujo número de elementos seja uma potência de 2.
+
+O funcionamento do algoritmo ocorre em duas etapas principais:\\
+Na primeira, os elementos são organizados em uma sequência bitônica, formando grupos de valores dispostos de maneira crescente e decrescente alternadamente.\\
+Na segunda etapa, esses grupos são mesclados por meio de comparações sucessivas, de forma semelhante ao Merge Sort, até que toda a estrutura de dados esteja completamente ordenada.\\
+
+\begin{algorithm}[htbp]
+\DontPrintSemicolon
+\small
+\textbf{Pré-condição:} o tamanho do vetor \texttt{arr} é uma potência de 2. \;
+
+\bigskip
+\textbf{procedimento} \texttt{BITONIC\_SORT(arr, início, fim, crescente)} \;
+
+$meio \gets (inicio + fim)/2$\;
+
+\If{$crescente = \text{verdadeiro}$}{
+    \texttt{BITONIC\_SORT(arr, inicio, meio, verdadeiro)}\;   \tcp*{ordem crescente}
+    \texttt{BITONIC\_SORT(arr, meio, fim, falso)}\;           \tcp*{ordem decrescente}
+}
+\Else{
+    \texttt{BITONIC\_SORT(arr, inicio, meio, falso)}\;
+    \texttt{BITONIC\_SORT(arr, meio, fim, verdadeiro)}\;
+}
+
+\texttt{BITONIC\_MERGE(arr, início, fim, crescente)}\;
+
+\bigskip
+\textbf{procedimento} \texttt{BITONIC\_MERGE($arr, inicio, fim, crescente$)} \;
+
+$tamanho \gets fim - inicio$\;
+
+\If{$tamanho < 2$}{
+    \Return\;
+}
+
+$meio \gets (inicio + fim)/2$\;
+
+\For{$i \gets inicio$ \KwTo $meio - 1$}{
+    $j \gets i + tamanho/2$\;
+    \If{$(crescente \;\wedge\; arr[i] > arr[j])$ \textbf{ou} $(\neg crescente \;\wedge\; arr[i] < arr[j])$}{
+        trocar($arr[i], arr[j]$)\;
+    }
+}
+\texttt{BITONIC\_MERGE(arr, início, meio, crescente)}\;
+\texttt{BITONIC\_MERGE(arr, meio, fim, crescente)}\;
+
+\caption{Bitonic Sorter}
+\label{lab:alg-BitonicSorter}
+\end{algorithm}
+
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Bitonic sorter em Python}, captionpos=t, label=code:BitonicPy]
+def bitonic_sort(arr):
+    n = len(arr)
+    for k in range(2, n+1):
+        j = k // 2
+        while j > 0:
+            for i in range(0, n):
+                l = i ^ j
+                if l > i:
+                    if ( ((i&k)==0) and (arr[i] > arr[l]) or ( ( (i&k)!=0) and (arr[i] < arr[l])) ):
+                        temp = arr[i]
+                        arr[i] = arr[l]
+                        arr[l] = temp
+            j //= 2
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Bitonic sorter em C}, captionpos=t, label=code:BitonicC]
+void bitonicSort(int *arr, int n) {
+    int k, j, l, i, temp;
+    for (k = 2; k <= n; k *= 2) {
+        for (j = k/2; j > 0; j /= 2) {
+            for (i = 0; i < n; i++) {
+                l = i ^ j;
+                if (l > i) {
+                    if ( ((i&k)==0) && (arr[i] > arr[l]) || ( ( (i&k)!=0) && (arr[i] < arr[l])) )  {
+                        temp = arr[i];
+                        arr[i] = arr[l];
+                        arr[l] = temp;
+                    }
+                }
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Bitonic sorter em C++}, captionpos=t, label=code:BitonicCpp]
+void bitonicSort(int *arr, int n) {
+    int k, j, l, i, temp;
+    for (k = 2; k <= n; k *= 2) {
+        for (j = k/2; j > 0; j /= 2) {
+            for (i = 0; i < n; i++) {
+                l = i ^ j;
+                if (l > i) {
+                    if ( ((i&k)==0) && (arr[i] > arr[l]) || ( ( (i&k)!=0) && (arr[i] < arr[l])) )  {
+                        temp = arr[i];
+                        arr[i] = arr[l];
+                        arr[l] = temp;
+                    }
+                }
+            }
+        }
+    }
+}
+
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Bitonic Sorter}.  
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{Bitonic Sort} opera recursivamente sobre o vetor, dividindo-o em metades e alternando ordenações crescente e decrescente até formar uma sequência bitônica.  
+A seguir, a rotina \texttt{BITONIC\_MERGE} realiza comparações em pares com chamadas recursivas sobre subvetores progressivamente menores.
+
+A profundidade total da recursão da fase de construção é $\log n$, e em cada nível são executadas $n$ comparações distribuídas entre os merges.  
+Assim, o tempo total é dado por:
+
+\[
+T(n) = \Theta(n \log^2 n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Seja $T(n)$ o custo do algoritmo:
+
+\[
+T(n) = 2T\left(\frac{n}{2}\right) + M(n)
+\]
+
+onde $M(n)$ corresponde ao custo do \texttt{BITONIC\_MERGE}.  
+Como cada merge executa $\frac{n}{2}$ comparações e é chamado $\log n$ vezes, temos:
+
+\[
+M(n) = \Theta(n \log n)
+\]
+
+Aplicando o Teorema Mestre ao caso:
+
+\[
+T(n) = 2T\left(\frac{n}{2}\right) + \Theta(n \log n)
+\]
+
+conclui-se que:
+
+\[
+T(n) = \Theta(n \log^2 n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Bitonic Sort} possui o mesmo custo em todos os cenários — melhor caso, pior caso e caso médio — pois seu padrão de comparações não depende dos dados de entrada.  
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo opera sobre o vetor de entrada, mas a rede de comparadores subjacente possui $\Theta(n \log^2 n)$ conexões estáticas, o que representa seu custo estrutural.
+
+\[
+S(n) = O(n) + O(n \log^2 n)
+\]
+
+Se a rede de comparadores for gerada dinamicamente, o consumo de espaço total é:
+
+\[
+S(n) = \Theta(n \log^2 n)
+\]
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+A necessidade de espaço adicional não decorre de estruturas auxiliares de dados, mas do tamanho da própria rede.  
+Por isso, quando empregada como rotina paralela em hardware, o uso de memória é considerado \textit{in-place}.
+
+% \section{Resumo}
+
+% \begin{center}
+% \begin{tabular}{||c|c|c|c||}
+% \hline
+% \multicolumn{4}{|c|}{Complexidades de tempo em termos de comparações} \\
+% \hline
+% Algoritmo & Pior caso & Melhor caso & Caso médio \\
+% \hline
+% bubble      & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+% insertion   & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+% combsort    & $O(n^2)$       & $O(n\log n)$    & $\approx O(n \log n)$ \\
+% selection   & $O(n^2)$       & $O(n^2)$        & $O(n^2)$ \\
+% shellsort   & $O(n^2)$       & $\Omega(n\log n)$ & $O(n^{3/2})$ \\
+% gnome       & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+% shaker      & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+% odd-even    & $O(n^2)$       & $O(n)$          & $O(n^2)$ \\
+% pancake (lançamentos)     & $O(n)$  & $O(n)$  & $O(n)$  \\
+% \hline
+% \end{tabular}
+% \end{center}
+
+% \begin{center}
+% \begin{tabular}{||c|c|c|c||}
+% \hline
+% \multicolumn{4}{|c|}{Complexidades de espaço} \\
+% \hline
+% Algoritmo & Pior caso & Melhor caso & Caso médio \\
+% \hline
+% bubble      & $O(1)$ & $O(1)$ & $O(1)$ \\
+% insertion   & $O(1)$ & $O(1)$ & $O(1)$ \\
+% combsort    & $O(1)$ & $O(1)$ & $O(1)$ \\
+% selection   & $O(1)$ & $O(1)$ & $O(1)$ \\
+% shellsort   & $O(1)$ & $O(1)$ & $O(1)$ \\
+% gnome       & $O(1)$ & $O(1)$ & $O(1)$ \\
+% shaker      & $O(1)$ & $O(1)$ & $O(1)$ \\
+% odd-even    & $O(1)$ & $O(1)$ & $O(1)$ \\
+% pancake     & $O(1)$ & $O(1)$ & $O(1)$ \\
+% \hline
+% \end{tabular}
+% \end{center}
+
+
+
+

@@ -1,4 +1,4 @@
-\documentclass[12pt]{book}
+\documentclass[12pt,openany]{book}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -7,6 +7,7 @@
 \usepackage[boxruled,vlined,boxed,portuguese,algochapter]{algorithm2e}
 
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
 \usepackage{hyperref}
 \usepackage{tcolorbox}
@@ -14,7 +15,19 @@
 \usepackage{quotchap}
 \usepackage{mathtools}
 \usepackage{multirow}
-\usepackage{indentfirst}
+\usepackage{booktabs}
+% \usepackage[graphicx]{realboxes}
+\usepackage{rotating}
+% \usepackage{adjustbox}
+% Tabelas
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{multirow}    
+\usepackage{multicol}    
+\usepackage{float}       
+\usepackage{caption}     
+\usepackage{longtable}   
 
 \topskip 0pt
 \headsep 30pt
@@ -24,6 +37,7 @@
 \textwidth 6.5in
 \topmargin 0pt
 \textheight 9.0in
+% \newgeometry{left=3cm, right=3cm, top=1cm, bottom=1.2cm}
 
 \usepackage{xcolor}
 % Definindo novas cores
@@ -33,6 +47,26 @@
 \usepackage{listings}
 \lstset{
   language=C,
+  basicstyle=\ttfamily\small, 
+  keywordstyle=\color{blue}\bfseries, %jpurple
+  stringstyle=\color{red},
+  commentstyle=\color{verde},
+  morecomment=[s][\color{blue}]{/**}{*/},
+  extendedchars=true, 
+  showspaces=false, 
+  showstringspaces=false, 
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true, 
+  backgroundcolor=\color{cyan!10}, 
+  breakautoindent=true, 
+  captionpos=b,
+  xleftmargin=0pt,
+  tabsize=4
+}
+
+\lstset{
+  language=C++,
   basicstyle=\ttfamily\small, 
   keywordstyle=\color{blue}\bfseries, %jpurple
   stringstyle=\color{red},
@@ -71,6 +105,7 @@
   xleftmargin=0pt,
   tabsize=4
 }
+\renewcommand{\lstlistingname}{Código}% Listing -> Código
 
 \newtheorem{thm}{Teorema}
 \newtheorem{defn}{Definição}[chapter]
@@ -80,30 +115,37 @@
 \newtheorem{property}{Propriedade.}[chapter]
 \newcommand{\R}{\mathbb{R}}
 
-\title{\LARGE \bf \textcolor{blue}{Título provisório do trabalho:} Algoritmos de ordenação, suas análises de complexidade de tempo, espaço, implementações e experimentos computações}
-\author{Alunas: Aline Milene Martins dos Santos\\
-                Camila ...\\
-                Fernanda Sayuri \\\\
-Supervisor: Cláudio Nogueira de Meneses}
+\title{\LARGE \bf 
+ALGORITMOS DE ORDENAÇÃO, IMPLEMENTAÇÕES E EXPERIMENTOS COMPUTACIONAIS 
+% suas análises de complexidades de tempo e espaço, 
+% implementações e experimentos computacionais
+}
+\author{Alunas: Aline Milene Martins dos Santos (RA 11201920702)\\
+         \hspace{3cm} Camila de Fátima Augusta dos Santos (RA 11201810901)\\
+         \hspace{0.5cm} Fernanda Sayuri Alves Ito (RA 11201811042)\\\\
+\hspace{-3.1cm} Supervisor: Dr. Cláudio Nogueira de Meneses}
+% Monografia da disciplina de Análise de Algoritmos no bacharelado em Ciência da Computação
 % {\footnotesize claudio.meneses@ufabc.edu.br}
-
 
 \begin{document}
 \maketitle
+
+\include{CAPÍTULOS/0.resumo}
+\include{CAPÍTULOS/0.abstract}
 \listofalgorithms
+\listoftables
 \tableofcontents
 
-\include{CAPITULOS/1.Introducao}
-\include{CAPITULOS/2.Algoritmos_linear}
-\include{CAPITULOS/3.Algoritmos_n_quadrado}
-\include{CAPITULOS/4.Algoritmos_log_linear}
-\include{CAPITULOS/5.ExperimentosComputacionais}
-\include{CAPITULOS/6.ComentariosFinais}
+\include{CAPÍTULOS/1.Introducao}
+\include{CAPÍTULOS/2.Notacoes_e_Conceitos_basicos}
+\include{CAPÍTULOS/2.Algoritmos_n_quadrado}
+\include{CAPÍTULOS/3.Algoritmos_linear}
+\include{CAPÍTULOS/4.Algoritmos_log_linear} 
+\include{CAPÍTULOS/5.Miscelanea}
+\include{CAPÍTULOS/6.ExperimentosComputacionais}
+\include{CAPÍTULOS/7.Conclusoes}
 
-\appendix
-\include{CAPITULOS/ApendiceA}
-
-\nocite{manber1989introduction,bubble_sort,Harder2020,Astrachan,Halstead1977,Purnomo_Putra_2023}
+\nocite{*}
 \bibliographystyle{alpha}
 \bibliography{biblio}
 
