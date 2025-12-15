@@ -1,0 +1,324 @@
+\chapter{Algoritmos Miscelâneos}
+Neste capítulo apresentamos algoritmos cujos complexidades de tempo não se enquadram nas categorias já exploradas, isto é, possuem complexidades de tempo diferente de linear, log linear ou quadrática. Dentre os algoritmos listados, é possível notar que alguns desses foram desenvolvidos para fomentar as discussões sobre o assunto de análise de algoritmos, inclusive de forma satírica. Um exemplo deles é o algoritmo Bogosort que tem complexidade de tempo de pior caso tendendo ao infinito, uma vez que seu funcionamento baseia-se em gerar permutações aleatórias do vetor até que ele esteja ordenado.  
+
+Estes algoritmos têm  como características a utilização de métodos ineficientes ou ainda etapas que repetem ações, o que contribui para o aumento de suas complexidades de tempo.
+
+\section{Bogosort}
+
+\href{https://sortvisualizer.com/bogosort/}{Veja Bogosort}\\
+\textbf{Descrição:} Bogo Sort,também conhecido como Stupid Sort, é um algoritmo de ordenação iterativo particularmente ineficiente. Seu funcionamento se baseia em embaralhar aleatoriamente os elementos da estrutura de dados e, em seguida, verificar se estão ordenados corretamente. Se sim, o objetivo foi alcançado, caso contrário, repita o processo.
+Logo, é um algoritmo probabilístico. A quantidade de permutações possíveis de uma estrutura de dados de n elementos é n!, assim serão necessárias, em média , n! embaralhamentos para chegar à solução. Cada embaralhamento requer n operações, então o número médio total de operações é n × n!\\
+Como seu desempenho depende inteiramente da probabilidade, a pior complexidade do caso não é mensurável.
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\small
+\textbf{função} \texttt{BOGOSORT(array)} \;
+
+\While{\texttt{não\_ordenado(array)}}{
+    array $\gets$ \texttt{permutação\_aleatória}(array)\;
+}
+
+\Return array\;
+
+\caption{Bogosort}
+\label{lab:alg-Bogosort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Bogosort em Python}, captionpos=t, label=code:BogoPy]
+import random
+
+def bogo_sort(a):
+    n = len(a)
+    while (is_sorted(a)== False):
+        shuffle(a)
+
+def is_sorted(a):
+    n = len(a)
+    for i in range(0, n-1):
+        if (a[i] > a[i+1] ):
+            return False
+    return True
+
+def shuffle(a):
+    n = len(a)
+    for i in range (0,n):
+        r = random.randint(0,n-1)
+        a[i], a[r] = a[r], a[i] 
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Bogosort em C},captionpos=t,  label=code:BogoC]
+int isSorted(int *a, int n) {
+    while (--n >= 1) {
+        if (a[n] < a[n - 1]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void shuffle(int *a, int n) {
+    int i, t, temp;
+    for (i = 0;i < n;i++) {
+        t = a[i];
+        temp = rand() % n;
+        a[i] = a[temp];
+        a[temp] = t;
+    }
+}
+
+void bogoSort(int *a, int n) {
+    while (!isSorted(a, n)) {
+        shuffle(a, n);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Bogosort em C++},captionpos=t, label=code:BogoCpp]
+void swap(int *xp, int *yp) {
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+bool isSorted(int a[], int n) {
+    while (--n > 1)
+        if (a[n] < a[n - 1])
+            return false;
+    return true;
+}
+
+void shuffle(int a[], int n) {
+    for (int i = 0; i < n; i++)
+        swap(a[i], a[rand() % n]);
+}
+
+void bogoSort(int a[], int n) {
+    while (!isSorted(a, n))
+        shuffle(a, n);
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Bogosort}, um algoritmo de ordenação estocástico baseado no princípio de força bruta por permutação aleatória.
+
+\subsubsection{Complexidade de Tempo}
+
+O funcionamento do \textit{Bogosort} consiste em gerar permutações aleatórias do vetor até que ele esteja ordenado.  
+Seja $n$ o número de elementos da entrada.  
+O número total de permutações possíveis é $n!$, e como todas são igualmente prováveis, a probabilidade de uma permutação ser ordenada é:
+
+\[
+P(\text{vetor ordenado}) = \frac{1}{n!}
+\]
+
+Portanto, o número esperado de tentativas até que o vetor esteja ordenado é:
+
+\[
+E[\text{tentativas}] = n!
+\]
+
+Como cada verificação de ordenação custa $O(n)$, o tempo médio esperado é:
+
+\[
+T_{\text{médio}}(n) = n \cdot n! = O(n \cdot n!)
+\]
+
+\noindent{\textbf{Melhor caso}}  
+Se o vetor já estiver ordenado inicialmente, o algoritmo realiza apenas uma verificação, que custa:
+
+\[
+T_{\text{melhor}}(n) = O(n)
+\]
+
+\noindent{\textbf{Pior caso}}  
+O algoritmo não possui garantia de término, pois depende de sorte para gerar a permutação ordenada.  
+Assim, o pior caso é não determinístico e não limitado superiormente:
+
+\[
+T_{\text{pior}}(n) = \infty
+\]
+
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Bogosort} não é um algoritmo de ordenação prático; sua análise é relevante apenas como referência teórica ou para fins didáticos.  
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Bogosort} realiza todas as operações sobre o próprio vetor, modificando-o in-place.  
+Não utiliza memória auxiliar proporcional ao número de elementos, exceto variáveis temporárias constantes.
+
+\[
+S(n) = O(1)
+\]
+
+\noindent{\textbf{Prova:}}  
+Nenhuma estrutura adicional de tamanho variável é criada durante a execução.  
+A única alocação extra é a necessária para realizar trocas ou verificar ordenação, ambas de custo constante. Portanto:
+
+\[
+S(n) = c = O(1)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\section{Stooge Sort}
+
+\href{https://www.sortvisualizer.com/stoogesort/}{Veja Stooge Sort}\\
+\textbf{Descrição:} Stooge Sort é um algoritmo de ordenação recursivo, conhecido por sua péssima complexidade de tempo. O algoritmo é baseado em comparações.
+
+O algoritmo verifica primeiro o primeiro elemento da estrutura de dados e o último, e os troca, caso estejam na ordem errada. Se houver mais de 3 elementos, ele se autoinvoca recursivamente nos 2/3 iniciais da lista, nos 2/3 finais e novamente nos 2/3 iniciais, até que toda a lista esteja ordenada. Por isto, sua complexidade de tempo é quase cúbica.
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\small
+\textbf{procedimento} \texttt{STOOGESORT(arr, l, h)} \;
+
+\If{$l \geq h$}{
+    \Return\;
+}
+
+\If{$arr[l] > arr[h]$}{
+    trocar($arr[l], arr[h]$)\;
+}
+
+\If{$(h - l + 1) > 2$}{
+    $t \gets \left\lfloor \dfrac{h - l + 1}{3} \right\rfloor$\;
+    \texttt{STOOGESORT(arr, l, h - t)}\;
+    \texttt{STOOGESORT(arr, l + t, h)}\;
+    \texttt{STOOGESORT(arr, l, h - t)}\;
+}
+
+\caption{Stooge Sort}
+\label{lab:alg-StoogeSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Stooge Sort em Python}, captionpos=t, label=code:stoogeSortPy]
+def stoogesort(arr, l, h):
+  if l >= h:
+      return
+
+  if arr[l]>arr[h]:
+      t = arr[l]
+      arr[l] = arr[h]
+      arr[h] = t
+
+
+  if h-l + 1 > 2:
+      t = (int)((h-l + 1)/3)
+
+      stoogesort(arr, l, (h-t))
+      stoogesort(arr, l + t, (h))
+      stoogesort(arr, l, (h-t))
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Stooge Sort em C},captionpos=t, label=code:stoogeSortC]
+void stoogesort(int arr[], int i, int j)
+  {
+      int temp, k;
+      if (arr[i] > arr[j])
+      {
+          temp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = temp;
+      }
+      if ((i + 1) >= j)
+          return;
+      k = (int)((j - i + 1) / 3);
+      stoogesort(arr, i, j - k);
+      stoogesort(arr, i + k, j);
+      stoogesort(arr, i, j - k);
+  }
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Stooge Sort em C++}, captionpos=t, label=code:stoogeSortCpp]
+void stoogesort(int arr[], int l, int h)
+  {
+      if (l >= h)
+          return;
+   
+      if (arr[l] > arr[h])
+          swap(arr[l], arr[h]);
+   
+      if (h - l + 1 > 2) {
+          int t = (h - l + 1) / 3;
+          stoogesort(arr, l, h - t);
+          stoogesort(arr, l + t, h);
+          stoogesort(arr, l, h - t);
+      }
+  }
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Stooge Sort}.
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{Stooge Sort} aplica recursivamente três chamadas sobre porções sobrepostas do vetor: duas chamadas sobre $\frac{2n}{3}$ elementos e uma terceira repetição sobre o mesmo intervalo inicial.  
+Assim, sua recorrência temporal é dada por:
+
+\[
+T(n) = 3 \cdot T\!\left(\frac{2n}{3}\right) + O(1)
+\]
+
+Aplicando o Teorema Mestre, obtemos:
+
+\[
+T(n) = \Theta\left(n^{\log_{3/2} 3}\right)
+\]
+
+Como:
+
+\[
+\log_{3/2} 3 = \frac{\log 3}{\log(3/2)} \approx 2.7095
+\]
+
+segue que:
+
+\[
+T(n) = \Theta(n^{2.7095\ldots})
+\]
+
+\noindent{\textbf{Observação:}}  
+Essa complexidade vale igualmente para os casos **melhor**, **médio** e **pior**, pois o algoritmo realiza sempre o mesmo número de chamadas recursivas, independentemente da ordem dos elementos.
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Stooge Sort} é significativamente mais lento que algoritmos cúbicos ($O(n^3)$), mas ainda pior que algoritmos quadráticos otimizados ($O(n^2)$).  
+
+\subsubsection{Complexidade de Espaço}
+
+Como o algoritmo não utiliza estruturas auxiliares além da pilha de recursão, sua complexidade espacial corresponde à profundidade das chamadas recursivas.
+
+\[
+S(n) = O(n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Cada chamada recursiva reduz o tamanho do problema para $\frac{2n}{3}$, resultando em profundidade:
+
+\[
+d(n) = \Theta(n)
+\]
+
+Como cada nível utiliza espaço constante, o custo total é linear:
+
+\[
+S(n) = c \cdot n = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Embora seja um algoritmo extremamente lento, o \textit{Stooge Sort} opera \textit{in place} e sem alocação de memória adicional relevante.
+
+
+

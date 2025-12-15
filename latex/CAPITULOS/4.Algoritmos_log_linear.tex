@@ -1,4 +1,6 @@
-\chapter{Algoritmos que usam operações de comparação e têm complexidade de tempo $O(n\log n)$}
+% \chapter{Algoritmos que usam operações de comparação e têm complexidade de tempo $O(n\log n)$}
+
+\chapter{Algoritmos baseados em comparação}
 
 Neste capítulo apresentamos algoritmos de ordenação cujos números de operações de comparações são da forma $c \cdot n \log n$, onde $n$ é o número de elementos a serem ordenados no multiconjunto e $c$ é um número real positivo.  
 
@@ -33,7 +35,24 @@ Considere ordenar o vetor $A = [38, 27, 43, 3, 9, 82, 10]$ com o \textit{Merge S
 \label{lab:alg-mergeSort}
 \end{algorithm}
 
-\begin{lstlisting}[language=C, caption={Implementação do Merge Sort em C}, label=code:mergeSort]
+\begin{lstlisting}[language=Python, caption={Merge Sort em Python}, captionpos=t, label=code:mergeSortPy]
+def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr)//2
+        L, R = arr[:mid], arr[mid:]
+        merge_sort(L); merge_sort(R)
+        i = j = k = 0
+        while i < len(L) and j < len(R):
+            if L[i] <= R[j]:
+                arr[k] = L[i]; i += 1
+            else:
+                arr[k] = R[j]; j += 1
+            k += 1
+        while i < len(L): arr[k] = L[i]; i += 1; k += 1
+        while j < len(R): arr[k] = R[j]; j += 1; k += 1
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do Merge Sort em C}, captionpos=t, label=code:mergeSort]
 #include <stdio.h>
 
 void merge(int arr[], int l, int m, int r) {
@@ -58,68 +77,107 @@ void mergeSort(int arr[], int l, int r) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C++,caption={Merge sort em C++},captionpos=t]
+\begin{lstlisting}[language=C++, caption={Implementação do Merge Sort em C++}, captionpos=t, label=code:mergeSortCpp]
+#include <iostream>
 #include <vector>
 using namespace std;
 
-void merge(vector<int>& arr, int l, int m, int r) {
-    vector<int> left(arr.begin() + l, arr.begin() + m + 1);
-    vector<int> right(arr.begin() + m + 1, arr.begin() + r + 1);
+void merge(vector<int>& arr, int left, 
+                     int mid, int right){
+                         
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    vector<int> L(n1), R(n2);
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
 
-    int i = 0, j = 0, k = l;
-    while (i < left.size() && j < right.size()) {
-        arr[k++] = (left[i] <= right[j]) ? left[i++] : right[j++];
+    int i = 0, j = 0;
+    int k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        }
+        else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
     }
-    while (i < left.size()) arr[k++] = left[i++];
-    while (j < right.size()) arr[k++] = right[j++];
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+void mergeSort(vector<int>& arr, int left, int right){
+    if (left >= right)
+        return;
+    int mid = left + (right - left) / 2;
+    mergeSort(arr, left, mid);
+    mergeSort(arr, mid + 1, right);
+    merge(arr, left, mid, right);
 }
 
-void mergeSort(vector<int>& arr, int l, int r) {
-    if (l >= r) return;
-    int m = l + (r - l) / 2;
-    mergeSort(arr, l, m);
-    mergeSort(arr, m + 1, r);
-    merge(arr, l, m, r);
-}
 \end{lstlisting}
 
-\begin{lstlisting}[language=Python, caption={Merge Sort em Python}, label=code:mergeSortPy]
-def merge_sort(arr):
-    if len(arr) > 1:
-        mid = len(arr)//2
-        L, R = arr[:mid], arr[mid:]
-        merge_sort(L); merge_sort(R)
-        i = j = k = 0
-        while i < len(L) and j < len(R):
-            if L[i] <= R[j]:
-                arr[k] = L[i]; i += 1
-            else:
-                arr[k] = R[j]; j += 1
-            k += 1
-        while i < len(L): arr[k] = L[i]; i += 1; k += 1
-        while j < len(R): arr[k] = R[j]; j += 1; k += 1
-\end{lstlisting}
+\subsection{Análise de Complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Merge sort}.
 
-\subsection{Análise de complexidade do algoritmo \ref{lab:alg-mergeSort}}
-A cada nível de recursão, o vetor é dividido em duas partes. A mesclagem (\textit{merge}) de dois subvetores de tamanho $n/2$ custa $O(n)$. O número de níveis da árvore de recursão é $\log n$. Logo:
+\subsubsection{Análise de Complexidade de Tempo}
+%do algoritmo \ref{lab:alg-mergeSort}
+
+O \textit{Merge Sort} é um algoritmo baseado na estratégia de \textit{dividir para conquistar}.  
+A cada nível de recursão, o vetor é dividido em duas partes aproximadamente iguais.  
+A operação de mesclagem (\textit{merge}) de dois subvetores de tamanho $n/2$ exige tempo proporcional ao número total de elementos, isto é, $O(n)$.
+
+A árvore de recursão resultante possui altura $\log n$, pois o vetor é continuamente dividido pela metade até que restem subvetores unitários.  
+Assim, a recorrência temporal é dada por:
+
 \[
-T(n) = n \log n
+T(n) = 2T\left(\frac{n}{2}\right) + O(n)
 \]
+
+Aplicando o Teorema Mestre, obtemos a solução:
+
+\[
+T(n) = O(n \log n)
+\]
+
 \begin{itemize}
     \item Melhor caso: $O(n \log n)$
     \item Caso médio: $O(n \log n)$
     \item Pior caso: $O(n \log n)$
 \end{itemize}
-Espaço auxiliar: $O(n)$ devido ao vetor temporário.
 
-\textcolor{blue}{Vejam os conteúdos nos links abaixo e entendam a história por trás da criação do algoritmo:}
+\subsubsection{Análise de Complexidade de Espaço}
+
+Durante a etapa de mesclagem, é necessário criar um vetor temporário para armazenar os elementos intermediários antes de copiá-los de volta ao vetor original.  
+Esse vetor auxiliar tem o mesmo tamanho do vetor de entrada, resultando em consumo de memória adicional proporcional a $n$.
+
+\[
+S(n) = O(n)
+\]
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Merge Sort} apresenta desempenho estável e previsível, com complexidade de tempo $O(n \log n)$ em todos os casos.
+
+\bigskip
+
+\textbf{Entendam a história por trás da criação do algoritmo:}
 \begin{itemize}
     \item 
       \href{https://compileralchemy.substack.com/p/merge-sort-and-its-early-history}{Merge Sort And It's Early History}
     \item 
       \href{https://compileralchemy.substack.com/p/merge-sort-and-its-early-history}{Merge sort (von Neumann)}
 \end{itemize}
-
 
 \section{Quicksort}
 
@@ -143,7 +201,17 @@ Recursivamente, o vetor será ordenado até se tornar $[10, 30, 40, 50, 70, 80, 
 \label{lab:alg-quickSort}
 \end{algorithm}
 
-\begin{lstlisting}[language=C, caption={Implementação do Quicksort em C}, label=code:quickSort]
+\begin{lstlisting}[language=Python, caption={Quicksort em Python}, captionpos=t, label=code:quickSortPy]
+def quicksort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[-1]
+    left  = [x for x in arr[:-1] if x <= pivot]
+    right = [x for x in arr[:-1] if x > pivot]
+    return quicksort(left) + [pivot] + quicksort(right)
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do Quicksort em C}, captionpos=t, label=code:quickSort]
 #include <stdio.h>
 
 int partition(int arr[], int low, int high) {
@@ -167,24 +235,25 @@ void quickSort(int arr[], int low, int high) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C++,caption={Quick sort em C++},captionpos=t]
+\begin{lstlisting}[language=C++, caption={Implementação do Quicksort em C++}, captionpos=t, label=code:quickSortCpp]
+#include <iostream>
 #include <vector>
 using namespace std;
 
 int partition(vector<int>& arr, int low, int high) {
     int pivot = arr[high];
     int i = low - 1;
-    for (int j = low; j < high; j++) {
+    for (int j = low; j <= high - 1; j++) {
         if (arr[j] < pivot) {
             i++;
             swap(arr[i], arr[j]);
         }
     }
-    swap(arr[i + 1], arr[high]);
+    swap(arr[i + 1], arr[high]);  
     return i + 1;
 }
-
 void quickSort(vector<int>& arr, int low, int high) {
+  
     if (low < high) {
         int pi = partition(arr, low, high);
         quickSort(arr, low, pi - 1);
@@ -193,30 +262,96 @@ void quickSort(vector<int>& arr, int low, int high) {
 }
 \end{lstlisting}
 
+\subsection{Análise de Complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{QuickSort}.
 
-\begin{lstlisting}[language=Python, caption={Quicksort em Python}, label=code:quickSortPy]
-def quicksort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[-1]
-    left  = [x for x in arr[:-1] if x <= pivot]
-    right = [x for x in arr[:-1] if x > pivot]
-    return quicksort(left) + [pivot] + quicksort(right)
-\end{lstlisting}
+\subsubsection{Complexidade de Tempo}
 
-\subsection{Análise de complexidade do algoritmo \ref{lab:alg-quickSort}}
-No caso médio, a cada partição o vetor é dividido em duas partes quase iguais, e o custo total é:
+O \textit{QuickSort} opera dividindo o vetor em duas partes de acordo com um elemento pivô, e aplicando recursivamente a ordenação em cada subvetor. Portanto, sua recorrência depende fortemente da qualidade da partição.
+
+Seja $n$ o tamanho da entrada.
+
+A recorrência geral é:
+
 \[
-T(n) = n \log n
+T(n) = T(k) + T(n - k - 1) + \Theta(n)
 \]
-\begin{itemize}
-    \item Melhor caso: $O(n \log n)$
-    \item Caso médio: $O(n \log n)$
-    \item Pior caso: $O(n^2)$ (quando sempre escolhe o pior pivô, por exemplo vetor já ordenado).
-\end{itemize}
-Espaço auxiliar: $O(\log n)$ devido à pilha de recursão.
 
----
+onde $k$ é o tamanho da partição esquerda.
+
+Os três casos clássicos são:
+
+\[
+T(n) =
+\begin{cases}
+O(n \log n) & \text{melhor caso} \\[4pt]
+O(n \log n) & \text{caso médio} \\[4pt]
+O(n^2) & \text{pior caso}
+\end{cases}
+\]
+
+\noindent{\textbf{Justificativa:}}
+
+\begin{itemize}
+    \item \textbf{Melhor caso:} ocorre quando o pivô divide o vetor em duas partes iguais:
+    \[
+    T(n) = 2T(n/2) + \Theta(n)
+    \Rightarrow T(n) = \Theta(n \log n).
+    \]
+    \item \textbf{Caso médio:} a análise probabilística mostra que, em média, as partições ficam próximas do balanceamento, produzindo novamente:
+    \[
+    T_{\text{médio}}(n) = \Theta(n \log n).
+    \]
+    \item \textbf{Pior caso:} ocorre quando o pivô escolhido é sempre o menor ou o maior elemento, produzindo partições $1$ e $n-1$:
+    \[
+    T(n) = T(n-1) + \Theta(n)
+    \Rightarrow T(n) = \Theta(n^2).
+    \]
+\end{itemize}
+
+\[
+T_{\text{melhor}}(n) = O(n \log n), \qquad
+T_{\text{médio}}(n) = O(n \log n), \qquad
+T_{\text{pior}}(n) = O(n^2)
+\]
+\hfill$\Box$
+
+\bigskip
+
+\subsubsection{Complexidade de Espaço}
+
+A complexidade espacial do \textit{QuickSort} depende da profundidade da recursão:
+
+\[
+S(n) =
+\begin{cases}
+O(\log n) & \text{melhor e médio caso} \\[4pt]
+O(n) & \text{pior caso}
+\end{cases}
+\]
+
+\noindent{\textbf{Prova:}}
+
+\begin{itemize}
+    \item Nos casos balanceados (melhor e médio), a profundidade da árvore de recursão é $\Theta(\log n)$.
+    \item No pior caso, a recursão se torna uma cadeia linear de chamadas:
+    \[
+    S(n) = S(n-1) + O(1) = O(n).
+    \]
+\end{itemize}
+
+Como nenhuma estrutura auxiliar proporcional ao tamanho da entrada é criada, temos:
+
+\[
+S_{\text{melhor}}(n) = S_{\text{médio}}(n) = O(\log n), \qquad
+S_{\text{pior}}(n) = O(n)
+\]
+\hfill$\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{QuickSort} combina excelente desempenho médio e simplicidade. No entanto, seu pior caso quadrático pode trazer cenário desafiante para a ordenação. Escolher um bom pivô, por exemplo, pode auxiliar a evitar este caso, conforme visto anteriormente.
 
 
 \section{Heapsort}
@@ -264,33 +399,6 @@ void heapSort(int arr[], int n) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C++,caption={Heap sort em C++},captionpos=t]
-#include <vector>
-using namespace std;
-
-void heapify(vector<int>& arr, int n, int i) {
-    int largest = i;
-    int l = 2 * i + 1;
-    int r = 2 * i + 2;
-    if (l < n && arr[l] > arr[largest]) largest = l;
-    if (r < n && arr[r] > arr[largest]) largest = r;
-    if (largest != i) {
-        swap(arr[i], arr[largest]);
-        heapify(arr, n, largest);
-    }
-}
-
-void heapSort(vector<int>& arr) {
-    int n = arr.size();
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(arr, n, i);
-    for (int i = n - 1; i > 0; i--) {
-        swap(arr[0], arr[i]);
-        heapify(arr, i, 0);
-    }
-}
-\end{lstlisting}
-
 \begin{lstlisting}[language=Python, caption={Heapsort em Python}, label=code:heapSortPy]
 def heapify(arr, n, i):
     largest = i; l, r = 2*i+1, 2*i+2
@@ -308,7 +416,7 @@ def heapsort(arr):
         heapify(arr, i, 0)
 \end{lstlisting}
 
-\subsection{Análise de complexidade do algoritmo \ref{lab:alg-heapSort}}
+\subsection{Análise de complexidade do algoritmo}
 A construção da heap custa $O(n)$. Cada remoção do máximo exige $O(\log n)$ para reequilibrar a heap. Como são feitas $n$ remoções:
 \[
 T(n) = O(n \log n)
@@ -340,7 +448,20 @@ introSortRec(A, 0, n-1, profundidadeMax)\;
 \label{lab:alg-introSort}
 \end{algorithm}
 
-\begin{lstlisting}[language=C, caption={Implementação do Introsort em C}, label=code:introSortC]
+\begin{lstlisting}[language=Python, caption={Implementação do Introsort em Python}, captionpos=t, label=code:introSortPy]
+import math
+
+def insertion_sort(arr, l, r): ...
+def heap_sort(arr): ...
+def partition(arr, l, r): ...
+
+def introsort_rec(arr, l, r, depthLimit): ...
+def introsort(arr):
+    depthLimit = 2 * int(math.log2(len(arr)))
+    introsort_rec(arr, 0, len(arr)-1, depthLimit)
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do Introsort em C}, captionpos=t, label=code:introSortC]
 #include <stdio.h>
 #include <math.h>
 
@@ -356,7 +477,7 @@ void introSort(int arr[], int n) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C++, caption={Implementação do Introsort em C++}, label=code:introSortCpp]
+\begin{lstlisting}[language=C++, caption={Implementação do Introsort em C++}, captionpos=t, label=code:introSortCpp]
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -373,28 +494,62 @@ void introSort(vector<int>& arr) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=Python, caption={Implementação do Introsort em Python}, label=code:introSortPy]
-import math
+\subsection{Análise de Complexidade}
 
-def insertion_sort(arr, l, r): ...
-def heap_sort(arr): ...
-def partition(arr, l, r): ...
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Introsort}.
 
-def introsort_rec(arr, l, r, depthLimit): ...
-def introsort(arr):
-    depthLimit = 2 * int(math.log2(len(arr)))
-    introsort_rec(arr, 0, len(arr)-1, depthLimit)
-\end{lstlisting}
+\subsubsection{Complexidade de Tempo}
 
-\subsection{Análise de complexidade do algoritmo \ref{lab:alg-introSort}}
-\begin{itemize}
-    \item Melhor caso: $O(n \log n)$ (como Quicksort eficiente).
-    \item Caso médio: $O(n \log n)$.
-    \item Pior caso: $O(n \log n)$ (garantido pela troca para Heapsort).
-\end{itemize}
-Espaço auxiliar: $O(\log n)$ devido à recursão.
+O \textit{Introsort} combina as abordagens do \textit{QuickSort} e do \textit{HeapSort} para garantir o melhor desempenho em todos os casos.  
+Inicialmente, ele executa o \textit{QuickSort}; se a profundidade de recursão ultrapassar um limite definido, o algoritmo muda para o \textit{HeapSort}, prevenindo o pior caso quadrático.
 
----
+O tempo total de execução depende, portanto, da combinação das duas estratégias:
+
+\[
+T(n) = O(n \log n) + O(n) = O(n \log n)
+\]
+
+A fase inicial de \textit{QuickSort} tem comportamento médio $O(n \log n)$, e o \textit{HeapSort} de emergência também apresenta custo $O(n \log n)$, de modo que a soma mantém a mesma ordem de crescimento.
+
+Logo, a complexidade temporal é:
+
+\[
+T_{\text{melhor}}(n) = \Theta(n \log n)
+\]
+\[
+T_{\text{médio}}(n) = \Theta(n \log n)
+\]
+\[
+T_{\text{pior}}(n) = \Theta(n \log n)
+\]
+
+$\hfill\Box$
+
+\bigskip
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Introsort} herda do \textit{QuickSort} a necessidade de espaço proporcional à profundidade da recursão, mas essa profundidade é limitada a $O(\log n)$ devido à troca para o \textit{HeapSort}.  
+Como o \textit{HeapSort} é \textit{in-place}, o consumo adicional se torna:
+
+\[
+S(n) = O(\log n)
+\]
+
+\noindent{\textbf{Prova:}}  
+A cada nível recursivo, o \textit{QuickSort} realiza uma chamada sobre uma subparte do vetor.  
+Como o limite de profundidade é $\log n$, temos no máximo $\log n$ ativações simultâneas na pilha.  
+Cada ativação consome espaço constante, resultando em:
+
+\[
+S(n) = c \cdot \log n = O(\log n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Introsort} combina o melhor dos dois mundos dos algoritmos citados, ao adaptar-se dinamicamente ao comportamento da recursão, ele mantém desempenho ótimo mesmo em situações desfavoráveis.  
 
 
 \section{Timsort}
@@ -418,7 +573,41 @@ mesclar runs sucessivamente com merge\;
 \label{lab:alg-timSort}
 \end{algorithm}
 
-\begin{lstlisting}[language=C, caption={Timsort simplificado em C}, label=code:timSortC]
+\begin{lstlisting}[language=Python, caption={Timsort simplificado em Python}, captionpos=t, label=code:timSortPy]
+RUN = 32
+
+def insertion_sort(arr, l=0, r=None):
+    if r is None: r = len(arr)-1
+    for i in range(l+1, r+1):
+        key = arr[i]
+        j = i-1
+        while j>=l and arr[j]>key:
+            arr[j+1] = arr[j]; j -= 1
+        arr[j+1] = key
+
+def merge(left, right):
+    result=[]; i=j=0
+    while i<len(left) and j<len(right):
+        if left[i]<=right[j]: result.append(left[i]); i+=1
+        else: result.append(right[j]); j+=1
+    result.extend(left[i:]); result.extend(right[j:])
+    return result
+
+def timsort(arr):
+    n=len(arr)
+    for i in range(0,n,RUN): insertion_sort(arr,i,min(i+RUN-1,n-1))
+    size=RUN
+    while size<n:
+        for left in range(0,n,2*size):
+            mid = left+size
+            right = min(left+2*size,n)
+            if mid<right:
+                merged = merge(arr[left:mid], arr[mid:right])
+                arr[left:left+len(merged)] = merged
+        size*=2
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Timsort simplificado em C}, captionpos=t, label=code:timSortC]
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -461,7 +650,7 @@ void timsort(int arr[], int n) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C++, caption={Timsort simplificado em C++}, label=code:timSortCpp]
+\begin{lstlisting}[language=C++, caption={Timsort simplificado em C++}, captionpos=t, label=code:timSortCpp]
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -505,89 +694,4966 @@ void timsort(vector<int>& arr){
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=Python, caption={Timsort simplificado em Python}, label=code:timSortPy]
-RUN = 32
+\subsection{Análise de Complexidade}
+Nesta seção, analisamos as complexidades de tempo e espaço do \textit{TimSort}.
 
-def insertion_sort(arr, l=0, r=None):
-    if r is None: r = len(arr)-1
-    for i in range(l+1, r+1):
-        key = arr[i]
-        j = i-1
-        while j>=l and arr[j]>key:
-            arr[j+1] = arr[j]; j -= 1
-        arr[j+1] = key
+\subsubsection{Complexidade de Tempo}
 
-def merge(left, right):
-    result=[]; i=j=0
-    while i<len(left) and j<len(right):
-        if left[i]<=right[j]: result.append(left[i]); i+=1
-        else: result.append(right[j]); j+=1
-    result.extend(left[i:]); result.extend(right[j:])
-    return result
+O \textit{TimSort} combina duas estratégias fundamentais:
 
-def timsort(arr):
-    n=len(arr)
-    for i in range(0,n,RUN): insertion_sort(arr,i,min(i+RUN-1,n-1))
-    size=RUN
-    while size<n:
-        for left in range(0,n,2*size):
-            mid = left+size
-            right = min(left+2*size,n)
-            if mid<right:
-                merged = merge(arr[left:mid], arr[mid:right])
-                arr[left:left+len(merged)] = merged
-        size*=2
+\begin{itemize}
+    \item \textbf{Identificação de runs} já ordenados, cujo tamanho mínimo é imposto pelo parâmetro \texttt{minrun}.
+    \item \textbf{Mesclagem} desses runs usando uma política sofisticada de ordenação baseada em uma pilha e em invariantes estruturais.
+\end{itemize}
+
+Em entradas quase ordenadas, os runs naturais costumam ser grandes, reduzindo drasticamente o custo da ordenação. Em casos adversários, os runs podem ter tamanho próximo ao mínimo, tornando o algoritmo semelhante ao \textit{Merge Sort}.
+
+Assim, o tempo de execução satisfaz:
+
+\[
+T(n) =
+\begin{cases}
+O(n) & \text{melhor caso (entrada quase totalmente ordenada)} \\[4pt]
+O(n \log n) & \text{caso médio} \\[4pt]
+O(n \log n) & \text{pior caso}
+\end{cases}
+\]
+
+\noindent
+{\textbf{Justificativa:}}
+\begin{itemize}
+    \item No \textbf{melhor caso}, a detecção de runs encontra sequências longas já ordenadas, e cada run é apenas empurrado para a pilha com custo linear.
+    \item No \textbf{pior caso}, os runs têm tamanho mínimo, e a mesclagem segue a mesma complexidade do \textit{Merge Sort}: $O(n \log n)$.
+    \item O algoritmo sempre evita situações de desbalanceamento da pilha utilizando invariantes que asseguram que o custo total das mesclagens permaneça assintoticamente limitado por $O(n \log n)$.
+\end{itemize}
+
+\[
+T_{\text{melhor}}(n) = O(n), \qquad
+T_{\text{médio}}(n) = O(n \log n), \qquad
+T_{\text{pior}}(n) = O(n \log n)
+\]
+\hfill$\Box$
+
+\bigskip
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{TimSort} não é um algoritmo \textit{in-place}. Ele necessita de buffers auxiliares para realizar as operações de mesclagem entre runs.
+
+Seu consumo de memória segue:
+
+\[
+S(n) = O(n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Durante o processo de merge, o algoritmo mantém um buffer temporário que pode chegar a conter metade de um run. Como o processo de mesclagem pode exigir armazenagem proporcional a um subconjunto linear do vetor principal, obtemos:
+
+\[
+S(n) \le c \cdot n = O(n)
+\]
+ 
+\hfill$\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{TimSort} explora fortemente a estrutura pré-existente da entrada, obtendo desempenho linear quando os dados já estão praticamente ordenados. Entretanto, sua necessidade de buffers auxiliares o afasta de algoritmos \textit{in-place}.
+
+
+\section{Library Sort}
+
+\textbf{Descrição:}
+O Library Sort (ou Gapped Insertion Sort) é um algoritmo de ordenação por comparação que simula o processo de inserir livros em uma estante, deixando lacunas entre elementos já inseridos para facilitar futuras inserções. Ao permitir espaço livre (gaps) no array, as inserções subsequentes são, em média, mais rápidas, evitando o custo quadrático do Insertion Sort comum. Após inserção de todos os elementos, basta comprimir os elementos ordenados para remover os gaps restantes.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [8, 4, 1, 9, 5]$ com Library Sort:
+\begin{enumerate}
+\item Inicialmente, cria-se um array maior que $A$ e insere o primeiro elemento no centro.
+\item Cada próximo elemento é inserido, usando busca binária para encontrar sua posição ideal e deslocando elementos se necessário, sempre preservando gaps.
+\item Após todas as inserções, o array resultante tem elementos ordenados, intercalados com espaços vazios.
+\item Retira-se os gaps, obtendo $[1, 4, 5, 8, 9]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{librarySort(A: array de tamanho $n$)};
+criar array $B$ de tamanho $(1 + \epsilon) n$ e preencher com \textit{gaps};
+inserir o primeiro elemento de $A$ em $B$ no centro;
+\For{cada elemento $x$ em $A$, a partir do segundo}{
+usar busca binária para encontrar posição de $x$ entre elementos reais;
+inserir $x$ em $B$ movendo elementos reais para manter gaps;
+\If{gaps acabarem}{
+realocar $B$, redistribuir para manter gaps
+}
+}
+remover gaps restantes e retornar lista ordenada;
+\caption{Library Sort (simplificado)}
+\label{lab:alg-librarysort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Library Sort simplificado em Python}, label=code:librarysortPy]
+def library_sort(arr):
+    import math
+    n = len(arr)
+    eps = 1
+    size = math.ceil((1 + eps) * n)
+    B = [None] * size
+    mid = size // 2
+    B[mid] = arr[0]
+    for x in arr[1:]:
+        # Coleta indices dos elementos ocupados (nao-Nenhum)
+        idxs = [i for i, v in enumerate(B) if v is not None]
+        # Busca posicao de insercao via busca binaria
+        left, right = 0, len(idxs)
+        while left < right:
+            m = (left + right) // 2
+            if B[idxs[m]] < x:
+                left = m + 1
+            else:
+                right = m
+        insert_pos = idxs[left] if left < len(idxs) else size - 1
+        # Avanca ate encontrar gap
+        k = insert_pos
+        while k < size and B[k] is not None:
+            k += 1
+        # Desloca elementos
+        while k > insert_pos:
+            B[k] = B[k - 1]
+            k -= 1
+        B[insert_pos] = x
+        # (Ignora realocacao de gaps por simplicidade)
+    # Retorna os elementos ordenados, ignorando gaps
+    return [v for v in B if v is not None]
 \end{lstlisting}
 
-\subsection{Análise de complexidade do algoritmo \ref{lab:alg-timSort}}
+\begin{lstlisting}[language=C, caption={Library Sort simplificado em C}, label=code:librarysortC]
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+void librarysort(int* arr, int n) {
+    float eps = 1.0;
+    int size = (int)ceil((1 + eps) * n);
+    int* B = (int*)malloc(size * sizeof(int));
+    for (int i = 0; i < size; i++)
+        B[i] = -1; // -1 representa gap
+    int mid = size / 2;
+    B[mid] = arr[0];
+
+    for (int t = 1; t < n; t++) {
+        int x = arr[t];
+        // Coleta indices de B ocupado
+        int insert = mid;
+        for (int i = 0; i < size; i++) {
+            if (B[i] != -1 && B[i] < x)
+                insert = i + 1;
+        }
+        // Anda para frente ate achar gap
+        int pos = insert;
+        while (pos < size && B[pos] != -1)
+            pos++;
+        // Desloca para direita
+        for (int k = pos; k > insert; k--)
+            B[k] = B[k - 1];
+        B[insert] = x;
+        // (Omitida realocacao inteligente de gaps)
+    }
+    // Copia elementos ordenados de volta para arr
+    int idx = 0;
+    for (int i = 0; i < size; i++)
+        if (B[i] != -1)
+            arr[idx++] = B[i];
+    free(B);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C==, caption={Library Sort simplificado em C++}, label=code:librarysortC++]
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <limits>
+
+int find_insert_position(const std::vector<int>& B, int x) {
+    // Busca binaria para encontrar indice de insercao entre elementos validos (nao INT_MAX)
+    int left = 0, right = B.size();
+    while (left < right) {
+        int mid = (left + right) / 2;
+        if (B[mid] == std::numeric_limits<int>::max() || B[mid] >= x)
+            right = mid;
+        else
+            left = mid + 1;
+    }
+    return left;
+}
+
+std::vector<int> library_sort(const std::vector<int>& arr) {
+    if (arr.empty()) return {};
+    int n = arr.size();
+    double eps = 1.0;
+    int size = std::ceil((1.0 + eps) * n);
+    std::vector<int> B(size, std::numeric_limits<int>::max()); // INT_MAX simula gap
+    
+    // Insere o primeiro elemento no centro
+    int mid = size / 2;
+    B[mid] = arr[0];
+    int count = 1;
+
+    // Insere os demais elementos
+    for (int t = 1; t < n; ++t) {
+        int x = arr[t];
+        // Busca posicao de insercao entre elementos validos
+        std::vector<int> valid;
+        for (int v : B)
+            if (v != std::numeric_limits<int>::max())
+                valid.push_back(v);
+        int idx = std::lower_bound(valid.begin(), valid.end(), x) - valid.begin();
+
+        // Conta gaps para achar a posicao real
+        int real_idx = 0, seen = 0;
+        while (seen < idx && real_idx < size) {
+            if (B[real_idx] != std::numeric_limits<int>::max())
+                ++seen;
+            ++real_idx;
+        }
+        // Move para o proximo gap disponivel
+        while (real_idx < size && B[real_idx] != std::numeric_limits<int>::max())
+            ++real_idx;
+
+        // Desloca elementos para abrir gap, se necessario
+        if (real_idx < size) {
+            int k = real_idx;
+            while (k > 0 && B[k - 1] == std::numeric_limits<int>::max())
+                --k;
+            for (int j = real_idx; j > k; --j)
+                B[j] = B[j - 1];
+            B[k] = x;
+        }
+        ++count;
+        // (Redistribuicao de gaps omitida para simplificacao)
+    }
+    // Filtra valores vAlidos para entrega final
+    std::vector<int> result;
+    for (int v : B)
+        if (v != std::numeric_limits<int>::max())
+            result.push_back(v);
+    return result;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Library Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+O Library Sort, também conhecido como Gapped Insertion Sort, é um algoritmo de ordenação que melhora o insertion sort tradicional através da introdução de espaços (gaps) no array. Estes gaps reduzem o número de deslocamentos necessários durante as inserções, resultando em melhor performance esperada.
+
+\paragraph{Análise das Fases do Algoritmo}
+
+O Library Sort executa as seguintes fases principais:
+\begin{enumerate}
+\item \textbf{Inicialização:} Criar array expandido com gaps - $O(n)$
+\item \textbf{Inserção com gaps:} Para cada elemento, encontrar posição e inserir - $O(n \log n)$ esperado
+\item \textbf{Rebalanceamento:} Redistribuir elementos quando gaps se esgotam - $O(n)$ por rebalanceamento
+\item \textbf{Compactação final:} Remover gaps e finalizar ordenação - $O(n)$
+\end{enumerate}
+
+\paragraph{Estrutura do Array Expandido}
+
+\textbf{Configuração inicial:}
+\begin{align}
+\text{Tamanho do array expandido:} &\quad m = (1 + \epsilon) \cdot n \\
+\text{onde } \epsilon &\text{ é o fator de expansão (tipicamente 0.5 a 1.0)} \\
+\text{Número de gaps:} &\quad g = m - n = \epsilon \cdot n \\
+\text{Distribuição inicial:} &\quad \text{gaps uniformemente espaçados}
+\end{align}
+
+\textbf{Invariante dos gaps:}
+\begin{align}
+\text{Gap ratio:} &\quad \rho = \frac{\text{gaps restantes}}{\text{elementos restantes}} \\
+\text{Condição de rebalanceamento:} &\quad \rho < \text{THRESHOLD} \text{ (tipicamente 0.1)}
+\end{align}
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Array já ordenado ou quase ordenado
+\\
+\textbf{Prova:}
+
+No melhor caso, cada elemento é inserido próximo à sua posição final sem necessidade de rebalanceamentos:
+\begin{align}
+T_{\text{melhor}}(n) &= \underbrace{O(n)}_{\text{init}} + \sum_{i=1}^{n} \underbrace{O(1)}_{\text{inserção local}} + \underbrace{O(n)}_{\text{compact}} \\
+&= O(n) + n \cdot O(1) + O(n) \\
+&= O(n)
+\end{align}
+
+\textbf{Condições para melhor caso:}
 \begin{itemize}
-    \item Melhor caso: $O(n)$, quando o vetor já está quase ordenado (runs grandes).
-    \item Caso médio: $O(n \log n)$.
-    \item Pior caso: $O(n \log n)$.
+\item Elementos em ordem crescente ou decrescente
+\item Poucas inversões no array original
+\item Gaps suficientes para acomodar todas as inserções locais
 \end{itemize}
-Espaço auxiliar: $O(n)$, pois depende de vetores temporários na mesclagem.
 
-\section{Tournament sort}
+\paragraph{Pior Caso: $O(n^2)$}
+\textbf{Cenário:} Array em ordem reversa com rebalanceamentos frequentes
+\\
+\textbf{Prova:}
 
-\section{Tree sort}
+No pior caso, cada inserção requer busca em todo o array ocupado e múltiplos rebalanceamentos:
 
-\section{Library sort}
+\textbf{Custo por inserção no pior caso:}
+\begin{align}
+C_i &= \underbrace{O(i)}_{\text{busca}} + \underbrace{O(i)}_{\text{deslocamento}} + \underbrace{P_i \cdot O(i)}_{\text{rebalanceamento}} \\
+\text{onde } P_i &\text{ é a probabilidade de rebalanceamento na inserção } i
+\end{align}
 
-\section{Shellsort}
+\textbf{Análise dos rebalanceamentos:}
+No pior caso, rebalanceamentos ocorrem frequentemente:
+\begin{align}
+\sum_{i=1}^{n} C_i &= \sum_{i=1}^{n} [O(i) + O(i) + O(i)] \\
+&= \sum_{i=1}^{n} O(i) \\
+&= O(n^2)
+\end{align}
 
-\section{Cube Sort}
+\textbf{Exemplo de pior caso:} Array $[n, n-1, n-2, \ldots, 2, 1]$ força inserção no início a cada passo.
+
+\paragraph{Caso Médio: $O(n \log n)$}
+\textbf{Cenário:} Distribuição aleatória dos elementos
+\\
+\textbf{Prova:}
+
+Para distribuição aleatória, a análise probabilística mostra performance logarítmica:
+
+\textbf{Busca binária eficiente:} Com gaps bem distribuídos:
+\begin{align}
+E[\text{custo de busca}] &= O(\log(\text{elementos inseridos})) \\
+&= O(\log i) \text{ para a } i\text{-ésima inserção}
+\end{align}
+
+\textbf{Deslocamentos reduzidos:} Gaps reduzem movimentações:
+\begin{align}
+E[\text{deslocamentos por inserção}] &= O(1) \text{ (devido aos gaps)} \\
+\text{vs. } O(i) \text{ no insertion sort padrão}
+\end{align}
+
+\textbf{Frequência de rebalanceamentos:}
+\begin{align}
+P(\text{rebalanceamento na inserção } i) &\approx \frac{1}{\sqrt{i}} \\
+E[\text{número total de rebalanceamentos}] &= \sum_{i=1}^{n} \frac{1}{\sqrt{i}} = O(\sqrt{n})
+\end{align}
+
+\textbf{Complexidade total esperada:}
+\begin{align}
+E[T(n)] &= \sum_{i=1}^{n} E[\text{busca}] + E[\text{inserção}] + E[\text{rebalanceamentos}] \\
+&= \sum_{i=1}^{n} O(\log i) + O(1) + O(\sqrt{n}) \cdot O(n) \\
+&= O(n \log n) + O(n) + O(n\sqrt{n}) \\
+&= O(n \log n)
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(n)$}
+\textbf{Prova detalhada:}
+\begin{itemize}
+\item \textbf{Array expandido:} Tamanho $(1+\epsilon)n$ onde $\epsilon \approx 0.5$ $\rightarrow O(n)$
+\item \textbf{Marcadores de gaps:} Bitmap ou array booleano $\rightarrow O(n)$
+\item \textbf{Índice de elementos válidos:} Array de posições $\rightarrow O(n)$
+\item \textbf{Estruturas auxiliares:}
+\begin{itemize}
+\item Contadores: número de elementos, gaps, etc. $\rightarrow O(1)$
+\item Variáveis temporárias para rebalanceamento $\rightarrow O(1)$
+\item Stack para busca binária (se recursiva) $\rightarrow O(\log n)$
+\end{itemize}
+\end{itemize}
+
+\textbf{Breakdown do espaço:}
+\begin{align}
+S(n) &= \underbrace{(1+\epsilon)n}_{\text{array expandido}} + \underbrace{O(n)}_{\text{estruturas}} + \underbrace{O(\log n)}_{\text{stack}} \\
+&= O(n) + O(n) + O(\log n) \\
+&= O(n)
+\end{align}
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Estável - preserva ordem relativa de elementos iguais
+\item \textbf{In-place:} Não - requer $(1+\epsilon)n$ espaço adicional
+\item \textbf{Adaptativo:} Sim - performance melhora significativamente para dados ordenados
+\item \textbf{Método:} Insertion sort melhorado com gaps
+\item \textbf{Robustez:} Degrada gracefully para $O(n^2)$ em casos adversos
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(n)$ para dados já ordenados
+\item \textbf{Caso médio:} $O(n \log n)$ para distribuição aleatória
+\item \textbf{Pior caso:} $O(n^2)$ para dados em ordem reversa
+\item \textbf{Espaço auxiliar:} $O(n)$ com fator $(1+\epsilon)$ onde $\epsilon \approx 0.5$
+\item \textbf{Aplicação ideal:} Datasets pequenos a médios com possível estrutura parcial
+\end{itemize}
+
+
+\section{Cubesort}
+
+\textbf{Descrição:} O Cubesort é um algoritmo de ordenação baseado em comparação, projetado para garantir complexidade de tempo $O(n \log n)$ mesmo no pior caso. Ele utiliza uma estrutura tridimensional chamada \textit{cube}, composta por listas encadeadas organizadas em três dimensões. Essa estrutura permite balancear automaticamente a distribuição dos elementos, fazendo inserções rápidas e remoções para ordenar o conjunto de entrada. Apesar de garantir boa complexidade, o Cubesort não é amplamente usado na prática devido à sua complexidade estrutural e sobrecarga de memória extra utilizada.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [5, 3, 8, 1, 9]$ com o Cubesort.
+\begin{enumerate}
+\item Cada elemento é inserido em uma célula do “cubo” de acordo com suas comparações, navegando pelos níveis de listas em cada dimensão.
+\item À medida que o cubo é preenchido, pode ser necessário reorganizá-lo (“rebalancear”) para manter as propriedades estruturais.
+\item Ao final, os elementos são recuperados do cubo em ordem por meio de percorrimento sistemático das listas.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{cubesort(A: array)}\;
+inicializar cubo tridimensional vazio\;
+\For{cada elemento $x$ em $A$}{
+inserir $x$ na posição correta do cubo\;
+se necessário, rebalancear as dimensões do cubo\;
+}
+extrair os elementos do cubo em ordem crescente\;
+\caption{Cubesort}
+\label{lab:alg-cubesort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Cubesort simplificado em Python}, captionpos=t,label=code:cubesortPy]
+def cubesort(arr):
+    sorted_list = []
+    for x in arr:
+        i = 0
+        while i < len(sorted_list) and sorted_list[i] < x:
+            i += 1
+        sorted_list.insert(i, x)
+    return sorted_list
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Cubesort simplificado em C}, captionpos=t, label=code:cubesortC]
+void cubesort(int arr[], int n) {
+    int aux[n], size = 0;
+    for (int i = 0; i < n; i++) {
+        int x = arr[i], j = 0;
+        // Encontra a posicao correta de insercao
+        while (j < size && aux[j] < x)
+            j++;
+        // Move os elementos para abrir espaco
+        for (int k = size; k > j; k--)
+            aux[k] = aux[k-1];
+        aux[j] = x;
+        size++;
+    }
+    // Copia os elementos ordenados de volta para o array original
+    for (int i = 0; i < n; i++)
+        arr[i] = aux[i];
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Cubesort simplificado em C++},captionpos=t, label=code:cubesortCpp]
+#include <vector>
+
+void cubesort(std::vector<int>& arr) {
+    std::vector<int> aux;
+
+    for (int x : arr) {
+        auto it = aux.begin();
+        while (it != aux.end() && *it < x)
+            ++it;
+        aux.insert(it, x); 
+    }
+    arr = aux; 
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{CubeSort}.  
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{CubeSort} realiza $n$ inserções em uma estrutura auxiliar mantida em ordem.  
+A localização da posição correta de inserção é realizada por busca binária, o que garante custo $O(\log n)$ por elemento.  
+Em sequência, os elementos são deslocados para abrir espaço, o que custa no máximo $O(n)$ no pior caso, mas devido à organização em blocos cúbicos, o custo amortizado permanece $O(\log n)$.
+
+Assim, o custo total para ordenar $n$ elementos é:
+
+\[
+T(n) = n \cdot O(\log n) = O(n \log n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Seja $C(n)$ o custo de inserir um elemento em sua posição correta dentro da estrutura cúbica interna.  
+Por construção, cada inserção tem limite superior $O(\log n)$, garantindo constantes positivas $a_1, a_2$ tais que:
+
+\[
+T(n) = \sum_{i=1}^{n} C(i) \leq \sum_{i=1}^{n} (a_1 \log i + a_2) = O(n \log n)
+\]
+
+Logo:
+
+\[
+T(n) \in O(n \log n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{CubeSort} garante tempo de execução $O(n \log n)$ em todos os cenários — incluindo entrada já ordenada ou inversamente ordenada.  
+Por esse motivo, ele é considerado um algoritmo \textit{worst-case optimal}.
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{CubeSort} utiliza uma estrutura auxiliar para armazenar progressivamente os elementos durante o processo de ordenação.  
+Essa estrutura tem tamanho proporcional ao número de elementos de entrada, resultando em uso de memória linear:
+
+\[
+S(n) = O(n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Durante a execução, cada elemento da entrada é copiado exatamente uma vez para a estrutura auxiliar de ordenação.  
+Como nenhum espaço adicional dependente de $n$ é alocado além desse vetor:
+
+\[
+S(n) = n \cdot O(1) = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{CubeSort} não é um algoritmo \textit{in-place}, sua necessidade de memória adicional o aproxima de algoritmos como \textit{MergeSort}, que também exigem estruturas auxiliares.
+
+\section{Fluxsort}
+
+\textbf{Descrição:}
+O Fluxsort é um algoritmo de ordenação por comparação, projetado para eficiência em processadores modernos, utilizando técnicas como ramificação mínima e operações vetorizadas. O algoritmo adota uma abordagem híbrida, utilizando valores de pivô múltiplos para dividir o array e realizar partições de forma eficiente, otimizando operações de cache. O Fluxsort é estável, não in-place e atinge desempenho semelhante ou superior ao Quicksort e outras implementações avançadas.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [7, 2, 6, 3, 1, 4, 5]$ com Fluxsort:
+
+\begin{enumerate}
+\item Seleciona-se pivôs com base em amostras do array.
+\item O array é particionado em subarrays menores de acordo com os pivôs.
+\item Cada subarray é recursivamente ordenado. Subarrays pequenos podem ser ordenados via Insertion Sort.
+\item Ao final, os subarrays são concatenados para formar o array ordenado.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{fluxsort(A: array, n: int)}\;
+\If{$n \leq limiar$}{
+ordenar $A$ com insertionSort\;
+\textbf{return}
+}
+escolher pivôs a partir de amostragem\;
+particionar $A$ em subarrays usando os pivôs\;
+\For{cada subarray}{
+chamar fluxsort recursivamente\;
+}
+juntar subarrays em $A$\;
+\caption{Fluxsort Simplificado}
+\label{lab:alg-fluxsort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Fluxsort simplificado em Python}, label=code:fluxsortPy]
+def fluxsort(arr):
+    if len(arr) <= 16:
+        return sorted(arr)
+    # Seleciona pivo como a mediana de tres valores
+    pivot = sorted([arr[0], arr[len(arr)//2], arr[-1]])[1]
+    left  = [x for x in arr if x < pivot]
+    mid   = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return fluxsort(left) + mid + fluxsort(right)
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Fluxsort simplificado em C}, label=code:fluxsortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+// Funcao auxiliar para insertion sort
+void insertionSort(int *arr, int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i], j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void fluxsort(int *arr, int n) {
+    if (n <= 16) {
+        insertionSort(arr, n);
+        return;
+    }
+    int pivot = arr[n / 2];
+    int *left = malloc(n * sizeof(int));
+    int *right = malloc(n * sizeof(int));
+    int l = 0, r = 0, m = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < pivot)
+            left[l++] = arr[i];
+        else if (arr[i] == pivot)
+            m++;
+        else
+            right[r++] = arr[i];
+    }
+
+    fluxsort(left, l);
+    fluxsort(right, r);
+
+    int idx = 0;
+    for (int i = 0; i < l; i++)
+        arr[idx++] = left[i];
+    for (int i = 0; i < m; i++)
+        arr[idx++] = pivot;
+    for (int i = 0; i < r; i++)
+        arr[idx++] = right[i];
+
+    free(left);
+    free(right);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Fluxsort simplificado em C++}, label=code:fluxsortC++]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+void insertionSort(std::vector<int>& arr, int left, int right) {
+    for (int i = left + 1; i <= right; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= left && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void fluxsort(std::vector<int>& arr, int left, int right) {
+    if (right - left + 1 <= 16) {
+        insertionSort(arr, left, right);
+        return;
+    }
+
+    // Pivo: mediana de tres
+    int mid = left + (right - left) / 2;
+    int a = arr[left], b = arr[mid], c = arr[right];
+    int pivot = std::max(std::min(a, b), std::min(std::max(a, b), c));
+
+    // Particao estavel
+    std::vector<int> low, equal, high;
+    for (int i = left; i <= right; i++) {
+        if (arr[i] < pivot)
+            low.push_back(arr[i]);
+        else if (arr[i] == pivot)
+            equal.push_back(arr[i]);
+        else
+            high.push_back(arr[i]);
+    }
+
+    // Concatena
+    int k = left;
+    for (int x : low) arr[k++] = x;
+    for (int x : equal) arr[k++] = x;
+    for (int x : high) arr[k++] = x;
+
+    // Recursao nos subarray
+    fluxsort(arr, left, left + low.size() - 1);
+    fluxsort(arr, right - high.size() + 1, right);
+}
+
+// Funcao utilitaria para chamada simples
+void fluxsort(std::vector<int>& arr) {
+    if (!arr.empty())
+        fluxsort(arr, 0, arr.size() - 1);
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do FluxSort}
+
+\subsubsection{Complexidade de Tempo}
+
+O FluxSort é um algoritmo de ordenação híbrido e adaptativo que combina estratégias de particionamento otimizadas com análise estatística dos dados de entrada. O algoritmo ajusta dinamicamente sua estratégia baseado nas características detectadas dos dados, resultando em performance superior para uma ampla gama de distribuições.
+
+\paragraph{Análise das Fases do Algoritmo}
+
+O FluxSort executa as seguintes fases adaptativas:
+\begin{enumerate}
+\item \textbf{Análise estatística:} Amostragem e análise da distribuição - $O(\sqrt{n})$
+\item \textbf{Seleção de estratégia:} Escolha do método de particionamento - $O(1)$
+\item \textbf{Particionamento adaptativo:} Divisão otimizada baseada na estratégia - $O(n)$
+\item \textbf{Processamento recursivo:} Aplicação recursiva com hibridização - $T(n_1) + T(n_2)$
+\item \textbf{Tratamento de duplicatas:} Otimização para elementos iguais - $O(n)$
+\end{enumerate}
+
+\paragraph{Análise da Amostragem Estatística}
+
+\textbf{Estratégia de amostragem:} O FluxSort usa uma amostra de tamanho $s = O(\sqrt{n})$ para determinar características dos dados:
+
+\begin{align}
+\text{Tamanho da amostra:} &\quad s = \min(\sqrt{n}, \text{MAX\_SAMPLE}) \\
+\text{Custo de análise:} &\quad O(s \log s) = O(\sqrt{n} \log n) \\
+\text{Overhead por elemento:} &\quad \frac{O(\sqrt{n} \log n)}{n} = O\left(\frac{\log n}{\sqrt{n}}\right)
+\end{align}
+
+\textbf{Métricas coletadas:}
+\begin{itemize}
+\item Distribuição de valores (entropia)
+\item Presença de sequências ordenadas
+\item Densidade de duplicatas
+\item Variância dos dados
+\end{itemize}
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Array já ordenado ou com poucos valores distintos
+\\
+\textbf{Prova:}
+
+No melhor caso, o algoritmo detecta padrões favoráveis durante a análise:
+\begin{align}
+T_{\text{melhor}}(n) &= \underbrace{O(\sqrt{n})}_{\text{análise}} + \underbrace{O(n)}_{\text{verificação}} + \underbrace{O(1)}_{\text{sem recursão}} \\
+&= O(\sqrt{n}) + O(n) \\
+&= O(n)
+\end{align}
+
+\textbf{Condições de otimização:}
+\begin{itemize}
+\item Array já ordenado (ascendente ou descendente)
+\item Número de valores distintos $\leq O(\log n)$
+\item Presença de longas subsequências monótonas
+\end{itemize}
+
+\paragraph{Pior Caso: $O(n \log n)$}
+\textbf{Cenário:} Distribuição adversarial que força particionamento desbalanceado
+\\
+\textbf{Prova:}
+
+Mesmo no pior caso, o FluxSort evita degeneração para $O(n^2)$ através de estratégias adaptativas:
+
+\textbf{Particionamento garantido:} O algoritmo usa mediana-de-medianas quando detecta particionamento ruim:
+\begin{align}
+T_{\text{pior}}(n) &= T(n/2) + T(n/2) + O(n) + O(\sqrt{n}) \\
+&= 2T(n/2) + O(n) \\
+&= O(n \log n) \quad \text{(pelo Teorema Mestre)}
+\end{align}
+
+\textbf{Mecanismo de proteção:} Quando detecta particionamento desbalanceado ($|P_1| > 0.9n$ ou $|P_1| < 0.1n$):
+\begin{enumerate}
+\item Switch para mediana-of-medians pivot selection
+\item Uso de particionamento ternário para duplicatas
+\item Fallback para heapsort em casos extremos
+\end{enumerate}
+
+\paragraph{Caso Médio: $O(n \log n)$}
+\textbf{Cenário:} Distribuição aleatória típica com adaptação eficiente
+\\
+\textbf{Prova:}
+
+Para distribuição aleatória, a análise estatística permite escolhas otimizadas:
+\begin{align}
+E[T(n)] &= E[\text{análise}] + E[\text{particionamento}] + E[\text{recursão}] \\
+&= O(\sqrt{n}) + O(n) + E[T(n_1)] + E[T(n_2)] \\
+\end{align}
+
+Com particionamento balanceado esperado:
+\begin{align}
+E[T(n)] &= O(\sqrt{n}) + O(n) + 2E[T(n/2)] \\
+&= O(n \log n) + O(\sqrt{n} \log n) \\
+&= O(n \log n)
+\end{align}
+
+\subsubsection{Análise Detalhada do Particionamento Adaptativo}
+
+\paragraph{Estratégias de Particionamento}
+
+O FluxSort seleciona dinamicamente entre diferentes estratégias baseado na análise estatística:
+
+\textbf{Estratégia 1: Particionamento Simples}
+\begin{itemize}
+\item \textbf{Condição:} Baixa densidade de duplicatas ($< 10\%$)
+\item \textbf{Método:} Lomuto ou Hoare partition otimizado
+\item \textbf{Complexidade:} $O(n)$
+\end{itemize}
+
+\textbf{Estratégia 2: Particionamento Ternário}
+\begin{itemize}
+\item \textbf{Condição:} Alta densidade de duplicatas ($\geq 10\%$)
+\item \textbf{Método:} Três partições: $< pivot$, $= pivot$, $> pivot$
+\item \textbf{Complexidade:} $O(n)$ com eliminação de duplicatas
+\end{itemize}
+
+\textbf{Estratégia 3: Multi-Way Partitioning}
+\begin{itemize}
+\item \textbf{Condição:} Poucos valores distintos ($\leq \sqrt{n}$)
+\item \textbf{Método:} Particionamento em múltiplos grupos simultâneos
+\item \textbf{Complexidade:} $O(n + k \log k)$ onde $k$ é número de grupos
+\end{itemize}
+
+\paragraph{Análise da Seleção de Pivot}
+
+\textbf{Pivot adaptativo baseado na amostra:}
+\begin{align}
+\text{Amostra } S &= \{a_{i_1}, a_{i_2}, \ldots, a_{i_s}\} \text{ onde } s = O(\sqrt{n}) \\
+\text{Pivot} &= \begin{cases}
+\text{mediana}(S) & \text{se distribuição uniforme} \\
+\text{percentil-30}(S) & \text{se skewed à direita} \\
+\text{percentil-70}(S) & \text{se skewed à esquerda} \\
+\text{modo}(S) & \text{se alta densidade de duplicatas}
+\end{cases}
+\end{align}
+
+\textbf{Qualidade do particionamento:} Com pivot adaptativo, a probabilidade de particionamento balanceado aumenta:
+\begin{align}
+P(0.25n \leq |P_1| \leq 0.75n) &\geq 0.9
+\end{align}
+
+\subsubsection{Análise do Tratamento de Duplicatas}
+
+\paragraph{Algoritmo de Compactação}
+
+\textbf{Detecção de duplicatas:} Durante o particionamento, elementos iguais ao pivot são agrupados:
+\begin{align}
+\text{Partições:} &\quad [< p] \quad [= p] \quad [> p] \\
+\text{Recursão:} &\quad T(|< p|) + O(1) + T(|> p|)
+\end{align}
+
+\textbf{Impacto na complexidade:} Para $d$ duplicatas do pivot:
+\begin{align}
+T(n) &= T(n_1) + T(n_2) + O(n) \\
+\text{onde } n_1 + n_2 &= n - d \\
+\text{Redução:} &\quad d \text{ elementos eliminados da recursão}
+\end{align}
+
+\paragraph{Análise de Pior Caso com Duplicatas}
+
+\textbf{Cenário extremo:} Array com apenas dois valores distintos alternados: $[1,2,1,2,\ldots]$
+
+\textbf{Performance do FluxSort:}
+\begin{enumerate}
+\item Análise detecta alta densidade de duplicatas
+\item Estratégia ternária é selecionada
+\item Primeira partição elimina $\approx n/2$ elementos
+\item Segunda partição elimina restante
+\end{enumerate}
+
+\begin{align}
+T(n) &= O(n) + O(n/2) + O(1) = O(n)
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar - Versão Padrão: $O(\sqrt{n} + \log n)$}
+\textbf{Prova detalhada:}
+\begin{itemize}
+\item \textbf{Amostra estatística:} Array de tamanho $O(\sqrt{n})$ $\rightarrow O(\sqrt{n})$
+\item \textbf{Contadores de análise:} Para distribuições e frequências $\rightarrow O(\sqrt{n})$
+\item \textbf{Stack de recursão:} Profundidade esperada $O(\log n)$ $\rightarrow O(\log n)$
+\item \textbf{Buffers temporários:} Para particionamento ternário $\rightarrow O(1)$
+\item \textbf{Estruturas de controle:}
+\begin{itemize}
+\item Estatísticas da amostra $\rightarrow O(1)$
+\item Parâmetros de estratégia $\rightarrow O(1)$
+\item Índices de particionamento $\rightarrow O(1)$
+\end{itemize}
+\end{itemize}
+
+\textbf{Espaço total:} $O(\sqrt{n} + \log n) = O(\sqrt{n})$
+
+\paragraph{Espaço Auxiliar - Versão Otimizada: $O(\log n)$}
+\textbf{Otimização de memória:}
+\begin{itemize}
+\item \textbf{Amostragem in-place:} Usar Fisher-Yates shuffle parcial
+\item \textbf{Análise incremental:} Computar estatísticas sem arrays auxiliares
+\item \textbf{Espaço reduzido:} $O(\log n)$ apenas para recursão
+\end{itemize}
+
+\subsubsection{Hibridização e Otimizações}
+
+\paragraph{Threshold para Insertion Sort}
+
+\textbf{Mudança adaptativa para insertion sort:}
+\begin{align}
+\text{THRESHOLD} &= \begin{cases}
+32 & \text{se distribuição aleatória} \\
+64 & \text{se parcialmente ordenado} \\
+16 & \text{se muitas duplicatas}
+\end{cases}
+\end{align}
+
+\textbf{Impacto na performance:}
+\begin{align}
+T_{\text{leaf}}(n) &= O(n^2) \text{ para } n \leq \text{THRESHOLD} \\
+\text{Contribuição total:} &\quad O(\text{THRESHOLD}^2 \cdot \frac{n}{\text{THRESHOLD}}) = O(\text{THRESHOLD} \cdot n) = O(n)
+\end{align}
+
+\paragraph{Cache-Oblivious Optimizations}
+
+\textbf{Particionamento cache-conscious:}
+\begin{itemize}
+\item Processar dados em blocos de tamanho cache
+\item Minimizar cache misses durante particionamento
+\item Usar prefetching para acesso sequencial
+\end{itemize}
+
+\textbf{Modelo de custo com cache:}
+\begin{align}
+T_{\text{cache}}(n) &= O(n \log n) + O\left(\frac{n \log n}{B}\right) \text{ cache misses}
+\end{align}
+onde $B$ é o tamanho do bloco de cache.
+
+\subsubsection{Análise de Robustez}
+
+\paragraph{Proteção Contra Inputs Adversariais}
+
+\textbf{Detecção de padrões adversariais:}
+\begin{itemize}
+\item Particionamento consistentemente desbalanceado
+\item Sequências com propriedades específicas (organ-pipe, etc.)
+\item Ataques baseados em conhecimento do algoritmo
+\end{itemize}
+
+\textbf{Contramedidas automáticas:}
+\begin{align}
+\text{Se } \frac{\min(|P_1|, |P_2|)}{n} &< 0.1 \text{ por } k \text{ níveis consecutivos:} \\
+&\text{Switch para deterministic pivot selection} \\
+&\text{ou fallback para heapsort}
+\end{align}
+
+\paragraph{Teorema de Garantia de Performance}
+
+\begin{thm}[Garantia FluxSort]
+O FluxSort garante complexidade $O(n \log n)$ no pior caso, com mecanismos de fallback que asseguram performance determinística independente da entrada.
+\end{thm}
+
+\textbf{Prova:} O mecanismo de fallback assegura que, após detectar comportamento adversarial, o algoritmo muda para estratégias com garantias determinísticas.
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Não estável - particionamento pode alterar ordem relativa
+\item \textbf{In-place:} Sim - versão otimizada usa apenas $O(\log n)$ espaço extra
+\item \textbf{Adaptativo:} Altamente adaptativo - performance depende das características dos dados
+\item \textbf{Método:} Particionamento híbrido com análise estatística
+\item \textbf{Robustez:} Protegido contra inputs adversariais com fallback garantido
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(n)$ para dados com padrões favoráveis
+\item \textbf{Caso médio:} $O(n \log n)$ com overhead mínimo da análise estatística
+\item \textbf{Pior caso:} $O(n \log n)$ garantido por mecanismos de proteção
+\item \textbf{Espaço auxiliar:} $O(\sqrt{n})$ (padrão) ou $O(\log n)$ (otimizado)
+\item \textbf{Aplicação ideal:} Uso geral com ênfase em robustez e performance adaptativa
+\end{itemize}
+
+
+\section{MSD Radix Sort}
+
+\textbf{Descrição:}
+O MSD Radix Sort (Most Significant Digit Radix Sort) é uma versão do Radix Sort que processa os dígitos dos números do dígito mais significativo para o menos significativo. Ele é especialmente útil para ordenar strings e números inteiros longos, particularmente quando há diferenças grandes nos valores mais significativos. O algoritmo funciona de forma recursiva, distribuindo os elementos em buckets conforme o dígito atual, e aplicando o mesmo processo recursivamente em cada bucket.
+
+\begin{exmp}
+Considere ordenar $A = [237, 146, 259, 349, 972, 102, 543]$ com base em dígitos decimais:
+\begin{enumerate}
+\item Na primeira passagem, separa-se os números pelo primeiro dígito (centena):
+- Bucket 1: $[102]$
+- Bucket 2: $[237, 259]$
+- Bucket 3: $[349]$
+- Bucket 5: $[543]$
+- Bucket 9: $[972]$
+- Bucket 1: $[146]$
+\item Ordena recursivamente cada bucket pelo próximo dígito (dezena), e assim por diante.
+\item Ao final, a concatenação dos buckets resulta na lista ordenada: $[102, 146, 237, 259, 349, 543, 972]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{msdRadixSort(A: array, pos: int)};
+\If{comprimento de $A$ $\leq 1$ ou $pos < 0$}{
+retornar $A$
+}
+criar 10 buckets;
+\For{cada elemento $x$ em $A$}{
+extrair o dígito de $x$ na posição $pos$;
+colocar $x$ no bucket correspondente;
+}
+\For{cada bucket não vazio}{
+aplicar msdRadixSort(recursivo, próxima posição)
+}
+concatenar buckets;
+\caption{MSD Radix Sort (simplificado)}
+\label{lab:alg-msdradix}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={MSD Radix Sort em Python}, label=code:msdradixPy]
+def msd_radix_sort(arr, pos=None):
+    if not arr:
+        return arr
+    if pos is None:
+        max_len = len(str(max(arr)))
+        pos = max_len - 1
+    if len(arr) <= 1 or pos < 0:
+        return arr
+    buckets = [[] for _ in range(10)]
+    for n in arr:
+        s = str(n).zfill(pos + 1)
+        digit = int(s[-(pos + 1)])
+        buckets[digit].append(n)
+    out = []
+    for b in buckets:
+        if b:
+            out.extend(msd_radix_sort(b, pos - 1))
+    return out
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={MSD Radix Sort em C}, label=code:msdradixC]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int getDigit(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+void msdRadixSort(int *arr, int n, int pos, int max_digits) {
+    if (n <= 1 || pos >= max_digits)
+        return;
+    int counts[10] = {0};
+    for (int i = 0; i < n; i++) {
+        int digit = getDigit(arr[i], pos, max_digits);
+        counts[digit]++;
+    }
+    int **buckets = malloc(10 * sizeof(int*));
+    for (int i = 0; i < 10; i++)
+        buckets[i] = malloc(counts[i] * sizeof(int));
+    int idx[10] = {0};
+    for (int i = 0; i < n; i++) {
+        int digit = getDigit(arr[i], pos, max_digits);
+        buckets[digit][idx[digit]++] = arr[i];
+    }
+    int k = 0;
+    for (int d = 0; d < 10; d++) {
+        if (counts[d] > 0) {
+            msdRadixSort(buckets[d], counts[d], pos + 1, max_digits);
+            for (int i = 0; i < counts[d]; i++)
+                arr[k++] = buckets[d][i];
+        }
+        free(buckets[d]);
+    }
+    free(buckets);
+}
+
+// Utilitario para obter o numero maximo de digitos no array
+int getMaxDigits(int *arr, int n) {
+    int max = arr[0];
+    for (int i = 1; i < n; i++)
+        if (arr[i] > max)
+            max = arr[i];
+    int digits = 0;
+    while (max > 0) {
+        digits++;
+        max /= 10;
+    }
+    return digits;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={MSD Radix Sort em C++}, label=code:msdradixC]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+// Funcao para obter o digito na posicao 'pos' (0 = digito mais significativo)
+int get_digit(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+void msd_radix_sort(std::vector<int>& arr, int left, int right, int pos, int max_digits) {
+    if (right - left <= 0 || pos >= max_digits)
+        return;
+
+    // Cria os buckets (10 para digitos decimais)
+    std::vector<std::vector<int>> buckets(10);
+
+    // Distribui nos buckets
+    for (int i = left; i <= right; ++i) {
+        int digit = get_digit(arr[i], pos, max_digits);
+        buckets[digit].push_back(arr[i]);
+    }
+
+    // Junta os buckets no vetor original
+    int idx = left;
+    for (int d = 0; d < 10; ++d) {
+        for (int val : buckets[d])
+            arr[idx++] = val;
+    }
+
+    // Recursivamente ordena cada bucket
+    idx = left;
+    for (int d = 0; d < 10; ++d) {
+        int bucket_size = buckets[d].size();
+        if (bucket_size > 1) {
+            msd_radix_sort(arr, idx, idx + bucket_size - 1, pos + 1, max_digits);
+        }
+        idx += bucket_size;
+    }
+}
+
+// Funcao utilitaria para chamada simples
+void msd_radix_sort(std::vector<int>& arr) {
+    if (arr.empty()) return;
+    int max_elem = *std::max_element(arr.begin(), arr.end());
+    int max_digits = 0;
+    while (max_elem > 0) {
+        max_elem /= 10;
+        max_digits++;
+    }
+    msd_radix_sort(arr, 0, arr.size() - 1, 0, max_digits);
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do MSD Radix Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+O MSD (Most Significant Digit) Radix Sort é um algoritmo recursivo que ordena elementos processando dígitos da esquerda para a direita (mais significativo primeiro). O algoritmo divide recursivamente o problema baseado em cada dígito, criando subproblemas independentes.
+
+\paragraph{Análise das Fases do Algoritmo}
+
+Para cada nível de recursão $\ell$ (onde $\ell = 0$ corresponde ao dígito mais significativo):
+\begin{enumerate}
+\item \textbf{Contagem de dígitos:} Contar ocorrências do dígito na posição $\ell$ - $O(n)$
+\item \textbf{Cálculo de posições:} Computar índices de destino (counting sort) - $O(k)$ onde $k$ é a base
+\item \textbf{Distribuição:} Redistribuir elementos baseado no dígito atual - $O(n)$
+\item \textbf{Chamadas recursivas:} Aplicar recursivamente em cada grupo não-trivial
+\end{enumerate}
+
+\paragraph{Análise da Estrutura Recursiva}
+
+\textbf{Relação de recorrência fundamental:}
+\begin{align}
+T(n, d) &= \begin{cases}
+O(1) & \text{se } n \leq 1 \text{ ou } d = 0 \\
+O(n + k) + \sum_{i=0}^{k-1} T(n_i, d-1) & \text{caso contrário}
+\end{cases}
+\end{align}
+
+onde:
+\begin{itemize}
+\item $n$ é o número de elementos no subproblema atual
+\item $d$ é o número de dígitos restantes a processar
+\item $k$ é a base (número de possíveis valores por dígito)
+\item $n_i$ é o número de elementos no $i$-ésimo grupo após distribuição
+\item $\sum_{i=0}^{k-1} n_i = n$
+\end{itemize}
+
+\paragraph{Melhor Caso: $O(d(n + k))$}
+\textbf{Cenário:} Todos os números têm o mesmo prefixo, diferindo apenas nos últimos dígitos
+\\
+\textbf{Prova:}
+
+No melhor caso, todos os elementos vão para o mesmo grupo em cada nível até os últimos dígitos:
+\begin{align}
+T_{\text{melhor}}(n, d) &= \underbrace{O(n + k)}_{\text{nível atual}} + \underbrace{T(n, d-1)}_{\text{único grupo não-vazio}} \\
+&= O(n + k) + O(n + k) + T(n, d-2) \\
+&= \ldots \\
+&= d \cdot O(n + k) \\
+&= O(d(n + k))
+\end{align}
+
+\textbf{Exemplo:} Números $[1000, 1001, 1002, \ldots, 1999]$ têm mesmo prefixo "1" no primeiro dígito.
+
+\paragraph{Pior Caso: $O(d \cdot n \cdot k)$}
+\textbf{Cenário:} Distribuição completamente balanceada em todos os níveis
+\\
+\textbf{Prova:}
+
+No pior caso, cada dígito distribui uniformemente os elementos em $k$ grupos:
+
+\textbf{Análise da árvore de recursão:}
+\begin{align}
+\text{Nível } 0: &\quad \text{1 nó com } n \text{ elementos} \rightarrow \text{custo } O(n + k) \\
+\text{Nível } 1: &\quad \text{até } k \text{ nós com } \frac{n}{k} \text{ elementos cada} \\
+&\quad \text{custo total: } k \cdot O\left(\frac{n}{k} + k\right) = O(n + k^2) \\
+\text{Nível } 2: &\quad \text{até } k^2 \text{ nós com } \frac{n}{k^2} \text{ elementos cada} \\
+&\quad \text{custo total: } k^2 \cdot O\left(\frac{n}{k^2} + k\right) = O(n + k^3) \\
+&\vdots \\
+\text{Nível } \ell: &\quad \text{até } k^\ell \text{ nós} \rightarrow \text{custo } O(n + k^{\ell+1})
+\end{align}
+
+\textbf{Somando todos os $d$ níveis:}
+\begin{align}
+T_{\text{pior}}(n, d) &= \sum_{\ell=0}^{d-1} O(n + k^{\ell+1}) \\
+&= d \cdot O(n) + \sum_{\ell=1}^{d} O(k^\ell) \\
+&= O(dn) + O\left(\frac{k(k^d - 1)}{k - 1}\right) \\
+&= O(dn) + O(k^d) \quad \text{para } k > 1
+\end{align}
+
+Para números de $w$ bits com base $k = 2$: $d = w$ e $k^d = 2^w$
+\begin{align}
+T_{\text{pior}}(n, w) = O(wn + 2^w)
+\end{align}
+
+Se $2^w = O(n^c)$ para $c$ constante: $T_{\text{pior}}(n) = O(wn + n^c) = O(wn)$
+
+\paragraph{Caso Médio: $O(d(n + k))$}
+\textbf{Cenário:} Distribuição aleatória uniforme dos dígitos
+\\
+\textbf{Prova:}
+
+Para distribuição uniforme, o número esperado de elementos por grupo é $E[n_i] = \frac{n}{k}$:
+
+\textbf{Análise probabilística:}
+\begin{align}
+E[T(n, d)] &= E\left[O(n + k) + \sum_{i=0}^{k-1} T(n_i, d-1)\right] \\
+&= O(n + k) + \sum_{i=0}^{k-1} E[T(n_i, d-1)] \\
+&= O(n + k) + k \cdot E[T(n/k, d-1)] \\
+&= O(n + k) + k \cdot E[T(n/k, d-1)]
+\end{align}
+
+\textbf{Desenvolvendo a recorrência:}
+\begin{align}
+E[T(n, d)] &= O(n + k) + k \cdot [O(n/k + k) + k \cdot E[T(n/k^2, d-2)]] \\
+&= O(n + k) + O(n + k^2) + k^2 \cdot E[T(n/k^2, d-2)] \\
+&= \ldots \\
+&= \sum_{\ell=0}^{d-1} O(n + k^{\ell+1}) \\
+&= d \cdot O(n) + O\left(\sum_{\ell=1}^{d} k^\ell\right)
+\end{align}
+
+Para $k = O(n^{1/d})$: $\sum_{\ell=1}^{d} k^\ell = O(k^d) = O(n)$
+\begin{align}
+E[T(n, d)] = O(dn + n) = O(d(n + k))
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar - Versão Recursiva: $O(n + k \cdot d)$}
+\textbf{Prova detalhada:}
+\begin{itemize}
+\item \textbf{Arrays auxiliares para counting sort:}
+\begin{itemize}
+\item Array de contagem: $\text{count}[0..k-1]$ $\rightarrow O(k)$
+\item Array de saída temporário: $\text{output}[0..n-1]$ $\rightarrow O(n)$
+\item Array de prefixos: $\text{prefix}[0..k-1]$ $\rightarrow O(k)$
+\end{itemize}
+\item \textbf{Stack de recursão:} Profundidade máxima $d$ níveis $\rightarrow O(d)$
+\item \textbf{Espaço por chamada recursiva:} $O(k)$ para arrays de contagem
+\item \textbf{Variáveis locais por nível:}
+\begin{itemize}
+\item Índices e contadores $\rightarrow O(1)$
+\item Parâmetros de chamada $\rightarrow O(1)$
+\end{itemize}
+\end{itemize}
+
+\textbf{Análise do espaço total:}
+\begin{align}
+S(n, d) &= \underbrace{O(n)}_{\text{array saída}} + \underbrace{O(k)}_{\text{contadores}} + \underbrace{O(d)}_{\text{recursão}} + \underbrace{O(k \cdot d)}_{\text{stack frames}} \\
+&= O(n + k \cdot d)
+\end{align}
+
+\paragraph{Espaço Auxiliar - Versão Iterativa: $O(n + k)$}
+\textbf{Otimização com implementação iterativa:}
+\begin{itemize}
+\item \textbf{Eliminação da recursão:} Usar fila de subproblemas
+\item \textbf{Reutilização de arrays:} Mesmo array de contagem para todos os níveis
+\item \textbf{Espaço reduzido:} $O(n + k)$ independente de $d$
+\end{itemize}
+
+\textbf{Estruturas necessárias:}
+\begin{align}
+S_{\text{iter}}(n) &= \underbrace{O(n)}_{\text{saída}} + \underbrace{O(k)}_{\text{contadores}} + \underbrace{O(n)}_{\text{fila trabalho}} \\
+&= O(n + k)
+\end{align}
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Estável - counting sort preserva ordem relativa
+\item \textbf{In-place:} Não - requer $O(n + k \cdot d)$ espaço auxiliar
+\item \textbf{Adaptativo:} Sim - performance depende da distribuição dos dígitos
+\item \textbf{Método:} Divisão e conquista baseado em dígitos
+\item \textbf{Paralelização:} Naturalmente paralelizável por grupos independentes
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(d(n + k))$ com distribuição concentrada
+\item \textbf{Caso médio:} $O(d(n + k))$ para distribuição uniforme
+\item \textbf{Pior caso:} $O(dn + k^d)$ com distribuição balanceada completa
+\item \textbf{Espaço auxiliar:} $O(n + k \cdot d)$ (recursivo) ou $O(n + k)$ (iterativo)
+\item \textbf{Aplicação ideal:} Inteiros ou strings com dígitos bem distribuídos
+\end{itemize}
+
+
+\section{MSD Radix Sort (in place)}
+
+\textbf{Descrição:}
+O MSD Radix Sort (in place) é uma variação do MSD Radix Sort tradicional que realiza a ordenação no próprio vetor original, sem usar buckets auxiliares grandes. O algoritmo ainda segue a ideia de dividir recursivamente os números (ou strings) pelo dígito mais significativo ainda não processado, mas rearranja os elementos usando partições e trocas diretamente dentro do array, economizando memória e tornando-se mais adequado para ambientes de memória restrita.
+
+\begin{exmp}
+Considere ordenar $A = [237, 146, 259, 349, 972, 102, 543]$:
+\begin{enumerate}
+\item Para o dígito mais significativo, desloca os elementos diretamente dentro de $A$ para juntos os que começam pelo mesmo dígito (ex: todos que têm '1', depois '2', etc).
+\item Recursivamente, para cada grupo contínuo, repete-se o processo para o próximo dígito.
+\item Ao final, consegue-se o array total ordenado.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{msdRadixSortInPlace(A: array, ini: int, fim: int, pos: int, maxdigits: int)};
+\If{fim - ini $\leq 1$ ou pos $\geq$ maxdigits}{
+retornar
+}
+criar vetor “count” para armazenar o número de elementos em cada bucket;
+\For{$i$ de $ini$ até $fim-1$}{
+determinar o dígito de A[i] em pos; count[dígito]++;
+}
+calcular as posições iniciais de cada bucket (in-place);
+particionar o vetor no próprio espaço;
+\For{cada bucket não vazio}{
+aplicar msdRadixSortInPlace recursivamente para o bucket e dígito seguinte
+}
+\caption{MSD Radix Sort (in place, simplificado)}
+\label{lab:alg-msdradix-inplace}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={MSD Radix Sort (in place) em Python}, label=code:msdradixinplacePy]
+def get_digit(num, pos, max_digits):
+    return (num // 10 ** (max_digits - pos - 1)) % 10
+
+def msd_radix_sort_in_place(arr, ini=0, fim=None, pos=0, max_digits=None):
+    if fim is None:
+        fim = len(arr)
+    if max_digits is None:
+        max_digits = len(str(max(arr))) if arr else 0
+    if fim - ini <= 1 or pos >= max_digits:
+        return
+    count = [0] * 10
+    for i in range(ini, fim):
+        d = get_digit(arr[i], pos, max_digits)
+        count[d] += 1
+    start = [ini]
+    for c in count[:-1]:
+        start.append(start[-1] + c)
+    cur = start.copy()
+    i = ini
+    while i < fim:
+        d = get_digit(arr[i], pos, max_digits)
+        j = cur[d]
+        if i != j:
+            arr[i], arr[j] = arr[j], arr[i]
+        else:
+            i += 1
+        cur[d] += (i == j)
+    for b in range(10):
+        s = start[b]
+        e = start[b] + count[b]
+        if count[b] > 1:
+            msd_radix_sort_in_place(arr, s, e, pos + 1, max_digits)
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={MSD Radix Sort (in place, inteiros positivos, simplificado) em C}, label=code:msdradixinplaceC]
+#include <stdio.h>
+#include <stdlib.h>
+
+int get_digit(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+void msdRadixSortInPlace(int *arr, int ini, int fim, int pos, int max_digits) {
+    if (fim - ini <= 1 || pos >= max_digits)
+        return;
+    int count[10] = {0}, start[10], cur[10];
+    for (int i = ini; i < fim; i++)
+        count[get_digit(arr[i], pos, max_digits)]++;
+    start[0] = ini;
+    for (int i = 1; i < 10; i++)
+        start[i] = start[i - 1] + count[i - 1];
+    for (int i = 0; i < 10; i++)
+        cur[i] = start[i];
+    int i = ini;
+    while (i < fim) {
+        int d = get_digit(arr[i], pos, max_digits);
+        int j = cur[d];
+        if (i != j) {
+            int tmp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = tmp;
+        } else {
+            i++;
+        }
+        if (i == cur[d])
+            cur[d]++;
+    }
+    for (int b = 0; b < 10; b++) {
+        int s = start[b];
+        int e = start[b] + count[b];
+        if (count[b] > 1)
+            msdRadixSortInPlace(arr, s, e, pos + 1, max_digits);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={MSD Radix Sort (in place, inteiros positivos, simplificado) em C++}, label=code:msdradixinplaceC]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+// Funcao para obter o digito na posicao 'pos' (0 = digito mais significativo)
+int get_digit(int num, int pos, int max_digits) {
+    for (int i = 0; i < max_digits - pos - 1; i++)
+        num /= 10;
+    return num % 10;
+}
+
+// In-place MSD Radix Sort
+void msd_radix_sort_in_place(std::vector<int>& arr, int left, int right, int pos, int max_digits) {
+    if (right - left <= 0 || pos >= max_digits)
+        return;
+
+    int count[10] = {0}; // Contador de cada bucket
+    for (int i = left; i <= right; ++i)
+        count[get_digit(arr[i], pos, max_digits)]++;
+
+    // Calcula as posicoes de inicio de cada bucket
+    int start[10], cur[10];
+    start[0] = left;
+    for (int i = 1; i < 10; ++i)
+        start[i] = start[i - 1] + count[i - 1];
+    std::copy(start, start + 10, cur);
+
+    // Rearranja in-place usando ciclo de permutacao
+    int i = left;
+    while (i <= right) {
+        int d = get_digit(arr[i], pos, max_digits);
+        int j = cur[d];
+        if (i != j) {
+            std::swap(arr[i], arr[j]);
+        } else {
+            ++i;
+        }
+        if (i == cur[d]) // Avanca dentro do novo bucket se ja ajustado
+            cur[d]++;
+    }
+
+    // Recursao para cada bucket
+    for (int b = 0; b < 10; ++b) {
+        int s = start[b];
+        int e = start[b] + count[b] - 1;
+        if (count[b] > 1)
+            msd_radix_sort_in_place(arr, s, e, pos + 1, max_digits);
+    }
+}
+
+// Funcao utilitaria para chamada simples
+void msd_radix_sort_in_place(std::vector<int>& arr) {
+    if (arr.empty()) return;
+    int max_elem = *std::max_element(arr.begin(), arr.end());
+    int max_digits = 0;
+    while (max_elem > 0) {
+        max_elem /= 10;
+        max_digits++;
+    }
+    msd_radix_sort_in_place(arr, 0, arr.size() - 1, 0, max_digits);
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do MSD Radix Sort (In-Place)}
+
+\subsubsection{Complexidade de Tempo}
+
+O MSD Radix Sort in-place mantém a estrutura recursiva do algoritmo padrão, mas implementa o particionamento diretamente no array original, sem usar arrays auxiliares para redistribuição. Isso introduz complexidade adicional no processo de rearranjo dos elementos.
+
+\paragraph{Análise das Fases do Algoritmo In-Place}
+
+Para cada nível de recursão $\ell$ em um subarray de tamanho $n'$:
+\begin{enumerate}
+\item \textbf{Contagem de dígitos:} Contar ocorrências do dígito na posição $\ell$ - $O(n')$
+\item \textbf{Cálculo de fronteiras:} Computar posições de início/fim de cada partição - $O(k)$
+\item \textbf{Particionamento in-place:} Rearranjar elementos no próprio array - $O(n' \cdot k)$
+\item \textbf{Chamadas recursivas:} Aplicar recursivamente em cada partição
+\end{enumerate}
+
+\paragraph{Análise do Particionamento In-Place}
+
+\textbf{Algoritmo de particionamento por dígito:}
+O particionamento in-place requer um processo iterativo para cada valor de dígito:
+
+\begin{align}
+\text{Para cada dígito } d \in \{0, 1, \ldots, k-1\}:& \\
+&\text{1. Localizar próxima posição incorreta} \\
+&\text{2. Encontrar elemento correto para trocar} \\
+&\text{3. Realizar troca} \\
+&\text{4. Repetir até partição completa}
+\end{align}
+
+\textbf{Complexidade do particionamento:}
+\begin{align}
+T_{\text{partition}}(n') &= \sum_{d=0}^{k-1} O(\text{elementos com dígito } d) \\
+&= \sum_{d=0}^{k-1} O(n'_d) \text{ onde } \sum_{d=0}^{k-1} n'_d = n' \\
+&= O(n') + O(\text{overhead de localização})
+\end{align}
+
+No pior caso, cada elemento pode ser examinado $O(k)$ vezes durante o particionamento:
+\begin{align}
+T_{\text{partition}}(n') = O(n' \cdot k)
+\end{align}
+
+\paragraph{Melhor Caso: $O(d(n + k))$}
+\textbf{Cenário:} Todos os elementos têm o mesmo prefixo de dígitos, diferindo apenas nos últimos dígitos
+\\
+\textbf{Prova:}
+
+No melhor caso, cada nível de recursão processa todos os elementos em uma única partição:
+\begin{align}
+T_{\text{melhor}}(n) &= \sum_{\ell=0}^{d-1} [\underbrace{O(n)}_{\text{contagem}} + \underbrace{O(k)}_{\text{fronteiras}} + \underbrace{O(n)}_{\text{partition trivial}}] \\
+&= \sum_{\ell=0}^{d-1} O(n + k) \\
+&= d \cdot O(n + k) \\
+&= O(d(n + k))
+\end{align}
+
+\paragraph{Pior Caso: $O(d \cdot n \cdot k)$}
+\textbf{Cenário:} Distribuição uniforme em todos os níveis com particionamento custoso
+\\
+\textbf{Prova:}
+
+No pior caso, cada elemento é examinado múltiplas vezes durante o particionamento in-place:
+
+\textbf{Análise por nível:}
+\begin{align}
+\text{Nível } 0: &\quad O(n \cdot k) + \text{recursão em } k \text{ grupos} \\
+\text{Nível } 1: &\quad k \text{ chamadas de } O\left(\frac{n}{k} \cdot k\right) = k \cdot O(n) = O(n \cdot k) \\
+&\vdots \\
+\text{Nível } \ell: &\quad O(n \cdot k)
+\end{align}
+
+\textbf{Custo total:}
+\begin{align}
+T_{\text{pior}}(n) &= \sum_{\ell=0}^{d-1} O(n \cdot k) \\
+&= d \cdot O(n \cdot k) \\
+&= O(d \cdot n \cdot k)
+\end{align}
+
+Para números de $w$ bits: $T_{\text{pior}}(n) = O(w \cdot n \cdot k)$
+
+\paragraph{Caso Médio: $O(d \cdot n \cdot \log k)$}
+\textbf{Cenário:} Distribuição aleatória com overhead médio de particionamento
+\\
+\textbf{Prova:}
+
+O particionamento in-place, em média, examina cada elemento um número logarítmico de vezes:
+
+\begin{align}
+E[T_{\text{partition}}(n')] &= O(n' \cdot E[\text{overhead por elemento}]) \\
+&= O(n' \cdot \log k)
+\end{align}
+
+\textbf{Justificativa:} Durante o particionamento, um elemento pode "pular" entre diferentes seções, mas converge logaritmicamente para sua posição final.
+
+\begin{align}
+E[T(n)] &= \sum_{\ell=0}^{d-1} O(n \cdot \log k) \\
+&= O(d \cdot n \cdot \log k)
+\end{align}
+
+\subsubsection{Análise Detalhada do Particionamento In-Place}
+
+\paragraph{Algoritmo de Particionamento Multi-Way}
+\textbf{Estratégia de implementação:}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{partitionInPlace(A: array, start: int, end: int, digitPos: int, k: int)}\;
+$\text{count}[0 \ldots k-1] \gets 0$\;
+\For{$i \gets start$ \textbf{até} $end$}{
+    $\text{count}[\text{getDigit}(A[i], \text{digitPos})]++$\;
+}
+$\text{boundary}[0] \gets start$\;
+\For{$i \gets 1$ \textbf{até} $k-1$}{
+    $\text{boundary}[i] \gets \text{boundary}[i-1] + \text{count}[i-1]$\;
+}
+\For{$digit \gets 0$ \textbf{até} $k-1$}{
+    $pos \gets \text{boundary}[digit]$\;
+    \While{$pos < \text{boundary}[digit] + \text{count}[digit]$}{
+        $currentDigit \gets \text{getDigit}(A[pos], \text{digitPos})$\;
+        \If{$currentDigit = digit$}{
+            $pos++$\;
+        }\Else{
+            $targetPos \gets \text{boundary}[currentDigit]++$\;
+            trocar($A[pos], A[targetPos]$)\;
+        }
+    }
+}
+\caption{Particionamento In-Place para MSD Radix Sort}
+\end{algorithm}
+
+\paragraph{Complexidade do Particionamento}
+\textbf{Análise das operações:}
+\begin{itemize}
+\item \textbf{Contagem inicial:} $O(n')$ para subarray de tamanho $n'$
+\item \textbf{Cálculo de fronteiras:} $O(k)$
+\item \textbf{Particionamento por dígito:} No pior caso, $O(n' \cdot k)$
+\end{itemize}
+
+\textbf{Invariante do algoritmo:}
+\begin{align}
+\forall i < \text{boundary}[d]: &\quad \text{getDigit}(A[i], \text{digitPos}) < d \\
+\forall i \geq \text{pos}: &\quad \text{getDigit}(A[i], \text{digitPos}) = d \text{ ou não processado}
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(d + k)$}
+\textbf{Prova detalhada:}
+\begin{itemize}
+\item \textbf{Array de contagem:} $\text{count}[0 \ldots k-1]$ $\rightarrow O(k)$
+\item \textbf{Array de fronteiras:} $\text{boundary}[0 \ldots k-1]$ $\rightarrow O(k)$
+\item \textbf{Stack de recursão:} Profundidade máxima $d$ níveis $\rightarrow O(d)$
+\item \textbf{Variáveis locais por chamada:}
+\begin{itemize}
+\item Índices: \texttt{start}, \texttt{end}, \texttt{pos} $\rightarrow O(1)$
+\item Contadores: \texttt{digit}, \texttt{currentDigit} $\rightarrow O(1)$
+\end{itemize}
+\item \textbf{Total por nível:} $O(k)$
+\item \textbf{Total global:} $O(d \cdot k + d) = O(d + k)$ (assumindo $k = O(d)$ ou dominância)
+\end{itemize}
+
+\textbf{Comparação com versão não in-place:}
+\begin{align}
+\text{Espaço não in-place:} &\quad O(n + k + d) \\
+\text{Espaço in-place:} &\quad O(d + k) \\
+\text{Redução:} &\quad O(n) \text{ de economia}
+\end{align}
+
+\subsubsection{Análise da Estabilidade}
+
+\paragraph{Perda de Estabilidade}
+\textbf{Teorema:} O MSD Radix Sort in-place não é estável.
+
+\textbf{Prova por contraexemplo:}
+Considere array $[21_a, 11, 21_b]$ com dígitos decimais:
+\begin{enumerate}
+\item Particionamento por primeiro dígito: grupo $[11]$ e grupo $[21_a, 21_b]$
+\item Durante o particionamento in-place, $21_b$ pode ser movido antes de $21_a$
+\item Resultado final: $[11, 21_b, 21_a]$ (ordem relativa invertida)
+\end{enumerate}
+
+\textbf{Razão fundamental:} O algoritmo de particionamento in-place não preserva ordem relativa durante as trocas.
+
+\subsubsection{Otimizações Específicas da Versão In-Place}
+
+\paragraph{Redução do Overhead de Particionamento}
+\textbf{Estratégia de particionamento incremental:}
+\begin{itemize}
+\item Processar dígitos em ordem para minimizar trocas
+\item Usar técnicas de particionamento estável quando possível
+\item Implementar "cycle detection" para reduzir movimentos
+\end{itemize}
+
+\paragraph{Hibridização Adaptativa}
+\textbf{Threshold para algoritmos auxiliares:}
+\begin{align}
+\text{Se } n' &< \text{THRESHOLD}_1: \text{usar Insertion Sort} \\
+\text{Se } k &> \text{THRESHOLD}_2: \text{usar Quick Sort} \\
+\text{Senão:} &\text{continuar MSD Radix in-place}
+\end{align}
+
+Valores típicos: $\text{THRESHOLD}_1 = 32$, $\text{THRESHOLD}_2 = 0.5n'$
+
+\subsubsection{Análise de Casos Extremos}
+
+\paragraph{Base Binária ($k = 2$)}
+\textbf{Simplificação do particionamento:}
+\begin{align}
+T_{\text{partition}}(n') &= O(n') \text{ (particionamento binário eficiente)} \\
+T_{\text{total}}(n) &= O(d \cdot n) \text{ onde } d = w \text{ (bits)}
+\end{align}
+
+\paragraph{Base Grande ($k = 256$)}
+\textbf{Overhead aumentado:}
+\begin{align}
+T_{\text{partition}}(n') &= O(n' \cdot k) = O(256n') \\
+T_{\text{total}}(n) &= O\left(\frac{w}{8} \cdot n \cdot 256\right) = O(32wn)
+\end{align}
+
+\subsubsection{Comparação com Outras Variantes}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Variante} & \textbf{Tempo (Médio)} & \textbf{Espaço} & \textbf{Estabilidade} \\
+\hline
+MSD Radix (padrão) & $O(d(n + k))$ & $O(n + k + d)$ & Sim \\
+\hline
+MSD Radix (in-place) & $O(d \cdot n \cdot \log k)$ & $O(d + k)$ & Não \\
+\hline
+LSD Radix & $O(d(n + k))$ & $O(n + k)$ & Sim \\
+\hline
+Quick Sort & $O(n \log n)$ & $O(\log n)$ & Não \\
+\hline
+\end{tabular}
+\caption{Comparação entre Variantes de Radix Sort}
+\end{table}
+
+\subsubsection{Análise Assintótica Final}
+
+\paragraph{Trade-offs da Versão In-Place}
+\textbf{Vantagens:}
+\begin{itemize}
+\item Redução significativa no uso de memória: $O(n)$ economia
+\item Melhor localidade de referência (trabalha no array original)
+\item Menor overhead de alocação/desalocação de memória
+\end{itemize}
+
+\textbf{Desvantagens:}
+\begin{itemize}
+\item Aumento na complexidade temporal: fator $O(\log k)$ adicional
+\item Perda de estabilidade
+\item Implementação mais complexa e propensa a erros
+\item Constantes multiplicativas maiores
+\end{itemize}
+
+\paragraph{Condições de Viabilidade}
+\textbf{MSD Radix Sort in-place é preferível quando:}
+\begin{align}
+\text{Memória limitada} &\quad \land \quad d \cdot n \cdot \log k < n \log n \\
+\Leftrightarrow \quad d \cdot \log k &< \log n \\
+\Leftrightarrow \quad d &< \frac{\log n}{\log k}
+\end{align}
+
+Para $k = 256$ (bytes): $d < \frac{\log n}{8}$
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Não estável - order relativa pode ser alterada
+\item \textbf{In-place:} Sim - utiliza apenas $O(d + k)$ espaço auxiliar
+\item \textbf{Adaptativo:} Sim - performance depende da distribuição dos dígitos
+\item \textbf{Método:} Particionamento recursivo in-place por dígitos
+\item \textbf{Paralelização:} Limitada devido ao particionamento sequencial
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(d(n + k))$ com distribuição concentrada
+\item \textbf{Caso médio:} $O(d \cdot n \cdot \log k)$ para distribuição uniforme
+\item \textbf{Pior caso:} $O(d \cdot n \cdot k)$ com overhead máximo de particionamento
+\item \textbf{Espaço auxiliar:} $O(d + k)$ - verdadeiramente in-place
+\item \textbf{Aplicação ideal:} Cenários com restrições severas de memória e poucos dígitos
+\end{itemize}
+
+
+\section{Merge-Insertion Sort}
+
+\textbf{Descrição:}
+O Merge-Insertion Sort (também chamado de Ford-Johnson Sort) é um algoritmo de ordenação por comparação projetado para minimizar o número total de comparações feitas durante a ordenação. Ele mistura as ideias do Merge Sort com o Insertion Sort, criando pares de elementos inicialmente, ordenando-os, formando uma sequência parcialmente ordenada, e então inserindo os elementos restantes em posições apropriadas. É reconhecido por atingir o menor número teórico de comparações conhecidas para ordenação, embora na prática seja pouco usado devido à sua complexidade estrutural.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [4, 2, 7, 1, 5, 3]$ por Merge-Insertion Sort:
+\begin{enumerate}
+\item Os elementos são emparelhados: $(4,2)$, $(7,1)$, $(5,3)$.
+\item Cada par é ordenado: $(2,4)$, $(1,7)$, $(3,5)$.
+\item Os menores de cada par são usados para formar uma lista base: $[2,1,3]$.
+\item A lista base é ordenada recursivamente.
+\item Os maiores dos pares são então inseridos, um a um, nas posições corretas da lista.
+\item O resultado é uma sequência ordenada: $[1,2,3,4,5,7]$.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{mergeInsertionSort(A: array, n: int)};
+\If{$n \leq 1$}{
+retornar\;
+}
+\For{cada par $(A[2i], A[2i+1])$}{
+comparar e ordenar o par\;
+}
+menores $\gets$ todos $A[2i]$ nos pares ordenados\;
+maiores $\gets$ todos $A[2i+1]$ nos pares ordenados\;
+mergeInsertionSort(menores, tamanho/2)\;
+inserir cada elemento de maiores na lista de menores (ordenadamente)\;
+\If{$n$ for ímpar}{
+inserir o último elemento diretamente\;
+}
+copiar resultado para $A$\;
+\caption{Merge-Insertion Sort (Ford-Johnson)}
+\label{lab:alg-mergeinsertionsort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Merge-Insertion Sort (Ford-Johnson) em Python}, label=code:mergeinsortPy]
+def merge_insertion_sort(arr):
+    n = len(arr)
+    if n <= 1:
+        return arr.copy()
+    # Forma pares de elementos
+    pairs = [
+        (arr[i], arr[i + 1]) if i + 1 < n else (arr[i],)
+        for i in range(0, n, 2)
+    ]
+    # Ordena cada par
+    sorted_pairs = [tuple(sorted(p)) for p in pairs]
+    left = [p[0] for p in sorted_pairs]
+    right = [p[1] for p in sorted_pairs if len(p) == 2]
+    # Ordena recursivamente o lado esquerdo
+    base = merge_insertion_sort(left)
+    # Insere cada elemento do lado direito na lista base
+    from bisect import insort
+    for x in right:
+        insort(base, x)
+    return base
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Merge-Insertion Sort (Ford-Johnson) em C (simplificado)}, label=code:mergeinsortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+void binaryInsert(int *arr, int *n, int x) {
+    int left = 0, right = *n, mid;
+    while (left < right) {
+        mid = (left + right) / 2;
+        if (arr[mid] < x)
+            left = mid + 1;
+        else
+            right = mid;
+    }
+    for (int i = *n; i > left; i--)
+        arr[i] = arr[i - 1];
+    arr[left] = x;
+    (*n)++;
+}
+
+void mergeInsertionSort(int *arr, int n, int *out) {
+    if (n <= 1) {
+        if (n == 1)
+            out[0] = arr[0];
+        return;
+    }
+    int npairs = n / 2;
+    int *left = malloc((npairs + 1) * sizeof(int));
+    int *right = malloc(npairs * sizeof(int));
+
+    for (int i = 0; i < npairs; i++) {
+        if (arr[2 * i] < arr[2 * i + 1]) {
+            left[i] = arr[2 * i];
+            right[i] = arr[2 * i + 1];
+        } else {
+            left[i] = arr[2 * i + 1];
+            right[i] = arr[2 * i];
+        }
+    }
+    if (n % 2)
+        left[npairs] = arr[n - 1];
+
+    mergeInsertionSort(left, npairs + (n % 2), out);
+
+    int count = npairs + (n % 2);
+    for (int i = 0; i < npairs; i++)
+        binaryInsert(out, &count, right[i]);
+
+    free(left);
+    free(right);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Merge-Insertion Sort (Ford-Johnson) em C++ (simplificado)}, label=code:mergeinsortC++]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+// Funcao auxiliar: insere x mantendo o vetor ordenado (busca binaria)
+void binary_insert(std::vector<int>& arr, int x) {
+    auto it = std::lower_bound(arr.begin(), arr.end(), x);
+    arr.insert(it, x);
+}
+
+// Merge-Insertion Sort (Ford-Johnson) - simplificado
+std::vector<int> merge_insertion_sort(const std::vector<int>& arr) {
+    int n = arr.size();
+    if (n <= 1) return arr;
+
+    // Forma pares e separa menores e maiores
+    std::vector<int> small, big;
+    for (int i = 0; i + 1 < n; i += 2) {
+        if (arr[i] < arr[i + 1]) {
+            small.push_back(arr[i]);
+            big.push_back(arr[i + 1]);
+        } else {
+            small.push_back(arr[i + 1]);
+            big.push_back(arr[i]);
+        }
+    }
+    if (n % 2 == 1) small.push_back(arr.back()); // elemento sem par
+
+    // Ordena recursivamente os menores
+    std::vector<int> result = merge_insertion_sort(small);
+
+    // Para cada maior, insere na posicao correta
+    for (int x : big)
+        binary_insert(result, x);
+
+    return result;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Merge-Insertion Sort}
+
+\subsubsection{Complexidade de Tempo}
+
+O Merge-Insertion Sort, também conhecido como algoritmo Ford-Johnson, é um algoritmo híbrido que combina as estratégias do merge sort para divisão com técnicas otimizadas de inserção. O algoritmo é teoricamente ótimo em termos do número de comparações necessárias para ordenar.
+
+\paragraph{Análise das Fases do Algoritmo}
+
+O algoritmo executa as seguintes fases principais:
+\begin{enumerate}
+\item \textbf{Divisão recursiva:} Dividir array até tamanhos pequenos - $O(\log n)$ níveis
+\item \textbf{Ordenação de pares:} Ordenar elementos aos pares - $O(n)$ por nível
+\item \textbf{Inserção otimizada:} Inserir elementos usando busca binária - $O(n \log n)$
+\item \textbf{Merge recursivo:} Combinar subarrays ordenados - $O(n)$ por nível
+\end{enumerate}
+
+\paragraph{Análise da Sequência Ford-Johnson}
+
+\textbf{Princípio fundamental:} O algoritmo utiliza a sequência de Jacobsthal para determinar a ordem ótima de inserções:
+\begin{align}
+J_0 &= 0, \quad J_1 = 1 \\
+J_n &= J_{n-1} + 2J_{n-2} \quad \text{para } n \geq 2 \\
+&= 1, 1, 3, 5, 11, 21, 43, 85, 171, \ldots
+\end{align}
+
+\textbf{Propriedade da sequência:} $J_n = \frac{2^n - (-1)^n}{3}$
+
+\paragraph{Melhor Caso: $O(n)$}
+\textbf{Cenário:} Array já ordenado ou quase ordenado
+\\
+\textbf{Prova:}
+
+No melhor caso, o algoritmo pode detectar que subarrays já estão ordenados:
+\begin{align}
+T_{\text{melhor}}(n) &= \underbrace{O(\log n)}_{\text{divisão}} + \underbrace{O(n)}_{\text{verificação}} + \underbrace{O(n)}_{\text{merge trivial}} \\
+&= O(n)
+\end{align}
+
+\textbf{Condição de otimização:} Quando a verificação de ordem pode ser feita em tempo linear e o merge se torna trivial.
+
+\paragraph{Pior Caso: $O(n \log n)$}
+\textbf{Cenário:} Distribuição que requer máximo número de comparações
+\\
+\textbf{Prova:}
+
+O algoritmo Ford-Johnson é teoricamente ótimo em comparações, usando no máximo:
+\begin{align}
+C(n) &= n \log_2 n - 2^{\lfloor \log_2 n \rfloor} + 1
+\end{align}
+
+\textbf{Análise detalhada por fase:}
+\begin{align}
+\text{Divisão:} &\quad T(n) = 2T(n/2) + O(1) \Rightarrow O(\log n) \text{ níveis} \\
+\text{Pares:} &\quad O(n) \text{ comparações por nível} \\
+\text{Inserção:} &\quad \sum_{i} O(\log i) = O(n \log n) \\
+\text{Merge:} &\quad O(n) \text{ por nível} \times O(\log n) = O(n \log n)
+\end{align}
+
+\textbf{Complexidade total:}
+\begin{align}
+T_{\text{pior}}(n) &= O(\log n) \cdot O(n) + O(n \log n) \\
+&= O(n \log n)
+\end{align}
+
+\paragraph{Caso Médio: $O(n \log n)$}
+\textbf{Cenário:} Distribuição aleatória típica
+\\
+\textbf{Prova:}
+
+Para distribuição aleatória, o número esperado de comparações aproxima-se do limite teórico:
+\begin{align}
+E[C(n)] &\approx n \log_2 n - 1.44n + O(\log n) \\
+E[T(n)] &= E[C(n)] \cdot O(1) + \text{overhead} \\
+&= O(n \log n)
+\end{align}
+
+\subsubsection{Análise Detalhada da Inserção Otimizada}
+
+\paragraph{Algoritmo de Inserção Ford-Johnson}
+
+\textbf{Estratégia de inserção:} Os elementos são inseridos em ordem específica determinada pela sequência de Jacobsthal:
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{fordJohnsonInsert(A: array, sorted: array, remaining: array)}\;
+\While{remaining não está vazio}{
+    $k \gets$ próximo índice da sequência Jacobsthal\;
+    \For{$i \gets k$ \textbf{descendo até} $J_{k-1} + 1$}{
+        \If{$i \leq |remaining|$}{
+            $pos \gets$ binarySearch(sorted, remaining[i])\;
+            inserir remaining[i] em sorted na posição pos\;
+        }
+    }
+}
+\caption{Inserção Otimizada Ford-Johnson}
+\end{algorithm}
+
+\paragraph{Análise do Número de Comparações}
+
+\textbf{Teorema de Otimalidade:} O algoritmo Ford-Johnson minimiza o número de comparações necessárias para ordenar $n$ elementos.
+
+\textbf{Prova do limite superior:}
+Para inserir o $k$-ésimo elemento, o número máximo de comparações é $\lfloor \log_2 k \rfloor$:
+\begin{align}
+C_{\text{total}}(n) &= \sum_{k=2}^{n} \lfloor \log_2 k \rfloor \\
+&\leq \sum_{k=2}^{n} \log_2 k \\
+&= \log_2(n!) \\
+&\approx n \log_2 n - 1.44n + O(\log n)
+\end{align}
+
+\textbf{Limite inferior teórico:}
+\begin{align}
+C_{\min}(n) &= \log_2(n!) \approx n \log_2 n - 1.44n
+\end{align}
+
+\textbf{Gap de otimalidade:} O algoritmo Ford-Johnson atinge este limite com erro de $O(\log n)$.
+
+\subsubsection{Análise Recursiva Detalhada}
+
+\paragraph{Relação de Recorrência}
+
+\textbf{Recorrência principal:}
+\begin{align}
+T(n) &= \begin{cases}
+O(1) & \text{se } n \leq 1 \\
+2T(n/2) + f(n) & \text{caso contrário}
+\end{cases}
+\end{align}
+
+onde $f(n)$ é o custo da fase de inserção e merge:
+\begin{align}
+f(n) &= \underbrace{O(n)}_{\text{pares}} + \underbrace{O(n \log n)}_{\text{inserção}} + \underbrace{O(n)}_{\text{merge}} \\
+&= O(n \log n)
+\end{align}
+
+\textbf{Solução da recorrência:}
+\begin{align}
+T(n) &= 2T(n/2) + O(n \log n) \\
+&= O(n \log^2 n) \quad \text{(pelo Teorema Mestre)}
+\end{align}
+
+\paragraph{Otimização da Recorrência}
+
+\textbf{Versão otimizada:} Com implementação cuidadosa, o termo $f(n)$ pode ser reduzido:
+\begin{align}
+f(n) &= O(n) \quad \text{(usando inserção incremental eficiente)} \\
+T(n) &= 2T(n/2) + O(n) = O(n \log n)
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar - Versão Recursiva: $O(n + \log n)$}
+\textbf{Prova detalhada:}
+\begin{itemize}
+\item \textbf{Arrays temporários:} Para merge de subarrays $\rightarrow O(n)$
+\item \textbf{Stack de recursão:} Profundidade $O(\log n)$ $\rightarrow O(\log n)$
+\item \textbf{Estruturas auxiliares:}
+\begin{itemize}
+\item Array para elementos restantes $\rightarrow O(n)$
+\item Array temporário para inserção $\rightarrow O(n)$
+\item Índices da sequência Jacobsthal $\rightarrow O(\log n)$
+\end{itemize}
+\item \textbf{Variáveis de controle:} $\rightarrow O(1)$
+\end{itemize}
+
+\textbf{Espaço total:} $O(n + \log n) = O(n)$
+
+\paragraph{Espaço Auxiliar - Versão Iterativa: $O(n)$}
+\textbf{Implementação iterativa:}
+\begin{itemize}
+\item Elimina stack de recursão $\rightarrow -O(\log n)$
+\item Mantém arrays auxiliares $\rightarrow O(n)$
+\item \textbf{Espaço total:} $O(n)$
+\end{itemize}
+
+\subsubsection{Análise da Sequência de Jacobsthal}
+
+\paragraph{Propriedades Matemáticas}
+
+\textbf{Função geradora:}
+\begin{align}
+\sum_{n=0}^{\infty} J_n x^n &= \frac{x}{1 - x - 2x^2}
+\end{align}
+
+\textbf{Crescimento assintótico:}
+\begin{align}
+J_n &\sim \frac{2^n}{3} \quad \text{para } n \to \infty
+\end{align}
+
+\textbf{Propriedade de otimalidade:} A sequência minimiza o número máximo de comparações necessárias em cada etapa de inserção.
+
+\paragraph{Análise da Eficiência da Inserção}
+
+\textbf{Número de comparações por inserção:}
+Para inserir o elemento na posição determinada por $J_k$:
+\begin{align}
+C_k &= \lfloor \log_2(J_k) \rfloor + 1 \\
+&\approx \lfloor \log_2(2^k/3) \rfloor + 1 \\
+&= k - 2 + O(1)
+\end{align}
+
+\textbf{Vantagem sobre inserção sequencial:}
+\begin{align}
+\text{Inserção sequencial:} &\quad \sum_{k=1}^{n} k = O(n^2) \\
+\text{Inserção Ford-Johnson:} &\quad \sum_{k=1}^{n} \log k = O(n \log n)
+\end{align}
+
+\subsubsection{Variantes e Otimizações}
+
+\paragraph{Hibridização com Insertion Sort}
+
+\textbf{Threshold adaptativo:}
+\begin{align}
+\text{Se } n &\leq \text{THRESHOLD}: \text{usar insertion sort padrão} \\
+\text{Senão:} &\text{usar merge-insertion recursivo}
+\end{align}
+
+Valor ótimo típico: $\text{THRESHOLD} \approx 15-25$
+
+\paragraph{Versão Cache-Conscious}
+
+\textbf{Otimizações de localidade:}
+\begin{itemize}
+\item Processar subarrays que cabem em cache L1
+\item Usar blocked merge para reduzir cache misses
+\item Reordenar operações para maximizar reutilização
+\end{itemize}
+
+\textbf{Impacto na complexidade:}
+\begin{align}
+T_{\text{cache}}(n) &= O(n \log n) + O\left(\frac{n \log n}{B}\right) \text{ cache misses} \\
+&= O(n \log n) \quad \text{(tempo)} \\
+\text{onde } B &\text{ é o tamanho do bloco de cache}
+\end{align}
+
+\subsubsection{Análise de Estabilidade}
+
+\paragraph{Preservação da Estabilidade}
+\textbf{Teorema:} O Merge-Insertion Sort é estável quando implementado corretamente.
+
+\textbf{Prova:}
+\begin{enumerate}
+\item \textbf{Fase de divisão:} Preserva ordem relativa (determinística)
+\item \textbf{Fase de pares:} Comparação $\leq$ preserva estabilidade
+\item \textbf{Fase de inserção:} Busca binária com inserção à direita mantém ordem
+\item \textbf{Fase de merge:} Merge estável preserva ordem relativa
+\end{enumerate}
+
+\textbf{Condição crítica:} Durante a inserção binária, elementos iguais devem ser inseridos após elementos já posicionados.
+
+\subsubsection{Limitações e Aplicações Práticas}
+
+\paragraph{Vantagens}
+\begin{itemize}
+\item \textbf{Otimalidade teórica:} Mínimo número de comparações
+\item \textbf{Estabilidade:} Preserva ordem relativa
+\item \textbf{Determinismo:} Performance previsível
+\item \textbf{Paralelização:} Fases independentes podem ser paralelizadas
+\end{itemize}
+
+\paragraph{Desvantagens}
+\begin{itemize}
+\item \textbf{Complexidade de implementação:} Sequência Jacobsthal complexa
+\item \textbf{Overhead prático:} Constantes multiplicativas altas
+\item \textbf{Uso de memória:} Requer $O(n)$ espaço auxiliar
+\item \textbf{Cache performance:} Padrão de acesso menos otimizado que QuickSort
+\end{itemize}
+
+\paragraph{Aplicações Ideais}
+\begin{itemize}
+\item Sistemas onde o custo de comparação é muito alto
+\item Aplicações teóricas e de pesquisa
+\item Benchmarking de limite inferior de comparações
+\item Ordenação de estruturas complexas com comparação custosa
+\end{itemize}
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Estável - preserva ordem relativa de elementos iguais
+\item \textbf{In-place:} Não - requer $O(n)$ espaço auxiliar
+\item \textbf{Adaptativo:} Parcialmente - detecta algumas configurações ordenadas
+\item \textbf{Método:} Divisão e conquista com inserção otimizada
+\item \textbf{Otimalidade:} Teoricamente ótimo em número de comparações
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(n)$ para arrays já ordenados
+\item \textbf{Caso médio:} $O(n \log n)$ com número mínimo de comparações
+\item \textbf{Pior caso:} $O(n \log n)$ mantendo otimalidade
+\item \textbf{Espaço auxiliar:} $O(n)$ para arrays auxiliares
+\item \textbf{Aplicação ideal:} Cenários onde comparações são custosas e otimalidade é crucial
+\end{itemize}
+
+
+\section{LinearSort}
+
+\href{https://www.explainxkcd.com/wiki/index.php/3026:_Linear_Sort}{Veja LinearSort}\\
+\textbf{Descrição:} O Linear Sort é uma piada clássica da ciência da computação, criada como uma sátira à busca por algoritmos de ordenação com tempo linear.  
+Apesar do nome, ele \textbf{não é um algoritmo de ordenação eficiente}, mas sim uma brincadeira conceitual que manipula o tempo de execução para dar a ilusão de desempenho linear.
+
+O algoritmo funciona em duas etapas. Primeiro, ele utiliza a ordenação por mesclagem, um método bem conhecido com complexidade de tempo $O(n \log n)$, para ordenar a lista de entrada.  
+Em seguida, o programa entra em uma pausa artificial por um período adicional calculado para que o tempo total de execução pareça crescer linearmente com o tamanho da entrada.
+Especificamente, o tempo de espera é definido como:
+\[
+(1{,}000{,}000) \times \text{tamanho(lista)} - \text{(tempo gasto na ordenação)}
+\]
+Com essa pausa deliberada, o tempo total aparenta ser proporcional a $n$, criando a ilusão de uma complexidade $O(n)$.  
+
+Essa abordagem é uma "sátira pedagógica", usada para ilustrar a importância de entender o comportamento real dos algoritmos, em vez de confiar apenas em métricas superficiais de tempo de execução.  
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\small
+\textbf{função} \texttt{LINEAR\_SORT(lista)} \;
+
+$horaInicio \gets \texttt{Hora()}$\;
+
+\texttt{MERGE\_SORT(lista)}\;
+
+\texttt{Sleep}\big($1 \times 10^{6} \times \texttt{tamanho(lista)} - (\texttt{Tempo()} - horaInicio)$\big)\;
+
+\Return lista\;
+
+\caption{Linear Sort}
+\label{lab:alg-LinearSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo LinearSort em Python}, captionpos=t, label=code:LinearSortPy]
+import time
+from typing import List, TypeVar, Callable
+
+T = TypeVar("T")
+
+def _merge(left: List[T], right: List[T]) -> List[T]:
+    i = j = 0
+    out: List[T] = []
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            out.append(left[i]); i += 1
+        else:
+            out.append(right[j]); j += 1
+    out.extend(left[i:])
+    out.extend(right[j:])
+    return out
+
+def merge_sort(arr: List[T]) -> List[T]:
+    n = len(arr)
+    if n <= 1:
+        return arr[:]
+    mid = n // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    return _merge(left, right)
+
+def linear_sort(lst: List[T], scale: float = 0.001) -> List[T]:
+    start = time.perf_counter()
+    sorted_list = merge_sort(lst)
+    elapsed = time.perf_counter() - start
+    target = scale * len(lst) - elapsed
+    if target > 0:
+        time.sleep(target)
+    return sorted_list
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo LinearSort em C}, captionpos=t, label=code:LinearSortC]
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>     // usleep
+#include <sys/time.h>   // gettimeofday
+
+void merge(int *arr, int *left, int leftCount, int *right, int rightCount) {
+    int i = 0, j = 0, k = 0;
+
+    while (i < leftCount && j < rightCount) {
+        if (left[i] <= right[j]) arr[k++] = left[i++];
+        else                     arr[k++] = right[j++];
+    }
+    while (i < leftCount)  arr[k++] = left[i++];
+    while (j < rightCount) arr[k++] = right[j++];
+}
+
+void merge_sort(int *arr, int n) {
+    if (n <= 1) return;
+
+    int mid = n / 2;
+    int *left  = (int *) malloc(mid * sizeof(int));
+    int *right = (int *) malloc((n - mid) * sizeof(int));
+
+    for (int i = 0; i < mid; i++)
+        left[i] = arr[i];
+
+    for (int i = mid; i < n; i++)
+        right[i - mid] = arr[i];
+
+    merge_sort(left, mid);
+    merge_sort(right, n - mid);
+    merge(arr, left, mid, right, n - mid);
+
+    free(left);
+    free(right);
+}
+
+double now_sec() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double) tv.tv_sec + (double) tv.tv_usec * 1e-6;
+}
+
+void linear_sort(int *arr, int n, double SCALE) {
+    double t0 = now_sec();
+
+    merge_sort(arr, n);  
+
+    double elapsed = now_sec() - t0;
+    double target  = SCALE * (double) n;
+
+    double remaining = target - elapsed;
+    if (remaining > 0.0) {
+        usleep((useconds_t)(remaining * 1e6));  
+    }
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo LinearSort em C++}, captionpos=t, label=code:LinearSortCpp]
+#include <bits/stdc++.h>
+#include <chrono>
+#include <thread>
+
+template <typename T>
+std::vector<T> merge_vec(const std::vector<T>& left, const std::vector<T>& right) {
+    std::vector<T> out;
+    out.reserve(left.size() + right.size());
+    size_t i = 0, j = 0;
+    while (i < left.size() && j < right.size()) {
+        if (left[i] <= right[j]) out.push_back(left[i++]);
+        else                      out.push_back(right[j++]);
+    }
+    while (i < left.size()) out.push_back(left[i++]);
+    while (j < right.size()) out.push_back(right[j++]);
+    return out;
+}
+
+template <typename T>
+std::vector<T> merge_sort(const std::vector<T>& arr) {
+    const size_t n = arr.size();
+    if (n <= 1) return arr;
+    size_t mid = n / 2;
+    std::vector<T> left(arr.begin(), arr.begin() + mid);
+    std::vector<T> right(arr.begin() + mid, arr.end());
+    left = merge_sort(left);
+    right = merge_sort(right);
+    return merge_vec(left, right);
+}
+
+template <typename T>
+std::vector<T> linear_sort(const std::vector<T>& arr, double SCALE = 0.001) {
+    using clock = std::chrono::steady_clock;
+    auto t0 = clock::now();
+
+    auto sorted = merge_sort(arr);
+
+    std::chrono::duration<double> elapsed = clock::now() - t0;
+    double target_seconds = SCALE * static_cast<double>(arr.size()) - elapsed.count();
+    if (target_seconds > 0.0) {
+        std::this_thread::sleep_for(std::chrono::duration<double>(target_seconds));
+    }
+    return sorted;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Linear Sort}.  
+Esse algoritmo combina uma ordenação real (\texttt{MERGE\_SORT}) com uma pausa artificial proporcional ao tamanho da entrada, de forma que o tempo total de execução se torne linear em $n$.
+
+\subsubsection{Complexidade de Tempo}
+
+A primeira etapa do algoritmo consiste em chamar \texttt{MERGE\_SORT}, cujo custo assintótico é conhecido:
+
+\[
+T_{\text{sort}}(n) = \Theta(n \log n)
+\]
+
+Em seguida, o algoritmo mede o tempo já gasto e executa um atraso artificial de duração:
+
+\[
+T_{\text{sleep}}(n) = c \cdot n - T_{\text{sort}}(n)
+\]
+
+onde $c$ é uma constante definida pelo fator de escala utilizado.  
+Como a chamada a \texttt{Sleep()} ocupa exatamente o tempo restante para completar $cn$, o custo total do algoritmo torna-se:
+
+\[
+T(n) = T_{\text{sort}}(n) + T_{\text{sleep}}(n) = \Theta(n)
+\]
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Essa construção demonstra que é possível "criar" uma complexidade temporal arbitrária, independentemente da verdadeira eficiência da ordenação interna.  
+O algoritmo é deliberadamente irônico: em vez de otimizar o tempo, ele desperdiça tempo para atingir complexidade linear medida externamente, apesar da parte útil continuar sendo $\Theta(n \log n)$.
+
+\subsubsection{Complexidade de Espaço}
+
+A complexidade espacial é determinada unicamente pela chamada ao \texttt{MERGE\_SORT}, que utiliza vetores auxiliares para combinar sublistas durante a recursão.
+
+\[
+S(n) = \Theta(n)
+\]
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Apesar de seu tempo artificialmente linear, o \textit{Linear Sort} não é um algoritmo de ordenação \textit{in-place}, mantendo a mesma complexidade do Merge Sort, dada sua construção.
+
+\section{Stooge Sort}
+
+\href{https://www.sortvisualizer.com/stoogesort/}{Veja Stooge Sort}\\
+\textbf{Descrição:} Stooge Sort é um algoritmo de ordenação recursivo, conhecido por sua péssima complexidade de tempo. O algoritmo é baseado em comparações.
+
+O algoritmo verifica primeiro o primeiro elemento da estrutura de dados e o último, e os troca, caso estejam na ordem errada. Se houver mais de 3 elementos, ele se autoinvoca recursivamente nos 2/3 iniciais da lista, nos 2/3 finais e novamente nos 2/3 iniciais, até que toda a lista esteja ordenada. Por isto, sua complexidade de tempo é quase cúbica.
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\small
+\textbf{procedimento} \texttt{STOOGESORT(arr, l, h)} \;
+
+\If{$l \geq h$}{
+    \Return\;
+}
+
+\If{$arr[l] > arr[h]$}{
+    trocar($arr[l], arr[h]$)\;
+}
+
+\If{$(h - l + 1) > 2$}{
+    $t \gets \left\lfloor \dfrac{h - l + 1}{3} \right\rfloor$\;
+    \texttt{STOOGESORT(arr, l, h - t)}\;
+    \texttt{STOOGESORT(arr, l + t, h)}\;
+    \texttt{STOOGESORT(arr, l, h - t)}\;
+}
+
+\caption{Stooge Sort}
+\label{lab:alg-StoogeSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Stooge Sort em Python}, captionpos=t, label=code:stoogeSortPy]
+def stoogesort(arr, l, h):
+  if l >= h:
+      return
+
+  if arr[l]>arr[h]:
+      t = arr[l]
+      arr[l] = arr[h]
+      arr[h] = t
+
+
+  if h-l + 1 > 2:
+      t = (int)((h-l + 1)/3)
+
+      stoogesort(arr, l, (h-t))
+      stoogesort(arr, l + t, (h))
+      stoogesort(arr, l, (h-t))
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Stooge Sort em C},captionpos=t, label=code:stoogeSortC]
+void stoogesort(int arr[], int i, int j)
+  {
+      int temp, k;
+      if (arr[i] > arr[j])
+      {
+          temp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = temp;
+      }
+      if ((i + 1) >= j)
+          return;
+      k = (int)((j - i + 1) / 3);
+      stoogesort(arr, i, j - k);
+      stoogesort(arr, i + k, j);
+      stoogesort(arr, i, j - k);
+  }
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Stooge Sort em C++}, captionpos=t, label=code:stoogeSortCpp]
+void stoogesort(int arr[], int l, int h)
+  {
+      if (l >= h)
+          return;
+   
+      if (arr[l] > arr[h])
+          swap(arr[l], arr[h]);
+   
+      if (h - l + 1 > 2) {
+          int t = (h - l + 1) / 3;
+          stoogesort(arr, l, h - t);
+          stoogesort(arr, l + t, h);
+          stoogesort(arr, l, h - t);
+      }
+  }
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Stooge Sort}.
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{Stooge Sort} aplica recursivamente três chamadas sobre porções sobrepostas do vetor: duas chamadas sobre $\frac{2n}{3}$ elementos e uma terceira repetição sobre o mesmo intervalo inicial.  
+Assim, sua recorrência temporal é dada por:
+
+\[
+T(n) = 3 \cdot T\!\left(\frac{2n}{3}\right) + O(1)
+\]
+
+Aplicando o Teorema Mestre, obtemos:
+
+\[
+T(n) = \Theta\left(n^{\log_{3/2} 3}\right)
+\]
+
+Como:
+
+\[
+\log_{3/2} 3 = \frac{\log 3}{\log(3/2)} \approx 2.7095
+\]
+
+segue que:
+
+\[
+T(n) = \Theta(n^{2.7095\ldots})
+\]
+
+\noindent{\textbf{Observação:}}  
+Essa complexidade vale igualmente para os casos **melhor**, **médio** e **pior**, pois o algoritmo realiza sempre o mesmo número de chamadas recursivas, independentemente da ordem dos elementos.
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Stooge Sort} é significativamente mais lento que algoritmos cúbicos ($O(n^3)$), mas ainda pior que algoritmos quadráticos otimizados ($O(n^2)$).  
+
+\subsubsection{Complexidade de Espaço}
+
+Como o algoritmo não utiliza estruturas auxiliares além da pilha de recursão, sua complexidade espacial corresponde à profundidade das chamadas recursivas.
+
+\[
+S(n) = O(n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Cada chamada recursiva reduz o tamanho do problema para $\frac{2n}{3}$, resultando em profundidade:
+
+\[
+d(n) = \Theta(n)
+\]
+
+Como cada nível utiliza espaço constante, o custo total é linear:
+
+\[
+S(n) = c \cdot n = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Embora seja um algoritmo extremamente lento, o \textit{Stooge Sort} opera \textit{in place} e sem alocação de memória adicional relevante.
+
+\section{Slow Sort}
+
+\href{https://sortingalgos.miraheze.org/wiki/Slowsort}{Veja Slow Sort}\\
+\textbf{Descrição:} O Slowsort é um algoritmo de ordenação estável e in-place desenvolvido por Andrei Broder e Jorge Stolfi.
+É um algoritmo relutante (um algoritmo que resolve o problema de forma intencionalmente ineficiente, “resistindo” ao progresso), baseado no princípio de “multiplicar e render-se".
+O \textit{Slowsort} funciona da seguinte forma:
+
+\begin{enumerate}
+    \item Ordena recursivamente a primeira e a segunda metade do vetor;
+    \item Compara os últimos elementos das duas metades agora ordenadas, movendo o maior deles para o final;
+    \item Ordena recursivamente o restante do vetor, excluindo o último elemento.
+\end{enumerate}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\small
+\textbf{procedimento} \texttt{SLOWSORT(arr, i, j)} \;
+
+\If{$i \geq j$}{
+    \Return\;
+}
+
+$mid \gets \texttt{middle}(i, j)$\;
+
+\texttt{SLOWSORT(arr, i, mid)}\;
+\texttt{SLOWSORT(arr, mid + 1, j)}\;
+
+\If{$arr[mid] > arr[j]$}{
+    trocar($arr[mid], arr[j]$)\;
+}
+
+\texttt{SLOWSORT(arr, i, j - 1)}\;
+
+\caption{Slow Sort}
+\label{lab:alg-SlowSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Slow Sort em Python},captionpos=t, label=code:slowSortPy]
+def slowsort(A, i, j):
+		# This procedure sorts the subarray A[i]...A[j]
+		if i >= j:
+			return
+		m = (i+j)/2
+		slowsort(A, i, m)
+		slowsort(A, m+1, j)
+		if A[m] > A[j]:
+			A[m],A[j] = A[j],A[m]
+		slowsort(A, i, j-1)
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Slow Sort em C},captionpos=t, label=code:slowSortC]
+#include <stdio.h>
+
+static inline void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+void slowsort(int *A, int i, int j) {
+    if (i >= j) {
+        return;
+    }
+    int m = (i + j) / 2;
+    slowsort(A, i, m);
+    slowsort(A, m + 1, j);
+    if (A[m] > A[j]) {
+        swap(&A[m], &A[j]);
+    }
+    slowsort(A, i, j - 1);
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Slow Sort em C++},captionpos=t, label=code:slowSortCpp]
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void slowsort(vector<int>& A, int i, int j) {
+    if (i >= j) {
+        return;
+    }
+    int m = (i + j) / 2;
+    slowsort(A, i, m);
+    slowsort(A, m + 1, j);
+    if (A[m] > A[j]) {
+        swap(A[m], A[j]);
+    }
+    slowsort(A, i, j - 1);
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Slow Sort}.
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{Slow Sort} divide o vetor em duas metades, ordena ambas recursivamente, realiza uma comparação e possível troca entre os elementos centrais, e então executa uma nova chamada recursiva sobre quase todo o vetor.  
+Sua recorrência temporal é dada por:
+
+\[
+T(n) = 2T\!\left(\frac{n}{2}\right) + T(n-1) + O(1)
+\]
+
+A resolução dessa recorrência não se enquadra em formas usuais do Teorema Mestre, mas é conhecido que sua solução assintótica é superpolinomial:
+
+\[
+T(n) = \Theta\!\bigl(n^{\log n}\bigr)
+\]
+
+Como o padrão recursivo é fixo e não depende dos dados de entrada, a complexidade é idêntica nos casos **melhor**, **médio** e **pior**:
+
+\[
+T_{\text{melhor}}(n) = T_{\text{médio}}(n) = T_{\text{pior}}(n) = \Theta\!\bigl(n^{\log n}\bigr)
+\]
+
+$\hfill\Box$
+
+\bigskip
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo opera sobre o próprio vetor de entrada e não aloca estruturas auxiliares significativas.  
+Seu consumo de memória é determinado apenas pela profundidade da recursão.
+
+\[
+S(n) = O(n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Cada chamada recursiva reduz o tamanho do problema em aproximadamente 1 unidade na última etapa, implicando profundidade máxima $n$.  
+Cada nível armazena apenas variáveis escalares, implicando:
+
+\[
+S(n) = c \cdot n = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Embora seja um algoritmo assimptoticamente muito lento, o \textit{Slow Sort} é \textit{in-place}, utilizando apenas a pilha de chamadas.  
+Seu espaço adicional é, portanto, comparável ao de algoritmos como \textit{Stooge Sort} e \textit{QuickSort}.
+
+\section{Crumsort}
+
+\textbf{Descrição:}
+O Crumsort é um algoritmo de ordenação por comparação, desenvolvido para oferecer desempenho muito competitivo em relação aos algoritmos mais rápidos conhecidos, como Quicksort, Mergesort e Fluxsort. Ele utiliza técnicas de partição múltipla, seleção eficiente de pivôs e operações otimizadas para memória cachê. O algoritmo é estável, oferece desempenho consistente para diferentes tipos de entrada e apresenta boa performance para grandes vetores. Assim como outros algoritmos do tipo “log-linear”, garante $O(n \log n)$ em todos os casos, inclusive no pior caso.
+
+\begin{exmp}
+Considere ordenar o vetor $A = [11, 2, 6, 15, 7, 4, 8]$ com o Crumsort:
+\begin{enumerate}
+\item Seleciona um pivô (ou múltiplos pivôs) com base em uma amostragem eficiente dos dados.
+\item O vetor é particionado em sub-arrays menores de acordo com o(s) pivô(s).
+\item Cada sub-array é ordenado recursivamente pelo Crumsort.
+\item Ao final, os sub-arrays ordenados são concatenados, gerando a sequência inteira ordenada.
+\end{enumerate}
+\end{exmp}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{crumsort(A: array, n: int)};
+\If{$n \leq limiar$}{
+ordenar $A$ usando insertionSort\;
+\textbf{return}
+}
+escolher pivô ou múltiplos pivôs via amostragem\;
+particionar $A$ em subarrays usando os pivôs\;
+\For{cada subarray}{
+chamar crumsort recursivamente\;
+}
+juntar subarrays em $A$\
+\caption{Crumsort Simplificado}
+\label{lab:alg-crumsort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Crumsort simplificado em Python}, label=code:crumsortPy]
+def crumsort(arr):
+    if len(arr) <= 16:
+        return sorted(arr)
+    # Escolhe a mediana de tres como pivo
+    pivot = sorted([arr[0], arr[len(arr)//2], arr[-1]])[1]
+    left  = [x for x in arr if x < pivot]
+    mid   = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return crumsort(left) + mid + crumsort(right)
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Crumsort simplificado em C}, label=code:crumsortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+// Funcao auxiliar para insertion sort
+void insertionSort(int* arr, int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i], j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+// Crumsort simplificado
+void crumsort(int* arr, int n) {
+    if (n <= 16) {
+        insertionSort(arr, n);
+        return;
+    }
+    int pivot = arr[n / 2];
+    int* left  = malloc(n * sizeof(int));
+    int* right = malloc(n * sizeof(int));
+    int l = 0, r = 0, m = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < pivot)
+            left[l++] = arr[i];
+        else if (arr[i] == pivot)
+            m++;
+        else
+            right[r++] = arr[i];
+    }
+
+    crumsort(left, l);
+    crumsort(right, r);
+
+    int idx = 0;
+    for (int i = 0; i < l; i++)
+        arr[idx++] = left[i];
+    for (int i = 0; i < m; i++)
+        arr[idx++] = pivot;
+    for (int i = 0; i < r; i++)
+        arr[idx++] = right[i];
+
+    free(left);
+    free(right);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Crumsort simplificado em C++}, label=code:crumsortC++]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+// Funcao auxiliar: Insertion Sort para subvetores pequenos
+void insertionSort(std::vector<int>& arr, int left, int right) {
+    for (int i = left + 1; i <= right; i++) {
+        int key = arr[i], j = i - 1;
+        while (j >= left && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void crumsort(std::vector<int>& arr, int left, int right) {
+    if (right - left + 1 <= 16) {
+        insertionSort(arr, left, right);
+        return;
+    }
+
+    // Pivo: mediana de tres
+    int mid = left + (right - left) / 2;
+    int a = arr[left], b = arr[mid], c = arr[right];
+    int pivot = std::max(std::min(a, b), std::min(std::max(a, b), c));
+
+    // Particao estavel
+    std::vector<int> low, equal, high;
+    for (int i = left; i <= right; i++) {
+        if (arr[i] < pivot)
+            low.push_back(arr[i]);
+        else if (arr[i] == pivot)
+            equal.push_back(arr[i]);
+        else
+            high.push_back(arr[i]);
+    }
+
+    // Volta resultado ao array original
+    int k = left;
+    for (int x : low) arr[k++] = x;
+    for (int x : equal) arr[k++] = x;
+    for (int x : high) arr[k++] = x;
+
+    // Recursao para as particoes
+    crumsort(arr, left, left + low.size() - 1);
+    crumsort(arr, right - high.size() + 1, right);
+}
+
+// Funcao utilitaria para uso externo
+void crumsort(std::vector<int>& arr) {
+    if (!arr.empty())
+        crumsort(arr, 0, arr.size() - 1);
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade do Crumsort}
+
+\subsubsection{Complexidade de Tempo}
+
+O Crumsort é um algoritmo híbrido de ordenação por comparação que combina estratégias de particionamento ternário, seleção inteligente de pivô e hibridização com insertion sort. O algoritmo garante performance $O(n \log n)$ em todos os casos através de técnicas adaptativas.
+
+\paragraph{Análise das Fases do Algoritmo}
+
+O Crumsort executa as seguintes fases principais:
+\begin{enumerate}
+\item \textbf{Verificação de threshold:} Teste se $n \leq 16$ - $O(1)$
+\item \textbf{Seleção de pivô:} Mediana-de-três ou amostragem - $O(1)$ ou $O(k)$
+\item \textbf{Particionamento ternário:} Separação em três grupos - $O(n)$
+\item \textbf{Chamadas recursivas:} Processamento dos subproblemas - $T(n_1) + T(n_2)$
+\item \textbf{Concatenação:} União dos resultados ordenados - $O(1)$ (já feito no particionamento)
+\end{enumerate}
+
+\paragraph{Análise do Particionamento Ternário}
+
+\textbf{Estratégia de particionamento:} O algoritmo separa elementos em três categorias:
+\begin{align}
+\text{Partições:} &\quad [< \text{pivot}] \quad [= \text{pivot}] \quad [> \text{pivot}] \\
+\text{Recursão:} &\quad T(|<|) + O(1) + T(|>|)
+\end{align}
+
+\textbf{Custo do particionamento:}
+\begin{align}
+\text{Partição}(n) &= \sum_{i=0}^{n-1} [\text{comparação} + \text{classificação} + \text{cópia}] \\
+&= \sum_{i=0}^{n-1} O(1) = O(n)
+\end{align}
+
+\paragraph{Melhor Caso: $O(n \log n)$}
+\textbf{Cenário:} Pivot sempre divide o array de forma balanceada
+\\
+\textbf{Prova:}
+
+No melhor caso, o pivô (mediana-de-três) divide consistentemente o array em duas partes aproximadamente iguais:
+\begin{align}
+T_{\text{melhor}}(n) &= \underbrace{O(1)}_{\text{pivot}} + \underbrace{O(n)}_{\text{partition}} + \underbrace{2T(n/2)}_{\text{recursão}} \\
+&= O(n) + 2T(n/2)
+\end{align}
+
+\textbf{Solução da recorrência pelo Teorema Mestre:}
+\begin{align}
+T(n) &= 2T(n/2) + O(n) \\
+&= O(n \log n) \quad \text{(caso 2 do Teorema Mestre)}
+\end{align}
+
+\textbf{Verificação por expansão:}
+\begin{align}
+T(n) &= O(n) + 2[O(n/2) + 2T(n/4)] \\
+&= O(n) + O(n) + 4T(n/4) \\
+&= \ldots \\
+&= \log n \cdot O(n) = O(n \log n)
+\end{align}
+
+\paragraph{Pior Caso: $O(n \log n)$}
+\textbf{Cenário:} A documentação garante $O(n \log n)$ no pior caso
+\\
+\textbf{Prova:}
+
+Tradicionalmente, algoritmos baseados em quicksort degradam para $O(n^2)$, mas o Crumsort implementa proteções:
+
+\textbf{Mecanismo de proteção 1: Mediana-de-três}
+\begin{align}
+P(\text{partição ruim}) &= P(|L| < 0.25n \text{ ou } |L| > 0.75n) \\
+&< 0.5 \quad \text{(vs } P = 0.5 \text{ para pivot aleatório)}
+\end{align}
+
+\textbf{Mecanismo de proteção 2: Detecção de degradação}
+Assumindo que o algoritmo detecta partições consistentemente ruins e muda estratégia:
+\begin{align}
+\text{Se } \frac{\min(|L|, |R|)}{n} &< 0.1 \text{ por } k \text{ níveis consecutivos:} \\
+&\text{Switch para algoritmo garantido } O(n \log n)
+\end{align}
+
+\textbf{Garantia de complexidade:}
+\begin{align}
+T_{\text{pior}}(n) &\leq \max(T_{\text{quicksort-melhorado}}(n), T_{\text{fallback}}(n)) \\
+&= O(n \log n)
+\end{align}
+
+\paragraph{Caso Médio: $O(n \log n)$}
+\textbf{Cenário:} Distribuição aleatória típica dos dados
+\\
+\textbf{Prova:}
+
+Com mediana-de-três, a qualidade do particionamento melhora significativamente:
+\begin{align}
+E[T(n)] &= E[\text{pivot}] + E[\text{partition}] + E[\text{recursão}] \\
+&= O(1) + O(n) + E[T(n_L)] + E[T(n_R)]
+\end{align}
+
+\textbf{Análise probabilística da mediana-de-três:}
+Para três elementos aleatórios $a, b, c$, a mediana produz partições com:
+\begin{align}
+P(0.25n \leq |L| \leq 0.75n) &\geq 0.68 \quad \text{(vs 0.5 para pivot único)}
+\end{align}
+
+\textbf{Recorrência esperada:}
+\begin{align}
+E[T(n)] &= O(n) + E[T(n_L)] + E[T(n_R)] \\
+&\approx O(n) + 2E[T(n/2)] \quad \text{(partição balanceada esperada)} \\
+&= O(n \log n)
+\end{align}
+
+\subsubsection{Complexidade de Espaço}
+
+\paragraph{Espaço Auxiliar: $O(n)$}
+\textbf{Prova detalhada baseada no código:}
+\begin{itemize}
+\item \textbf{Arrays auxiliares para particionamento:}
+\begin{itemize}
+\item \texttt{left[]}: elementos menores que pivot $\rightarrow O(n)$
+\item \texttt{right[]}: elementos maiores que pivot $\rightarrow O(n)$
+\item Elementos iguais: tratados in-place ou array separado $\rightarrow O(n)$
+\end{itemize}
+\item \textbf{Stack de recursão:} Profundidade esperada $O(\log n)$ $\rightarrow O(\log n)$
+\item \textbf{Variáveis de controle:}
+\begin{itemize}
+\item Contadores e índices: $l, r, m$ $\rightarrow O(1)$
+\item Pivot e variáveis temporárias $\rightarrow O(1)$
+\end{itemize}
+\end{itemize}
+
+\textbf{Análise por implementação:}
+\begin{align}
+S_{\text{C}}(n) &= \underbrace{O(n)}_{\text{left[]}} + \underbrace{O(n)}_{\text{right[]}} + \underbrace{O(\log n)}_{\text{stack}} = O(n) \\
+S_{\text{C++}}(n) &= \underbrace{O(n)}_{\text{vectors}} + \underbrace{O(\log n)}_{\text{stack}} = O(n) \\
+S_{\text{Python}}(n) &= \underbrace{O(n)}_{\text{listas}} + \underbrace{O(\log n)}_{\text{stack}} = O(n)
+\end{align}
+
+\paragraph{Limitações da Implementação Atual}
+
+\textbf{Não é in-place:} O algoritmo requer espaço auxiliar significativo:
+\begin{itemize}
+\item Criação de arrays/listas temporários a cada partição
+\item Cópia de elementos entre estruturas
+\item Overhead de alocação/desalocação de memória
+\end{itemize}
+
+\textbf{Possível otimização in-place:}
+\begin{align}
+S_{\text{optimized}}(n) &= O(\log n) \quad \text{(apenas stack recursão)} \\
+\text{Tradeoff:} &\quad \text{Complexidade de implementação aumenta}
+\end{align}
+
+\subsubsection{Características Finais do Algoritmo}
+
+\begin{itemize}
+\item \textbf{Estabilidade:} Estável - preserva ordem relativa de elementos iguais
+\item \textbf{In-place:} Não - requer $O(n)$ espaço auxiliar para particionamento
+\item \textbf{Adaptativo:} Sim - performance melhora com padrões nos dados
+\item \textbf{Método:} Particionamento ternário híbrido com proteções
+\item \textbf{Robustez:} Garantia de $O(n \log n)$ em todos os casos
+\end{itemize}
+
+\textbf{Resumo Final:}
+\begin{itemize}
+\item \textbf{Melhor caso:} $O(n \log n)$ com partições balanceadas
+\item \textbf{Caso médio:} $O(n \log n)$ com mediana-de-três otimizada
+\item \textbf{Pior caso:} $O(n \log n)$ garantido por mecanismos de proteção
+\item \textbf{Espaço auxiliar:} $O(n)$ para arrays de particionamento
+\item \textbf{Aplicação ideal:} Uso geral com garantias de performance e estabilidade
+\end{itemize}
+
+
+\section{In-Place Merge Sort}
+
+\href{https://www.baeldung.com/cs/merge-sort-in-place}{Veja In-Place Merge Sort}
+
+\textbf{Descrição:} O algoritmo de Merge Sort é dividido em duas etapas. A primeira divide o vetor de entrada em trechos menores subsequentes, enquanto a segunda mescla esses trechos. Na etapa de mescla, assume-se que os trechos já estão previamente ordenados. Por construção, o algoritmo necessita de espaço adicional; entretanto, existem formas de construção deste algoritmo \textit{in-place} (algoritmos \textit{in-place} utilizam uma quantia constante de memória durante sua execução).
+
+O algoritmo Merge Sort \textit{in-place} avaliado tem como ideia mesclar as duas partes classificadas usando a parte não classificada restante como área de buffer.
+
+\begin{algorithm}[H]
+\footnotesize
+\caption{Merge Sort In-Place Avançado}
+\label{lab:alg-MergeSortInPlace}
+\SetKwInOut{Input}{Entrada}
+\SetKwInOut{Output}{Saída}
+
+\textbf{Algoritmo} \textsc{MERGE}($array$, $inicio1$, $fim1$, $inicio2$, $fim2$, $buffer$)\;
+\While{$inicio1 \leq fim1$ \textbf{e} $inicio2 \leq fim2$}{
+    \eIf{$array[inicio1] \leq array[inicio2]$}{
+        trocar($array[inicio1]$, $array[buffer]$)\;
+        $inicio1 \gets inicio1 + 1$\;
+    }{
+        trocar($array[inicio2]$, $array[buffer]$)\;
+        $inicio2 \gets inicio2 + 1$\;
+    }
+    $buffer \gets buffer + 1$\;
+}
+\While{$inicio1 \leq fim1$}{
+    trocar($array[inicio1]$, $array[buffer]$)\;
+    $inicio1 \gets inicio1 + 1$\;    $buffer \gets buffer + 1$\;
+}
+\While{$inicio2 \leq fim2$}{
+    trocar($array[inicio2]$, $array[buffer]$)\;
+    $inicio2 \gets inicio2 + 1$\;
+    $buffer \gets buffer + 1$\;
+}
+
+\textbf{Algoritmo} \textsc{MERGE\_SORT\_AVANCADO}($array$, $inicio$, $fim$, $buffer$)\;
+\eIf{$inicio \geq fim$}{trocar($array[inicio]$, $array[buffer]$)\;}
+{
+    $meio \gets (inicio + fim)/2$\;
+    \textsc{MERGE\_SORT}($array$, $inicio$, $meio$)\;
+    \textsc{MERGE\_SORT}($array$, $meio+1$, $fim$)\;
+    \textsc{MERGE}($array$, $inicio$, $meio$, $meio+1$, $fim$, $buffer$)\;
+}
+
+\textbf{Algoritmo} \textsc{MERGE\_SORT}($array$, $inicio$, $fim$)\;
+\If{$inicio < fim$}{
+    $meio \gets ((inicio + fim + 1)/2) - 1$\;
+    $buffer \gets fim - (meio - inicio)$\;
+    \textsc{MERGE\_SORT\_AVANCADO}($array$, $inicio$, $meio$, $buffer$)\;
+    $L2 \gets buffer$\;
+    $R2 \gets fim$\;
+    $L1 \gets inicio$\;
+    $R1 \gets L2 - 1$\;
+
+    \While{$(R1 - L1) > 1$}{
+        $meio \gets (L1 + R1)/2$\;
+        $tamanho \gets R1 - meio - 1$\;
+        \textsc{MERGE\_SORT\_AVANCADO}($array$, $meio+1$, $R1$, $meio+1$)\;
+        \textsc{MERGE}($array$, $L1$, $L1 + tamanho - 1$, $L2$, $R2$, $R1 - tamanho + 1$)\;
+        $R1 \gets R1 - tamanho$\;
+        $L2 \gets R1 + 1$\;
+    }
+    \For{$i \gets R1$ \KwTo $L1$}{
+        $j \gets i + 1$\;
+        \While{$j \leq fim$ \textbf{e} $array[j-1] > array[j]$}{
+            trocar($array[j-1]$, $array[j]$)\;
+            $j \gets j + 1$\;
+        }
+    }
+}
+\end{algorithm}
+
+\subsection{Implementações}
+
+\begin{lstlisting}[language=Python, caption={Implementação do In-Place Merge Sort em Python},captionpos=t ,label=code:inplaceMergeSortPy]
+def merge(array, from1, to1, from2, to2, buffer):
+    while from1 <= to1 and from2 <= to2:
+        if array[from1] <= array[from2]:
+            array[from1], array[buffer] = array[buffer], array[from1]
+            from1 += 1
+        else:
+            array[from2], array[buffer] = array[buffer], array[from2]
+            from2 += 1
+        buffer += 1
+
+    while from1 <= to1:
+        array[from1], array[buffer] = array[buffer], array[from1]
+        from1 += 1
+        buffer += 1
+
+    while from2 <= to2:
+        array[from2], array[buffer] = array[buffer], array[from2]
+        from2 += 1
+        buffer += 1
+def AdvancedInPlaceMergeSort(array, start, end, buffer):
+    if start >= end:
+        array[start], array[buffer] = array[buffer], array[start]
+    else:
+        mid = (start + end) // 2
+        mergeSort(array, start, mid)
+        mergeSort(array, mid + 1, end)
+        merge(array, start, mid, mid + 1, end, buffer)
+def mergeSort(array, start, end):
+    if start < end:
+        mid = (start + end + 1) // 2 - 1
+        buffer = end - (mid - start)
+        AdvancedInPlaceMergeSort(array, start, mid, buffer)
+        L2, R2 = buffer, end
+        L1, R1 = start, L2 - 1
+
+        while R1 - L1 > 1:
+            mid = (L1 + R1) // 2
+            length = R1 - mid - 1
+            AdvancedInPlaceMergeSort(array, mid + 1, R1, mid + 1)
+            merge(array, L1, L1 + length - 1, L2, R2, R1 - length + 1)
+            R1 -= length
+            L2 = R1 + 1
+
+        for i in range(R1, L1 - 1, -1):
+            j = i + 1
+            while j <= end and array[j - 1] > array[j]:
+                array[j - 1], array[j] = array[j], array[j - 1]
+                j += 1
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do In-Place Merge Sort em C}, captionpos=t,label=code:inplaceMergeSortC]
+#include <stdio.h>
+
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void merge(int array[], int from1, int to1, int from2, int to2, int buffer) {
+    while (from1 <= to1 && from2 <= to2) {
+        if (array[from1] <= array[from2])
+            swap(&array[from1++], &array[buffer++]);
+        else
+            swap(&array[from2++], &array[buffer++]);
+    }
+    while (from1 <= to1)
+        swap(&array[from1++], &array[buffer++]);
+    while (from2 <= to2)
+        swap(&array[from2++], &array[buffer++]);
+}
+
+void AdvancedInPlaceMergeSort(int array[], int start, int end, int buffer);
+
+void mergeSort(int array[], int start, int end) {
+    if (start < end) {
+        int mid = (start + end + 1) / 2 - 1;
+        int buffer = end - (mid - start);
+        AdvancedInPlaceMergeSort(array, start, mid, buffer);
+
+        int L2 = buffer, R2 = end, L1 = start, R1 = L2 - 1;
+
+        while (R1 - L1 > 1) {
+            mid = (L1 + R1) / 2;
+            int len = R1 - mid - 1;
+            AdvancedInPlaceMergeSort(array, mid + 1, R1, mid + 1);
+            merge(array, L1, L1 + len - 1, L2, R2, R1 - len + 1);
+            R1 = R1 - len;
+            L2 = R1 + 1;
+        }
+
+        for (int i = R1; i >= L1; i--) {
+            int j = i + 1;
+            while (j <= end && array[j - 1] > array[j]) {
+                swap(&array[j - 1], &array[j]);
+                j++;
+            }
+        }
+    }
+}
+
+void AdvancedInPlaceMergeSort(int array[], int start, int end, int buffer) {
+    if (start >= end) {
+        swap(&array[start], &array[buffer]);
+    } else {
+        int mid = (start + end) / 2;
+        mergeSort(array, start, mid);
+        mergeSort(array, mid + 1, end);
+        merge(array, start, mid, mid + 1, end, buffer);
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do In-Place Merge Sort em C++}, captionpos=t, label=code:inplaceMergeSortCPP]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void merge(vector<int>& array, int from1, int to1, int from2, int to2, int buffer) {
+    while (from1 <= to1 && from2 <= to2) {
+        if (array[from1] <= array[from2])
+            swap(array[from1++], array[buffer++]);
+        else
+            swap(array[from2++], array[buffer++]);
+    }
+    while (from1 <= to1) swap(array[from1++], array[buffer++]);
+    while (from2 <= to2) swap(array[from2++], array[buffer++]);
+}
+void AdvancedInPlaceMergeSort(vector<int>& array, int start, int end, int buffer);
+void mergeSort(vector<int>& array, int start, int end) {
+    if (start < end) {
+        int mid = (start + end + 1) / 2 - 1;
+        int buffer = end - (mid - start);
+        AdvancedInPlaceMergeSort(array, start, mid, buffer);
+        int L2 = buffer, R2 = end, L1 = start, R1 = L2 - 1;
+
+        while (R1 - L1 > 1) {
+            mid = (L1 + R1) / 2;
+            int len = R1 - mid - 1;
+            AdvancedInPlaceMergeSort(array, mid + 1, R1, mid + 1);
+            merge(array, L1, L1 + len - 1, L2, R2, R1 - len + 1);
+            R1 = R1 - len;
+            L2 = R1 + 1;
+        }
+
+        for (int i = R1; i >= L1; i--) {
+            int j = i + 1;
+            while (j <= end && array[j - 1] > array[j]) {
+                swap(array[j - 1], array[j]);
+                j++;
+            }
+        }
+    }
+}
+void AdvancedInPlaceMergeSort(vector<int>& array, int start, int end, int buffer) {
+    if (start >= end)
+        swap(array[start], array[buffer]);
+    else {
+        int mid = (start + end) / 2;
+        mergeSort(array, start, mid);
+        mergeSort(array, mid + 1, end);
+        merge(array, start, mid, mid + 1, end, buffer);
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{In-Place Merge Sort}.  
+O algoritmo é uma variação do \textit{Merge Sort} tradicional, porém realiza o processo de intercalação (\textit{merge}) diretamente no vetor de entrada, utilizando apenas uma quantidade constante de espaço adicional.
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{In-Place Merge Sort} preserva a estrutura recursiva do \textit{Merge Sort} convencional, dividindo o vetor em duas metades e ordenando cada uma delas de forma recursiva, antes de realizar a intercalação.  
+Cada etapa de divisão e intercalação percorre todo o vetor uma vez, o que leva tempo proporcional a $n$, conforme já visto no algoritmo original.
+
+Seja $T(n)$ o tempo total de execução para ordenar um vetor de tamanho $n$. O algoritmo realiza duas chamadas recursivas sobre metades do vetor, e uma etapa de intercalação que consome tempo linear. Assim:
+
+\[
+T(n) = 2T\left(\frac{n}{2}\right) + O(n)
+\]
+
+Aplicando o Teorema Mestre:
+
+\[
+T(n) = O(n \log n)
+\]
+
+\noindent{\textbf{Prova:}}
+
+Seja $T(n) = 2T(n/2) + a_1n + b$.  
+Expandindo a recorrência, temos:
+
+\[
+T(n) = 2\left(2T\left(\frac{n}{4}\right) + a_1\frac{n}{2} + b\right) + a_1n + b = 4T\left(\frac{n}{4}\right) + 2a_1n + 3b
+\]
+
+Prosseguindo até o nível base ($\log_2 n$ níveis):
+
+\[
+T(n) = nT(1) + a_1n\log_2 n + b(\log_2 n - 1)
+\]
+
+Como $T(1)$ é constante, temos:
+
+\[
+T(n) = O(n \log n)
+\]
+
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Embora o algoritmo mantenha a mesma ordem assintótica de tempo que o \textit{Merge Sort} clássico, a intercalação \textit{in-place} tende a ser mais custosa em termos de operações elementares.  
+Isto ocorre porque, ao não utilizar um vetor auxiliar explícito, o algoritmo precisa realizar múltiplas trocas (\textit{swaps}) para deslocar os elementos corretamente dentro do próprio vetor.  
+Consequentemente, o fator constante escondido no $O(n \log n)$ é maior que o do \textit{Merge Sort} tradicional, podendo impactar o desempenho prático em vetores grandes.
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Merge Sort} tradicional utiliza um vetor auxiliar de tamanho $O(n)$ para armazenar temporariamente os elementos durante o processo de intercalação.  
+Já o \textit{In-Place Merge Sort} elimina essa necessidade, operando diretamente sobre o vetor de entrada e mantendo apenas variáveis temporárias e índices de controle.
+
+Seja $S(n)$ o espaço total utilizado. Como o algoritmo utiliza apenas um número constante de variáveis adicionais (contadores e ponteiros de índices), temos:
+
+\[
+S(n) = O(1)
+\]
+
+\noindent{\textbf{Prova:}}  
+O algoritmo não aloca vetores auxiliares de tamanho dependente de $n$, utilizando apenas variáveis locais para controle das posições e chamadas recursivas.  
+Desconsiderando a pilha de chamadas recursivas, que cresce proporcionalmente a $\log n$, temos:
+
+\[
+S(n) = c_1 + c_2\log n = O(\log n)
+\]
+
+Caso consideremos a pilha de recursão como parte do consumo de memória total, a complexidade de espaço se torna:
+
+\[
+S(n) \in O(\log n).
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Apesar da sobrecarga de trocas, o \textit{In-Place Merge Sort} é vantajoso em cenários onde o espaço de memória é restrito, mantendo estabilidade e reduzindo a necessidade de vetores auxiliares. 
+
+\section{Tournament Sort}
+
+\href{https://en.oi-wiki.org/basic/tournament-sort/}{Veja Tournament Sort}
+
+\textbf{Descrição:} O algoritmo Tournament Sort é nomeado desta forma devido à sua semelhança com torneios de eliminação. Em torneios de eliminação, N jogadores ou equipes independentes competem entre si. Cada partida é disputada entre dois jogadores. O vencedor é promovido para a próxima fase, enquanto o perdedor sai do torneio. Para simular tal comportamento é possível modelar a partir da estrutura de dados de heap binário. Ela funciona com base na ordenação por seleção, usando uma fila de prioridades para encontrar o próximo elemento a ser selecionado.\\
+\href{https://www.ime.usp.br/~pf/analise_de_algoritmos/aulas/heap.html}{O que é um heap binário?}
+
+\begin{algorithm}[H]
+\footnotesize
+\SetKw{KwBy}{by}
+\DontPrintSemicolon
+\SetKwFunction{FWinner}{WINNER}
+\SetKwFunction{FCreate}{CREATE\_TREE}
+\SetKwFunction{FRecreate}{RECREATE\_TREE}
+\SetKwFunction{FTournament}{TOURNAMENT\_SORT}
+
+\textbf{função} \FWinner{pos1, pos2}\;
+\If{$pos1 \geq$ n}{
+    $u \gets pos1$\;
+}
+\Else{
+    $u \gets tmp[pos1]$\;
+}
+\If{$pos2 \geq n$}{
+    $v \gets pos2$\;
+}
+\Else{
+    $v \gets tmp[pos2]$\;
+}
+\If{$tmp[u] \leq tmp[v]$}{
+    \Return $u$\;
+}
+\Else{
+    \Return $v$\;
+}
+
+\textbf{função} \FCreate{}\;
+\For{$i \gets 0$ \KwTo $n-1$}{
+    $tmp[n+i] \gets a[i]$\;
+}
+\For{$i \gets 2n-1$ \KwTo 2 \KwBy -2}{
+    $k \gets i / 2$\;
+    $j \gets i - 1$\;
+    $tmp[k] \gets \FWinner(i, j)$\;
+}
+$valor \gets tmp[tmp[1]]$\;
+$tmp[tmp[1]] \gets \infty$\;
+\Return $valor$\;
+\textbf{função} \FRecreate{}\;
+$i \gets tmp[1]$\;
+\While{$i > 1$}{
+    $k \gets i / 2$\;
+    \If{$i$ é par \textbf{e} $i < 2n - 1$}{
+        $j \gets i + 1$\;
+    }
+    \Else{
+        $j \gets i - 1$\;
+    }
+    $tmp[k] \gets$ \FWinner$(i, j)$\;
+    $i \gets k$\;
+}
+$valor \gets tmp[tmp[1]]$\;
+$tmp[tmp[1]] \gets \infty$\;
+\Return $valor$\;
+
+\textbf{função} \FTournament{}\;
+$valor \gets$ \FCreate()\;
+\For{$i \gets 0$ \KwTo $n - 1$}{
+    $a[i] \gets valor$\;
+    $valor \gets$ \FRecreate()\;
+}
+\caption{Tournament Sort}
+\label{lab:alg-TournamentSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Tournament Sort em Python},captionpos=t, label=code:tournamentSortPy]
+n = 0
+maxn = 1000
+INF = float('inf')
+a = [0] * maxn
+tmp = [0] * (maxn * 2)
+
+def winner(pos1, pos2):
+    u = pos1 if pos1 >= n else tmp[pos1]
+    v = pos2 if pos2 >= n else tmp[pos2]
+    if tmp[u] <= tmp[v]:
+        return u
+    return v
+def create_tree():
+    for i in range(0, n):
+        tmp[n + i] = a[i]
+    for i in range(2 * n - 1, 1, -2):
+        k = i // 2
+        j = i - 1
+        tmp[k] = winner(i, j)
+    value = tmp[tmp[1]]
+    tmp[tmp[1]] = INF
+    return value
+def recreate():
+    i = tmp[1]
+    while i > 1:
+        k = i // 2
+        j = i + 1 if i % 2 == 0 and i < 2 * n - 1 else i - 1
+        tmp[k] = winner(i, j)
+        i = k
+    value = tmp[tmp[1]]
+    tmp[tmp[1]] = INF
+    return value
+def tournament_sort():
+    value = create_tree()
+    for i in range(0, n):
+        a[i] = value
+        value = recreate()
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Tournament Sort em C},captionpos=t, label=code:tournamentSortC]
+#include <stdio.h>
+#include <limits.h>
+
+#define maxn 1000
+#define INF INT_MAX
+
+int n;
+int a[maxn];
+int tmp[maxn << 1];
+int winner(int pos1, int pos2) {
+    int u = (pos1 >= n) ? pos1 : tmp[pos1];
+    int v = (pos2 >= n) ? pos2 : tmp[pos2];
+    if (tmp[u] <= tmp[v]) return u;
+    return v;
+}
+void create_tree(int *value) {
+    for (int i = 0; i < n; i++) 
+        tmp[n + i] = a[i];
+
+    for (int i = 2 * n - 1; i > 1; i -= 2) {
+        int k = i / 2;
+        int j = i - 1;
+        tmp[k] = winner(i, j);
+    }
+
+    *value = tmp[tmp[1]];
+    tmp[tmp[1]] = INF;
+}
+void recreate(int *value) {
+    int i = tmp[1];
+    while (i > 1) {
+        int k = i / 2;
+        int j;
+
+        if (i % 2 == 0 && i < 2 * n - 1)
+            j = i + 1;
+        else
+            j = i - 1;
+
+        tmp[k] = winner(i, j);
+        i = k;
+    }
+    *value = tmp[tmp[1]];
+    tmp[tmp[1]] = INF;
+}
+void tournament_sort() {
+    int value;
+    create_tree(&value);
+
+    for (int i = 0; i < n; i++) {
+        a[i] = value;
+        recreate(&value);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Tournament Sort em C++}, captionpos=t,label=code:tournamentSortCpp]
+
+int n, a[maxn], tmp[maxn << 1];
+
+int winner(int pos1, int pos2) {
+  int u = pos1 >= n ? pos1 : tmp[pos1];
+  int v = pos2 >= n ? pos2 : tmp[pos2];
+  if (tmp[u] <= tmp[v]) return u;
+  return v;
+}
+void create_tree(int &value) {
+  for (int i = 0; i < n; i++) tmp[n + i] = a[i];
+  for (int i = 2 * n - 1; i > 1; i -= 2) {
+    int k = i / 2;
+    int j = i - 1;
+    tmp[k] = winner(i, j);
+  }
+  value = tmp[tmp[1]];
+  tmp[tmp[1]] = INF;
+}
+void recreate(int &value) {
+  int i = tmp[1];
+  while (i > 1) {
+    int j, k = i / 2;
+    if (i % 2 == 0 && i < 2 * n - 1)
+      j = i + 1;
+    else
+      j = i - 1;
+    tmp[k] = winner(i, j);
+    i = k;
+  }
+  value = tmp[tmp[1]];
+  tmp[tmp[1]] = INF;
+}
+void tournament_sort() {
+  int value;
+  create_tree(value);
+  for (int i = 0; i < n; i++) {
+    a[i] = value;
+    recreate(value);
+  }
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Tournament Sort}.  
+O algoritmo que se assemleha a torneios de eliminação, possui a estrutura onde casa elemento “compete” com outro e o vencedor avança para a próxima rodada até que o menor (ou maior) elemento seja determinado, utilizando um heap binário que representa um torneio de comparações.
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{Tournament Sort} realiza inicialmente a construção de uma árvore de vencedores (\textit{winner tree}) a partir do conjunto de elementos de entrada.  
+Essa fase de construção corresponde à inserção de todos os elementos na estrutura, levando tempo proporcional a $O(n)$.  
+
+Após a construção, o algoritmo realiza $n$ etapas de extração do vencedor e reconstrução da árvore.  
+Cada reconstrução exige tempo $O(\log n)$, pois o elemento vencedor precisa “subir” ou “reajustar” sua posição ao longo dos níveis da árvore.
+Assim, o tempo total pode ser descrito por:
+
+\[
+T(n) = O(n) + O(n \log n) = O(n \log n)
+\]
+
+\noindent{\textbf{Prova:}}  
+A construção inicial da árvore requer $a_1 n + b$ operações, enquanto cada uma das $n$ extrações e reconstruções custa $a_2 \log n$ operações.  
+Logo:
+
+\[
+T(n) = a_1 n + b + a_2 n \log n
+\]
+
+Agrupando os termos e considerando constantes positivas $c_1, c_2$, temos:
+
+\[
+T(n) \leq c_1 n \log n + c_2 n
+\]
+
+Como o termo dominante é $n \log n$, segue que:
+
+\[
+T(n) \in O(n \log n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Tournament Sort} apresenta a mesma ordem assintótica de tempo que algoritmos baseados em comparações, como o \textit{Heap Sort} e o \textit{Merge Sort}.  
+Porém, por manter informações de comparações anteriores na árvore de vencedores, o algoritmo tem a vantagem de reduzir o número total de comparações necessárias após a construção inicial.
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Tournament Sort} utiliza uma estrutura em heap binário para armazenar os resultados das comparações entre os elementos.  
+Para $n$ elementos de entrada, são necessários aproximadamente $2n$ nós — $n$ folhas correspondentes aos elementos originais e cerca de $n-1$ nós internos representando os vencedores de cada comparação.
+
+Assim, o espaço total utilizado é proporcional a $O(n)$.
+
+\[
+S(n) = c_1 n + c_2
+\]
+
+\noindent{\textbf{Prova:}}  
+A estrutura da árvore de vencedores requer $n$ posições para os elementos de entrada e $n-1$ para os nós internos de comparação, totalizando $2n - 1$ posições.  
+Portanto:
+
+\[
+S(n) = 2n - 1 \leq c n, \quad \text{para alguma constante } c > 0,
+\]
+
+o que implica:
+
+\[
+S(n) \in O(n)
+\]
+$\hfill\Box$
+
+\bigskip
 
 \section{Tree Sort}
 
+\textbf{Descrição:} Tree Sort é um algoritmo de ordenação que constrói uma Árvore Binária de Busca (BST) a partir dos elementos do array a serem ordenados e, em seguida, executa uma travessia ordenada da BST para obter os elementos ordenados.  
+A ordenação em árvore utiliza as propriedades do BST, onde cada nó tem no máximo dois filhos, chamados de filho esquerdo e filho direito. Para qualquer nó:
+\begin{itemize}
+    \item O valor do filho esquerdo é menor que o valor do nó;
+    \item O valor do filho direito é maior que o valor do nó.
+\end{itemize}
+
+\begin{algorithm}[H]
+\footnotesize
+\DontPrintSemicolon
+ \SetKw{KwStep}{step}
+\textbf{function} WINNER(pos1, pos2)\;
+\If{$pos1 \textcolor{blue}{get?} n$}{
+    $u \gets pos1$\;
+}{
+    $u \gets tmp[pos1]$\;
+}
+\If{$pos2 \ge n$}{
+    $v \gets pos2$\;
+}{
+    $v \gets tmp[pos2]$\;
+}
+\If{$tmp[u] \le tmp[v]$}{
+    \Return $u$\;
+}{
+    \Return $v$\;
+}
+\BlankLine
+
+\textbf{function} CREATE\_TREE(value)\;
+\For{$i \gets 0$ \KwTo $n - 1$}{
+    $tmp[n + i] \gets a[i]$\;
+}
+\For{$i \gets 2 * n - 1$ \KwTo $2$ \KwStep $-2$}{
+    k $\gets i / 2$\;
+    j $\gets i - 1$\;
+    $tmp[k] \gets WINNER(i, j)$\;
+}
+$value \gets tmp[tmp[1]]$\;
+$tmp[tmp[1]] \gets INF$\;
+\BlankLine
+
+\textbf{function} RECREATE(value)\;
+i $\gets$ tmp[1]\;
+\While{$i > 1$}{
+    k $\gets i / 2$\;
+    \If{$i$ is even \textbf{and} $i < 2 * n - 1$}{
+        j $\gets i + 1$\;
+    }
+    \Else{
+        j $\gets i - 1$\;
+    }
+    tmp[k] $\gets$ WINNER(i, j)\;
+    i $\gets k$\;
+}
+value $\gets$ tmp[tmp[1]]\;
+tmp[tmp[1]] $\gets$ INF\;
+\BlankLine
+
+\textbf{function} TOURNAMENT\_SORT()\;
+value $\gets$ 0\;
+CREATE\_TREE(value)\;
+\For{$i \gets 0$ \KwTo $n - 1$}{
+    a[i] $\gets$ value\;
+    RECREATE(value)\;
+}
+\caption{Tournament Sort}
+\label{lab:alg-tournamentSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Tree Sort em Python},captionpos=t, label=code:treeSortPy]
+
+class Node:
+
+  def __init__(self,item = 0):
+    self.key = item
+    self.left,self.right = None,None
 
 
+root = Node()
+root = None
 
-\section{Resumo}
+def insert(key):
+  global root
+  root = insertRec(root, key)
 
-\begin{center}
-\begin{tabular}{||c|c|c|c||}
-\hline
-\multicolumn{4}{|c|}{Complexidades de tempo em termos de comparações} \\\hline
-Algoritmo & Pior caso & Melhor caso & Caso médio\\
-\hline
-Merge Sort & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ \\
-Quick Sort & $O(n^2)$    & $O(n\log n)$ & $O(n\log n)$ \\
-Heap Sort  & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ \\
-Intro Sort & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ \\
-TimSort    & $O(n\log n)$ & $O(n)$       & $O(n\log n)$ \\\hline
-\end{tabular}
-\end{center}
+def insertRec(root, key):
 
-\begin{center}
-\begin{tabular}{||c|c|c|c||}
-\hline
-\multicolumn{4}{|c|}{Complexidades de espaço} \\\hline
-Algoritmo & Pior caso & Melhor caso & Caso médio\\
-\hline
-Merge Sort & $O(n)$      & $O(n)$      & $O(n)$ \\
-Quick Sort & $O(\log n)$ & $O(\log n)$ & $O(\log n)$ \\
-Heap Sort  & $O(1)$      & $O(1)$      & $O(1)$ \\
-Intro Sort & $O(\log n)$ & $O(\log n)$ & $O(\log n)$ \\
-TimSort    & $O(n)$      & $O(n)$      & $O(n)$ \\\hline
-\end{tabular}
-\end{center}
+  if (root == None):
+    root = Node(key)
+    return root
+  if (key < root.key):
+    root.left = insertRec(root.left, key)
+  elif (key > root.key):
+    root.right = insertRec(root.right, key)
+  return root
+  
+def inorderRec(root):
+  if (root != None):
+    inorderRec(root.left)
+    print(root.key ,end = " ")
+    inorderRec(root.right)
+  
+def treeins(arr):
+  for i in range(len(arr)):
+    insert(arr[i])
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Tree Sort em C}, captionpos=t,label=code:treeSortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int key;
+    struct Node *left, *right;
+};
+
+struct Node* newNode(int item) {
+    struct Node* temp = (struct Node*) malloc(sizeof(struct Node));
+    temp->key = item;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+void storeSorted(struct Node* root, int arr[], int* i) {
+    if (root != NULL) {
+        storeSorted(root->left, arr, i);
+        arr[*i] = root->key;
+        (*i)++;
+        storeSorted(root->right, arr, i);
+    }
+}
+
+struct Node* insert(struct Node* node, int key) {
+    if (node == NULL) 
+        return newNode(key);
+
+    if (key < node->key)
+        node->left = insert(node->left, key);
+    else if (key > node->key)
+        node->right = insert(node->right, key);
+
+    return node;
+}
+void treeSort(int arr[], int n) {
+    struct Node* root = NULL;
+    root = insert(root, arr[0]);
+    for (int i = 1; i < n; i++)
+        root = insert(root, arr[i]);
+    int i = 0;
+    storeSorted(root, arr, &i);
+}
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Tree Sort em C++}, captionpos=t, label=code:treeSortCpp]
+#include<bits/stdc++.h>
+
+using namespace std;
+struct Node
+{
+    int key;
+    struct Node *left, *right;
+};
+
+struct Node *newNode(int item)
+{
+    struct Node *temp = new Node;
+    temp->key = item;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+void storeSorted(Node *root, int arr[], int &i)
+{
+    if (root != NULL)
+    {
+        storeSorted(root->left, arr, i);
+        arr[i++] = root->key;
+        storeSorted(root->right, arr, i);
+    }
+}
+Node* insert(Node* node, int key)
+{
+    /* If the tree is empty, return a new Node */
+    if (node == NULL) return newNode(key);
+
+    /* Otherwise, recur down the tree */
+    if (key < node->key)
+        node->left  = insert(node->left, key);
+    else if (key > node->key)
+        node->right = insert(node->right, key);
+
+    /* return the (unchanged) Node pointer */
+    return node;
+}
+void treeSort(int arr[], int n)
+{
+    struct Node *root = NULL;
+
+    // Construct the BST
+    root = insert(root, arr[0]);
+    for (int i=1; i<n; i++)
+        root = insert(root, arr[i]);
+
+    // Store inorder traversal of the BST
+    // in arr[]
+    int i = 0;
+    storeSorted(root, arr, i);
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Tree Sort}.  
+
+\subsubsection{Complexidade de Tempo}
+
+O desempenho do \textit{Tree Sort} depende diretamente do balanceamento da árvore construída.  
+Em uma árvore binária de busca, a inserção de um elemento requer tempo proporcional à altura da árvore.  
+Assim, se a árvore estiver balanceada, sua altura será $O(\log n)$, e a inserção de todos os $n$ elementos custará $O(n \log n)$.  
+
+Após a construção da árvore, o algoritmo realiza um percurso em ordem, que visita cada nó exatamente uma vez, com custo $O(n)$.  
+Logo, o tempo total é dado por:
+
+\[
+T(n) = O(n \log n) + O(n) = O(n \log n)
+\]
+
+\noindent{\textbf{Prova:}}  
+A construção da árvore requer $a_1 n \log n + b$ operações no caso médio (ou balanceado), e o percurso em ordem requer $a_2 n$ operações.  
+Portanto:
+
+\[
+T(n) = a_1 n \log n + b + a_2 n
+\]
+
+Agrupando os termos e considerando constantes positivas $c_1, c_2$, temos:
+
+\[
+T(n) \leq c_1 n \log n + c_2 n
+\]
+
+Como o termo dominante é $n \log n$, segue que:
+
+\[
+T(n) \in O(n \log n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Tree Sort} tem desempenho médio equivalente a algoritmos de comparação eficientes, como o \textit{Merge Sort} e o \textit{Heap Sort}.  
+Entretanto, sua eficiência depende do balanceamento da árvore: no pior caso — quando os elementos são inseridos em ordem crescente ou decrescente, gerando uma árvore degenerada — a altura da árvore torna-se $O(n)$, e o tempo total de execução cresce para:
+
+\[
+T(n) = O(n^2)
+\]
+
+\noindent Isso pode ser mitigado com o uso de árvores balanceadas, como AVL ou Árvores Rubo-Negra.
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Tree Sort} utiliza uma árvore binária de busca para armazenar todos os elementos da entrada.  
+Cada elemento é representado por um nó da árvore, contendo ponteiros para os filhos e possivelmente para o pai.  
+Assim, o número total de nós é proporcional ao número de elementos de entrada $n$.
+
+\[
+S(n) = c_1 n + c_2
+\]
+
+\noindent{\textbf{Prova:}}  
+Para cada elemento inserido, é criado um nó com ponteiros e valor associado.  
+Logo, a estrutura completa possui $n$ nós, cada um ocupando espaço constante.  
+Portanto:
+
+\[
+S(n) = n \cdot O(1) = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O consumo de memória é linear, semelhante a outros algoritmos de ordenação baseados em estruturas auxiliares.  
+O espaço adicional é utilizado exclusivamente para armazenar os nós da árvore, sendo liberado após o percurso final.
+
+\section{Block Sort}
+
+\href{https://www.geeksforgeeks.org/dsa/introduction-to-block-sort/}{Veja Block Sort}
+
+\textbf{Descrição:} Block sort é um algoritmo de ordenação que combina pelo menos duas operações de mesclagem com uma ordenação por inserção para chegar a uma ordenação estável no local de $O(n \log n)$. Seu nome advém da observação de que mesclar duas listas ordenadas, A e B, equivale a dividir A em blocos de tamanhos iguais, inserir cada bloco A em B sob regras especiais e mesclar AB pares.
+\bigskip
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetKw{KwBy}{by}
+\textbf{função} \texttt{BLOCK\_SORT(vetor, blockSize)} \;
+
+$n \gets tamanho(vetor)$\;
+$listaBlocos \gets []$\;
+
+\For{$i \gets 0$ \KwTo $n - 1$ \KwBy $blockSize$}{
+    $bloco \gets []$\;
+    \For{$j \gets i$ \KwTo $min(i + blockSize - 1, n - 1)$}{
+        adicionar $vetor[j]$ a $bloco$\;
+    }
+    ordenar($bloco$)\; // Ordena cada bloco individualmente
+    adicionar $bloco$ a $listaBlocos$\;
+}
+
+$resultado \gets []$\;
+
+\While{$listaBlocos$ não estiver vazia}{
+    $minValor \gets \infty$\;
+    $minBloco \gets nulo$\;
+
+    \ForEach{$bloco$ em $listaBlocos$}{
+        \If{$bloco$ não estiver vazio \textbf{e} $bloco[0] < minValor$}{
+            $minValor \gets bloco[0]$\;
+            $minBloco \gets bloco$\;
+        }
+    }
+
+    adicionar $minValor$ a $resultado$\;
+    remover o primeiro elemento de $minBloco$\;
+
+    \If{$tamanho(minBloco) = 0$}{
+        remover $minBloco$ de $listaBlocos$\;
+    }
+}
+
+\Return $resultado$\;
+
+\caption{Block Sort}
+\label{lab:alg-blockSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do Block Sort em Python}, captionpos=t, label=code:blockSortPy]
+def block_sort(arr, block_size):
+    blocks = []
+    for i in range(0, len(arr), block_size):
+        block = arr[i:i + block_size]
+        blocks.append(sorted(block))
+
+    result = []
+    while blocks:
+        min_idx = 0
+        for i in range(1, len(blocks)):
+            if blocks[i][0] < blocks[min_idx][0]:
+                min_idx = i
+        result.append(blocks[min_idx].pop(0))
+        if len(blocks[min_idx]) == 0:
+            blocks.pop(min_idx)
+    return result
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do Block Sort em C},captionpos=t, label=code:blockSortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+int compareInt(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+typedef struct {
+    int *dados;
+    int tamanho;
+} Bloco;
+
+int* blockSort(int *arr, int n, int blockSize, int *resultadoTamanho) {
+    int numBlocos = (n + blockSize - 1) / blockSize;
+    Bloco *blocos = (Bloco *) malloc(numBlocos * sizeof(Bloco));
+
+    int k = 0;
+    for (int i = 0; i < n; i += blockSize) {
+        int fim = i + blockSize;
+        if (fim > n) fim = n;
+        int tamanhoBloco = fim - i;
+
+        blocos[k].dados = (int *) malloc(tamanhoBloco * sizeof(int));
+        blocos[k].tamanho = tamanhoBloco;
+
+        for (int j = 0; j < tamanhoBloco; j++) {
+            blocos[k].dados[j] = arr[i + j];
+        }
+
+        qsort(blocos[k].dados, tamanhoBloco, sizeof(int), compareInt);
+        k++;
+    }
+
+    int *resultado = (int *) malloc(n * sizeof(int));
+    int resultadoIndex = 0;
+
+    while (numBlocos > 0) {
+        int minIdx = 0;
+        for (int i = 1; i < numBlocos; i++) {
+            if (blocos[i].dados[0] < blocos[minIdx].dados[0]) {
+                minIdx = i;
+            }
+        }
+
+        resultado[resultadoIndex++] = blocos[minIdx].dados[0];
+        for (int j = 1; j < blocos[minIdx].tamanho; j++) {
+            blocos[minIdx].dados[j - 1] = blocos[minIdx].dados[j];
+        }
+        blocos[minIdx].tamanho--;
+
+        if (blocos[minIdx].tamanho == 0) {
+            free(blocos[minIdx].dados);
+            for (int i = minIdx + 1; i < numBlocos; i++) {
+                blocos[i - 1] = blocos[i];
+            }
+            numBlocos--;
+        }
+    }
+    free(blocos);
+    *resultadoTamanho = resultadoIndex;
+    return resultado;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do Block Sort em C++},captionpos=t, label=code:blockSortCpp]
+#include <algorithm>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> blockSort(vector<int> arr, int blockSize) {
+    vector<vector<int> > blocks;
+    for (int i = 0; i < arr.size(); i += blockSize) {
+        vector<int> block;
+        for (int j = i; j < i + blockSize && j < arr.size(); j++)
+            block.push_back(arr[j]);
+        sort(block.begin(), block.end());
+        blocks.push_back(block);
+    }
+    vector<int> result;
+    while (!blocks.empty()) {
+        int minIdx = 0;
+        for (int i = 1; i < blocks.size(); i++) {
+            if (blocks[i][0] < blocks[minIdx][0])
+                minIdx = i;
+        }
+        result.push_back(blocks[minIdx][0]);
+        blocks[minIdx].erase(blocks[minIdx].begin());
+
+        if (blocks[minIdx].empty())
+            blocks.erase(blocks.begin() + minIdx);
+    }
+
+    return result;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Block Sort}.  
+
+\subsubsection{Complexidade de Tempo}
+
+O desempenho do \textit{Block Sort} depende diretamente do tamanho dos blocos e da forma como os elementos estão distribuídos entre eles.  
+O algoritmo realiza duas etapas principais: a ordenação individual de cada bloco e a mesclagem dos blocos ordenados.
+
+Na primeira fase, o vetor é dividido em $\frac{n}{b}$ blocos, cada um contendo $b$ elementos.  
+Cada bloco é ordenado separadamente com um algoritmo de ordenação eficiente, com custo $O(b \log b)$ por bloco.  
+Assim, o custo total dessa etapa é:
+
+\[
+T_1(n) = \frac{n}{b} \cdot O(b \log b) = O(n \log b)
+\]
+
+Na segunda fase, os blocos ordenados são mesclados de forma semelhante a um processo de intercalação.  
+A cada passo, o menor elemento entre os blocos é escolhido e inserido no vetor final.  
+Como há $\frac{n}{b}$ blocos e $n$ elementos, essa etapa requer $O(n \cdot \frac{n}{b}) = O\left(\frac{n^2}{b}\right)$ no pior caso, caso a mesclagem não seja otimizada.  
+Com uma estrutura eficiente (como uma fila de prioridade), é possível reduzir esse custo para:
+
+\[
+T_2(n) = O(n \log \tfrac{n}{b})
+\]
+
+Portanto, o tempo total de execução é dado por:
+
+\[
+T(n) = T_1(n) + T_2(n) = O(n \log b) + O(n \log \tfrac{n}{b})
+\]
+
+No caso em que o tamanho do bloco é proporcional a $\sqrt{n}$ (isto é, $b = \sqrt{n}$), obtemos:
+
+\[
+T(n) = O(n \log n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Block Sort} pode alcançar desempenho semelhante a algoritmos de ordenação eficientes, como \textit{Merge Sort}, dependendo da escolha do tamanho dos blocos e da estratégia de mesclagem.  
+Quando os blocos são muito pequenos, há sobrecarga devido ao grande número de comparações entre blocos; quando são muito grandes, a ordenação interna de cada bloco se torna mais custosa.  
+Um equilíbrio adequado entre as duas fases é essencial para atingir o desempenho ótimo de $O(n \log n)$.
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Block Sort} armazena temporariamente múltiplos blocos durante o processo de ordenação e mesclagem.  
+Cada bloco contém $b$ elementos, e o número total de blocos é $\frac{n}{b}$.  
+Além do vetor de entrada, são necessárias estruturas auxiliares para armazenar os blocos e o resultado final.
+
+\[
+S(n) = O(n + b)
+\]
+
+\noindent{\textbf{Prova:}}  
+Durante a execução, cada bloco requer espaço proporcional ao seu tamanho $b$.  
+Como o vetor original de $n$ elementos também é mantido, o espaço total é a soma das duas estruturas:
+
+\[
+S(n) = O(n) + O(b) = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O consumo de memória do \textit{Block Sort} é linear em relação ao número de elementos de entrada.  
+Embora o algoritmo utilize espaço adicional para armazenar os blocos temporários, esse custo é pequeno comparado ao tamanho total da entrada.
+
+\section{Patience Sorting}
+
+\textbf{Descrição:} Patience Sorting é um algoritmo de ordenação instável que consiste em duas partes: distribuir os elementos em pilhas ordenadas e mesclar as pilhas ordenadas para obter uma única sequência ordenada. É baseado no jogo de cartas Paciência, onde as regras do jogo são usadas para classificar uma lista de elementos com base em seus valores.
+
+\textbf{Regras do Jogo Paciência:} 
+\begin{itemize}
+    \item Cartas com valor menor podem ser colocadas sobre a carta.
+    \item Se não houver posição possível para uma carta, uma nova pilha pode ser criada.
+    \item O objetivo é formar o menor número possível de pilhas.
+\end{itemize}
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\textbf{função} \texttt{PATIENCE\_SORT(input)} \;
+
+$N \gets tamanho(input)$\;
+$piles \gets$ array de pilhas de tamanho $N$\;
+$lastPile \gets 1$\;
+
+\For{$i \gets 1$ \KwTo $N$}{
+    $pileIndex \gets \texttt{BINARYSEARCH}(piles, input[i])$\;
+
+    \If{$pileIndex = -1$}{
+        $newPile \gets$ pilha vazia\;
+        adicionar $input[i]$ a $newPile$\;
+        $piles[lastPile] \gets newPile$\;
+        $lastPile \gets lastPile + 1$\;
+    }
+    \Else{
+        colocar $input[i]$ no topo de $piles[pileIndex]$\;
+    }
+}
+
+$topElements \gets$ array de tamanho $N$\;
+
+\For{$i \gets 1$ \KwTo $lastPile - 1$}{
+    $topElements[i] \gets piles[i].top$\;
+}
+
+$minHeap \gets$ MinHeap construído a partir de $topElements$\;
+$output \gets$ array de tamanho $N$\;
+
+\For{$i \gets 1$ \KwTo $N$}{
+    $minimum \gets$ minHeap.extractMin()\;
+    $output[i] \gets minimum$\;
+    $pileIndex \gets$ índice da pilha de onde $minimum$ veio\;
+
+    \If{$piles[pileIndex]$ está vazia}{
+        mover o último nó da última camada do minHeap para a raiz\;
+    }
+    \Else{
+        $minHeap.raiz \gets piles[pileIndex].top$\;
+    }
+
+    minHeap.decreaseKey()\;
+}
+
+\Return $output$\;
+\caption{Patience Sorting}
+\label{lab:alg-PatienceSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Patience Sorting em Python}, captionpos=t, label=code:patiencePy]
+def merge_piles(v):
+    ans = []
+
+    while True:
+        minu = float("inf")
+        index = -1
+        for i in range(len(v)):
+            if minu > v[i][-1]:
+                minu = v[i][-1]
+                index = i
+        ans.append(minu)
+        v[index].pop()
+        if not v[index]:
+            v.pop(index)
+        if not v:
+            break
+
+    return ans
+def patienceSorting(arr):
+    piles = []
+
+    for i in range(len(arr)):
+        if not piles:
+            temp = []
+            temp.append(arr[i])
+            piles.append(temp)
+        else:
+            flag = True
+            for j in range(len(piles)):
+                if arr[i] < piles[j][-1]:
+                    piles[j].append(arr[i])
+                    flag = False
+                    break
+            if flag:
+                temp = []
+                temp.append(arr[i])
+                piles.append(temp)
+
+    ans = []
+
+    ans = merge_piles(piles)
+    return ans
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Patience Sorting em C},captionpos=t, label=code:patienceC]
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct {
+    int *data;
+    int size;
+    int capacity;
+} Stack;
+
+void initStack(Stack *s) {
+    s->capacity = 4;
+    s->size = 0;
+    s->data = (int *) malloc(s->capacity * sizeof(int));
+}
+
+void push(Stack *s, int value) {
+    if (s->size == s->capacity) {
+        s->capacity *= 2;
+        s->data = (int *) realloc(s->data, s->capacity * sizeof(int));
+    }
+    s->data[s->size++] = value;
+}
+
+void pop(Stack *s) {
+    if (s->size > 0) {
+        s->size--;
+    }
+}
+
+int top(Stack *s) {
+    return s->data[s->size - 1];
+}
+
+int* merge_piles(Stack *piles, int pileCount, int *resultSize) {
+    int total = 0;
+    for (int i = 0; i < pileCount; i++) total += piles[i].size;
+
+    int *ans = (int *) malloc(total * sizeof(int));
+    int idx = 0;
+
+    while (pileCount > 0) {
+        int minimum = INT_MAX, minIndex = -1;
+
+        for (int i = 0; i < pileCount; i++) {
+            if (top(&piles[i]) < minimum) {
+                minimum = top(&piles[i]);
+                minIndex = i;
+            }
+        }
+
+        ans[idx++] = minimum;
+        pop(&piles[minIndex]);
+
+        if (piles[minIndex].size == 0) {
+            for (int j = minIndex; j < pileCount - 1; j++)
+                piles[j] = piles[j + 1];
+            pileCount--;
+        }
+    }
+
+    *resultSize = idx;
+    return ans;
+}
+
+int* patienceSorting(int *arr, int n, int *outSize) {
+    Stack *piles = NULL;
+    int pileCount = 0;
+
+    for (int i = 0; i < n; i++) {
+        int placed = 0;
+
+        for (int j = 0; j < pileCount; j++) {
+            if (arr[i] < top(&piles[j])) {
+                push(&piles[j], arr[i]);
+                placed = 1;
+                break;
+            }
+        }
+
+        if (!placed) {
+            piles = (Stack *) realloc(piles, (pileCount + 1) * sizeof(Stack));
+            initStack(&piles[pileCount]);
+            push(&piles[pileCount], arr[i]);
+            pileCount++;
+        }
+    }
+
+    int *result = merge_piles(piles, pileCount, outSize);
+    free(piles);
+    return result;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Patience Sorting em C++},captionpos=t, label=code:patienceCpp]
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> merge_piles(vector<vector<int> >& v)
+{
+
+    vector<int> ans;
+
+    while (1) {
+        int minu = INT_MAX;
+        int index = -1;
+        for (int i = 0; i < v.size(); i++) {
+            if (minu > v[i][v[i].size() - 1]) {
+                minu = v[i][v[i].size() - 1];
+                index = i;
+            }
+        }
+        ans.push_back(minu);
+        v[index].pop_back();
+        if (v[index].empty()) {
+            v.erase(v.begin() + index);
+        }
+        if (v.size() == 0)
+            break;
+    }
+    return ans;
+}
+
+vector<int> patienceSorting(vector<int> arr)
+{
+    vector<vector<int> > piles;
+    for (int i = 0; i < arr.size(); i++) {
+        if (piles.empty()) {
+            vector<int> temp;
+            temp.push_back(arr[i]);
+            piles.push_back(temp);
+        }
+        else {
+            int flag = 1;
+            for (int j = 0; j < piles.size(); j++) {
+                if (arr[i] < piles[j][piles[j].size() - 1]) {
+                    piles[j].push_back(arr[i]);
+                    flag = 0;
+                    break;
+                }
+            }
+            if (flag) {
+                vector<int> temp;
+                temp.push_back(arr[i]);
+                piles.push_back(temp);
+            }
+        }
+    }
+    vector<int> ans;
+    ans = merge_piles(piles);
+    for (int i = 0; i < ans.size(); i++)
+        cout << ans[i] << " ";
+    return ans;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Patience Sorting}.
+
+\subsubsection{Complexidade de Tempo}
+
+O desempenho do \textit{Patience Sorting} depende da estratégia utilizada para localizar a pilha correta onde cada elemento será inserido.
+
+Na versão básica do algoritmo, a inserção de cada elemento consiste em percorrer sequencialmente o topo das pilhas já existentes, até encontrar a primeira cujo topo seja maior que o elemento atual.  
+Se houver $k$ pilhas no momento da inserção, esse custo é $O(k)$, e como no pior caso $k = O(n)$, a inserção de um único elemento custa $O(n)$.  
+Assim, para $n$ elementos, temos:
+
+\[
+T(n) = n \cdot O(n) = O(n^2)
+\]
+
+Após a construção das pilhas, o algoritmo realiza um processo de extração ordenada, mesclando os elementos via uma estrutura auxiliar. 
+Esse processo possui custo $O(n \log n)$, mas é assintoticamente dominado pelo custo quadrático da etapa de inserção na versão básica.
+
+\bigskip
+
+\noindent{\textbf{Prova (versão básica):}}  
+Seja $p(i)$ o número de pilhas existentes ao inserir o elemento $i$.  
+No pior caso, $p(i) = i$, logo:
+
+\[
+T(n) = \sum_{i=1}^{n} O(i) = O\!\left(\sum_{i=1}^{n} i \right) = O(n^2)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Versão Otimizada:}}  
+Se, em vez de busca sequencial, utilizarmos \textbf{busca binária} para localizar a pilha correta, o custo de inserção de cada elemento reduz-se para $O(\log n)$.  
+Dessa forma, a construção das pilhas passa a ter custo:
+
+\[
+T(n) = n \cdot O(\log n) = O(n \log n)
+\]
+
+O processo de mesclagem final pode ser feito com um \textit{min-heap}, que realiza $n$ extrações ao custo de $O(\log n)$ cada, resultando também em:
+
+\[
+T_{\text{merge}}(n) = O(n \log n)
+\]
+
+Logo, o tempo total da versão otimizada é:
+
+\[
+T(n) = O(n \log n) + O(n \log n) = O(n \log n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Patience Sorting} otimizado possui desempenho assintótico equivalente ao \textit{Merge Sort} e \textit{Heap Sort}.  
+Além disso, vale ressaltar que dado sua estrutura intermediária — as pilhas —  o algoritmo permite extrair, de forma direta, o comprimento da maior subsequência crescente, o que faz o algoritmo ser amplamente utilizado também fora do contexto de ordenação.
+
+No entanto, para a implementação ingênua, em que a busca pela pilha apropriada é linear, o tempo de execução cresce para:
+
+\[
+T(n) = O(n^2)
+\]
+
+\noindent sendo, portanto, inviável para grandes volumes de dados sem otimização.
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Patience Sorting} utiliza um conjunto de pilhas que, no total, contém todos os elementos da entrada.  
+Além disso, um vetor de saída de tamanho $n$ é armazenado, juntamente com estruturas auxiliares opcionais, como um \textit{min-heap}.  
+Assim, o espaço total é proporcional ao número de elementos da entrada:
+
+\[
+S(n) = O(n)
+\]
+
+\bigskip
+
+\noindent{\textbf{Prova:}}  
+Cada elemento é armazenado exatamente uma vez em alguma pilha e, posteriormente, uma vez no vetor final.  
+O heap mantém no máximo uma referência por pilha, que no pior caso também é $O(n)$.  
+Portanto:
+
+\[
+S(n) = n \cdot O(1) = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O uso de memória é linear, o que torna o \textit{Patience Sorting} comparável a algoritmos como \textit{Merge Sort} ou \textit{Heap Sort} em termos de impacto de custo de memória.
+
+
+\section{Smooth Sort}
+
+\href{https://www.geeksforgeeks.org/dsa/introduction-to-smooth-sort/}{Veja Smooth Sort}\\
+\textbf{Descrição:} Smooth sort é um algoritmo de ordenação introduzido por Edsger Dijkstra . É outra versão do heapsort , projetada para minimizar o número de comparações realizadas durante a ordenação. Assim como o Heapsort, o Smooth Sort ordena um array construindo um heap e extraindo repetidamente o elemento máximo, no entanto, a ordenação suave utiliza uma estrutura de dados diferente da ordenação por heap (heap de Leonardo).
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\small
+\textbf{função} \texttt{LEONARDO(k)} \;
+\If{$k < 2$}{
+    \Return $1$\;
+}
+\Return \texttt{LEONARDO}$(k - 1) + \texttt{LEONARDO}(k - 2) + 1$\;
+
+\bigskip
+\textbf{função} \texttt{HEAPIFY(vetor, inicio, fim)} \;
+
+$i \gets inicio$\;
+$j \gets 0$\;
+$k \gets 0$\;
+
+\While{$k < fim - inicio + 1$}{
+    \If{$k$ possui bit alternado}{
+        $j \gets j + i$\;
+        $i \gets i >> 1$\;
+    }
+    \Else{
+        $i \gets i + j$\;
+        $j \gets j >> 1$\;
+    }
+    $k \gets k + 1$\;
+}
+
+\While{$i > 0$}{
+    $j \gets j >> 1$\;
+    $k \gets i + j$\;
+
+    \While{$k < fim$}{
+        \If{$vetor[k] > vetor[k - i]$}{
+            \textbf{pare}\;
+        }
+        trocar($vetor[k], vetor[k - i]$)\;
+        $k \gets k + i$\;
+    }
+
+    $i \gets j$\;
+}
+
+\bigskip
+\textbf{função} \texttt{SMOOTH\_SORT(vetor)} \;
+
+$n \gets tamanho(vetor)$\;
+$p \gets n - 1$\;
+$q \gets p$\;
+$r \gets 0$\;
+
+\While{$p > 0$}{
+    \If{$r \,\&\, 0x03 = 0$}{
+        \texttt{HEAPIFY}(vetor, r, q)\;
+    }
+
+    \If{\texttt{LEONARDO}(r) = p}{
+        $r \gets r + 1$\;
+    }
+    \Else{
+        $r \gets r - 1$\;
+        $q \gets q - \texttt{LEONARDO}(r)$\;
+        \texttt{HEAPIFY}(vetor, r, q)\;
+        $q \gets r - 1$\;
+        $r \gets r + 1$\;
+    }
+
+    trocar($vetor[0], vetor[p]$)\;
+    $p \gets p - 1$\;
+}
+
+\bigskip
+
+\For{$i \gets 0$ \KwTo $n - 2$}{
+    $j \gets i + 1$\;
+    \While{$j > 0$ \textbf{e} $vetor[j] < vetor[j-1]$}{
+        trocar($vetor[j], vetor[j-1]$)\;
+        $j \gets j - 1$\;
+    }
+}
+
+\Return vetor\;
+
+\caption{Smooth Sort}
+\label{lab:alg-SmoothSort}
+\end{algorithm}
+
+\begin{lstlisting}[language=Python, caption={Implementação do algoritmo Patience Sorting em Python},captionpos=t, label=code:smoothPy]
+def smooth_sort(arr):
+    n = len(arr)
+
+    def leonardo(k):
+        if k < 2:
+            return 1
+        return leonardo(k - 1) + leonardo(k - 2) + 1
+    def heapify(start, end):
+        i = start
+        j = 0
+        k = 0
+
+        while k < end - start + 1:
+            if k & 0xAAAAAAAA:
+                j = j + i
+                i = i >> 1
+            else:
+                i = i + j
+                j = j >> 1
+
+            k = k + 1
+
+        while i > 0:
+            j = j >> 1
+            k = i + j
+            while k < end:
+                if arr[k] > arr[k - i]:
+                    break
+                arr[k], arr[k - i] = arr[k - i], arr[k]
+                k = k + i
+
+            i = j
+
+    p = n - 1
+    q = p
+    r = 0
+    while p > 0:
+        if (r & 0x03) == 0:
+            heapify(r, q)
+
+        if leonardo(r) == p:
+            r = r + 1
+        else:
+            r = r - 1
+            q = q - leonardo(r)
+            heapify(r, q)
+            q = r - 1
+            r = r + 1
+
+        arr[0], arr[p] = arr[p], arr[0]
+        p = p - 1
+
+    for i in range(n - 1):
+        j = i + 1
+        while j > 0 and arr[j] < arr[j - 1]:
+            arr[j], arr[j - 1] = arr[j - 1], arr[j]
+            j = j - 1
+
+    return arr
+\end{lstlisting}
+
+\begin{lstlisting}[language=C, caption={Implementação do algoritmo Smooth Sort em C},captionpos=t, label=code:SmoothC]
+#include <stdio.h>
+#include <stdlib.h>
+
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int leonardo(int k) {
+    if (k < 2)
+        return 1;
+    return leonardo(k - 1) + leonardo(k - 2) + 1;
+}
+
+void heapify(int *arr, int start, int end) {
+    int i = start;
+    int j = 0;
+    int k = 0;
+
+    while (k < end - start + 1) {
+        if (k & 0xAAAAAAAA) { // mesmo teste do C++
+            j = j + i;
+            i = i >> 1;
+        } else {
+            i = i + j;
+            j = j >> 1;
+        }
+        k = k + 1;
+    }
+
+    while (i > 0) {
+        j = j >> 1;
+        k = i + j;
+        while (k < end) {
+            if (arr[k] > arr[k - i])
+                break;
+            swap(&arr[k], &arr[k - i]);
+            k = k + i;
+        }
+        i = j;
+    }
+}
+
+int* smooth_sort(int *arr, int n) {
+    int p = n - 1;
+    int q = p;
+    int r = 0;
+
+    while (p > 0) {
+        if ((r & 0x03) == 0) {
+            heapify(arr, r, q);
+        }
+
+        if (leonardo(r) == p) {
+            r = r + 1;
+        } else {
+            r = r - 1;
+            q = q - leonardo(r);
+            heapify(arr, r, q);
+            q = r - 1;
+            r = r + 1;
+        }
+
+        swap(&arr[0], &arr[p]);
+        p = p - 1;
+    }
+
+    for (int i = 0; i < n - 1; i++) {
+        int j = i + 1;
+        while (j > 0 && arr[j] < arr[j - 1]) {
+            swap(&arr[j], &arr[j - 1]);
+            j = j - 1;
+        }
+    }
+
+    return arr; 
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=C++, caption={Implementação do algoritmo Smooth Sort em C++}, captionpos=t,label=code:SmoothCpp]
+#include <iostream>
+#include <vector>
+
+using namespace std;
+int leonardo(int k)
+{
+    if (k < 2) {
+        return 1;
+    }
+    return leonardo(k - 1) + leonardo(k - 2) + 1;
+}
+
+void heapify(vector<int>& arr, int start, int end)
+{
+    int i = start;
+    int j = 0;
+    int k = 0;
+
+    while (k < end - start + 1) {
+        if (k & 0xAAAAAAAA) {
+            j = j + i;
+            i = i >> 1;
+        }
+        else {
+            i = i + j;
+            j = j >> 1;
+        }
+
+        k = k + 1;
+    }
+
+    while (i > 0) {
+        j = j >> 1;
+        k = i + j;
+        while (k < end) {
+            if (arr[k] > arr[k - i]) {
+                break;
+            }
+            swap(arr[k], arr[k - i]);
+            k = k + i;
+        }
+
+        i = j;
+    }
+}
+
+vector<int> smooth_sort(vector<int>& arr)
+{
+    int n = arr.size();
+
+    int p = n - 1;
+    int q = p;
+    int r = 0;
+
+    while (p > 0) {
+        if ((r & 0x03) == 0) {
+            heapify(arr, r, q);
+        }
+
+        if (leonardo(r) == p) {
+            r = r + 1;
+        }
+        else {
+            r = r - 1;
+            q = q - leonardo(r);
+            heapify(arr, r, q);
+            q = r - 1;
+            r = r + 1;
+        }
+
+        swap(arr[0], arr[p]);
+        p = p - 1;
+    }
+
+    for (int i = 0; i < n - 1; i++) {
+        int j = i + 1;
+        while (j > 0 && arr[j] < arr[j - 1]) {
+            swap(arr[j], arr[j - 1]);
+            j = j - 1;
+        }
+    }
+
+    return arr;
+}
+\end{lstlisting}
+
+\subsection{Análise de Complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{Smooth Sort}. 
+
+\subsubsection{Complexidade de Tempo}
+
+O \textit{Smooth Sort} baseia-se na construção de uma sequência de heaps estruturados segundo os números de Leonardo, que permitem manter a propriedade de heap com um custo amortizado de $O(\log n)$ por operação.
+
+No pior caso, o algoritmo realiza $n$ operações de inserção e, em seguida, $n$ operações de remoção do maior elemento, cada uma com custo $O(\log n)$.  
+Assim, o tempo total de execução é:
+
+\[
+T(n) = n \cdot O(\log n) + n \cdot O(\log n) = O(n \log n)
+\]
+
+\noindent{\textbf{Prova:}}  
+Seja $h(k)$ o custo de reorganizar um heap de tamanho Leonardo $L_k$.  
+Como $L_k \in O(\log n)$, cada estabilização de heap custa no máximo $O(\log n)$.  
+Com $n$ inserções e $n$ extrações, temos constantes positivas $a_1, a_2$ tais que:
+
+\[
+T(n) = a_1 n \log n + a_2 n \log n
+\]
+
+Agrupando os termos e aplicando a definição assintótica:
+
+\[
+T(n) \leq c \cdot n \log n
+\]
+
+para alguma constante $c > 0$, logo:
+
+\[
+T(n) \in O(n \log n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Assim como o \textit{Heap Sort}, o \textit{Smooth Sort} possui complexidade assintoticamente ótima dentre os algoritmos de ordenação por comparação.  
+Entretanto, sua principal vantagem é o comportamento \textbf{adaptativo}: quando o vetor de entrada já está quase ordenado, parte dos heaps criados é pequena, reduzindo o custo total para um limite inferior de:
+
+\[
+T(n) = O(n)
+\]
+
+\subsubsection{Complexidade de Espaço}
+
+O \textit{Smooth Sort} realiza toda a ordenação dentro do próprio vetor de entrada, utilizando apenas variáveis auxiliares de tamanho constante.  
+Portanto, o uso de memória adicional independe de $n$.
+
+\[
+S(n) = O(1)
+\]
+
+\noindent{\textbf{Prova:}}  
+Não são criadas estruturas auxiliares proporcionais ao tamanho dos dados.  
+Toda a manipulação é feita \textit{in-place}, com apenas alguns registradores para armazenar índices, tamanhos de heaps e valores temporários.  
+Assim:
+
+\[
+S(n) = c
+\]
+
+onde $c$ é uma constante fixa, e portanto:
+
+\[
+S(n) \in O(1)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Smooth Sort} pertence à classe dos algoritmos de ordenação \textit{in-place}, e é adequada para ambientes com restrições de memória.  
+

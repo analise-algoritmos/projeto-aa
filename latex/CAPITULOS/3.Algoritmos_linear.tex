@@ -1,0 +1,2324 @@
+\chapter{Algoritmos com complexidades de tempo linear}
+
+Nesta seção apresentamos algoritmos de ordenação cuja complexidade de tempo pode ser considerada linear em determinados cenários. Esses métodos exploram propriedades dos dados de entrada, como o tamanho do domínio ou a representação numérica. 
+
+\section{Counting sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Counting Sort} é um algoritmo de ordenação estável e não comparativo. 
+Em vez de realizar comparações diretas entre elementos, ele conta o número de ocorrências de cada valor e, a partir dessas contagens, reconstrói o vetor ordenado. 
+Essa abordagem torna o método especialmente eficiente quando o intervalo de valores possíveis é relativamente pequeno em comparação ao número de elementos de entrada.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [4, 2, 2, 8, 3, 3, 1]$. O objetivo é ordená-lo utilizando o \textit{Counting Sort}.
+
+\begin{enumerate}
+    \item \textbf{Contagem de frequências:}  
+    Criamos um vetor auxiliar $C$ com tamanho igual ao maior valor de $A$ (neste caso, $k = 8$), inicializado com zeros.  
+    Em seguida, contamos quantas vezes cada valor ocorre:
+    \[
+    C = [0, 1, 2, 2, 1, 0, 0, 0, 1],
+    \]
+    onde $C[i]$ representa a quantidade de ocorrências do valor $i$ em $A$.
+
+    \item \textbf{Cálculo das posições acumuladas:}  
+    Atualizamos $C$ de modo que cada posição passe a armazenar a soma cumulativa das frequências anteriores:
+    \[
+    C = [0, 1, 3, 5, 6, 6, 6, 6, 7].
+    \]
+    Assim, $C[i]$ indica a posição final do último elemento $i$ no vetor ordenado.
+
+    \item \textbf{Construção do vetor ordenado:}  
+    Percorremos o vetor $A$ da direita para a esquerda e posicionamos cada elemento em seu local correto no vetor de saída $B$:
+    \[
+    B = [1, 2, 2, 3, 3, 4, 8].
+    \]
+    Finalmente, copiamos o conteúdo de $B$ de volta para $A$, concluindo a ordenação.
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{countingSort(values: array of int, n: integer, k: integer)}
+
+\For{$i \gets 0$ \KwTo $k$}{
+    $count[i] \gets 0$\;
+}
+\For{$i \gets 0$ \KwTo $n-1$}{
+    $count[values[i]] \gets count[values[i]] + 1$\;
+}
+\For{$i \gets 1$ \KwTo $k$}{
+    $count[i] \gets count[i] + count[i-1]$\;
+}
+\For{$i \gets n-1$ \KwTo $0$}{
+    $output[count[values[i]]-1] \gets values[i]$\;
+    $count[values[i]] \gets count[values[i]] - 1$\;
+}
+\For{$i \gets 0$ \KwTo $n-1$}{
+    $values[i] \gets output[i]$\;
+}
+\caption{Counting sort}
+\label{lab:alg-countingSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Counting sort em Python},captionpos=t]
+def counting_sort(arr, k):
+    count = [0] * (k+1)
+    output = [0] * len(arr)
+    for num in arr:
+        count[num] += 1
+    for i in range(1, len(count)):
+        count[i] += count[i-1]
+    for num in reversed(arr):
+        output[count[num]-1] = num
+        count[num] -= 1
+    return output
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Counting sort em C},captionpos=t]
+void countingSort(int arr[], int n, int k) {
+    int count[k+1];
+    int output[n];
+    for(int i=0; i<=k; i++) count[i] = 0;
+    for(int i=0; i<n; i++) count[arr[i]]++;
+    for(int i=1; i<=k; i++) count[i] += count[i-1];
+    for(int i=n-1; i>=0; i--) {
+        output[count[arr[i]]-1] = arr[i];
+        count[arr[i]]--;
+    }
+    for(int i=0; i<n; i++) arr[i] = output[i];
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Counting sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void countingSort(vector<int>& arr, int k) {
+    int n = arr.size();
+    vector<int> count(k + 1, 0), output(n);
+
+    for (int num : arr)
+        count[num]++;
+
+    for (int i = 1; i <= k; i++)
+        count[i] += count[i - 1];
+
+    for (int i = n - 1; i >= 0; i--) {
+        output[count[arr[i]] - 1] = arr[i];
+        count[arr[i]]--;
+    }
+
+    arr = output;
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Counting Sort}. Esse algoritmo não é baseado em comparações diretas, mas sim em contagem de ocorrências de cada elemento, o que o torna capaz de ordenar em tempo linear sob determinadas condições.
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada e $k$ o valor máximo possível de uma chave (isto é, os elementos pertencem ao intervalo $[0, k]$).
+
+O algoritmo \textit{Counting Sort} executa as seguintes etapas principais:
+
+\begin{enumerate}
+    \item Inicialização de um vetor auxiliar $C[0 \ldots k]$ com zeros — custo de $O(k)$.
+    \item Contagem das ocorrências dos elementos — custo de $O(n)$.
+    \item Cálculo do somatório cumulativo em $C$ — custo de $O(k)$.
+    \item Construção do vetor de saída $B[1 \ldots n]$ — custo de $O(n)$.
+\end{enumerate}
+
+Assim, o tempo total de execução $T(n,k)$ pode ser expresso como:
+
+\[
+T(n,k) = a_1\cdot n + a_2\cdot k + b
+\]
+
+onde $a_1$, $a_2$ e $b$ são constantes positivas.
+
+\begin{equation}
+T(n,k) \in O(n + k)
+\end{equation}
+
+\noindent{\textbf{Prova:}}
+
+Sabemos que, para constantes positivas $a_1, a_2, b$, existe uma constante $c = \max(a_1, a_2) + b$ tal que:
+
+\[
+T(n,k) = a_1n + a_2k + b \leq c(n+k)
+\]
+
+para todo $n, k \geq 0$.  
+Logo, existe $c > 0$ e $n_0 \geq 0$ tais que $T(n,k) \leq c(n+k)$ para $n, k \geq n_0$.  
+Portanto,
+
+\[
+T(n,k) \in O(n + k).
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Se $k = O(n)$, isto é, se o intervalo de chaves for proporcional ao tamanho da entrada, então $T(n,k) \in O(n)$ e o algoritmo executa em tempo linear.  
+Caso contrário, se $k \gg n$, o custo torna-se dominado por $k$, e o algoritmo perde eficiência em relação a métodos baseados em comparação ($O(n \log n)$).
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo \textit{Counting Sort} utiliza três estruturas principais:
+
+\begin{itemize}
+    \item O vetor de entrada $A[1 \ldots n]$ — espaço $O(n)$.
+    \item O vetor auxiliar de contagem $C[0 \ldots k]$ — espaço $O(k)$.
+    \item O vetor de saída $B[1 \ldots n]$ — espaço $O(n)$.
+\end{itemize}
+
+O espaço total $S(n,k)$ pode ser expresso como:
+
+\[
+S(n,k) = c_1\cdot n + c_2\cdot k + c_3
+\]
+
+para constantes positivas $c_1, c_2, c_3$.  
+Assim, temos:
+
+\begin{equation}
+S(n,k) \in O(n + k)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Para constantes positivas $c_1, c_2, c_3$, temos
+
+\[
+S(n,k) = c_1n + c_2k + c_3 \leq c(n+k)
+\]
+
+onde $c = \max(c_1, c_2) + c_3$.  
+Portanto, existe $c > 0$ tal que $S(n,k) \leq c(n+k)$ para todo $n,k \geq 0$, e assim
+
+\[
+S(n,k) \in O(n + k).
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+\textit{Counting Sort} não é um algoritmo \textit{in-place}, pois requer memória adicional proporcional ao tamanho de $n$ e $k$.  
+Em contrapartida, ele é estável e pode ser adaptado como sub-rotina em algoritmos como \textit{Radix Sort}.
+
+\section{LSD Radix sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Radix Sort} é um algoritmo de ordenação estável que organiza números inteiros processando seus dígitos individualmente. 
+Na variação \textit{LSD} (\textit{Least Significant Digit}), o processamento ocorre do dígito menos significativo para o mais significativo. 
+Cada etapa utiliza um algoritmo de ordenação estável — normalmente o \textit{Counting Sort} — como sub-rotina.  
+O método é eficiente quando o número de dígitos $d$ é pequeno e o domínio de cada dígito (por exemplo, 0–9 no caso decimal) é limitado.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de sua execução.
+
+\begin{exmp}
+Considere o vetor $A = [170, 45, 75, 90, 802, 24, 2, 66]$.  
+O objetivo é ordená-lo utilizando o \textit{LSD Radix Sort}, aplicando o \textit{Counting Sort} em cada posição decimal (unidades, dezenas e centenas).
+
+\begin{enumerate}
+    \item \textbf{Ordenação pelo dígito das unidades:}  
+    Extraímos o dígito das unidades de cada elemento e aplicamos o \textit{Counting Sort}.  
+    Após esta etapa, o vetor torna-se:
+    \[
+    [170, 90, 802, 2, 24, 45, 75, 66].
+    \]
+
+    \item \textbf{Ordenação pelo dígito das dezenas:}  
+    Repetimos o processo considerando o dígito das dezenas de cada número.  
+    O vetor torna-se:
+    \[
+    [802, 2, 24, 45, 66, 170, 75, 90].
+    \]
+
+    \item \textbf{Ordenação pelo dígito das centenas:}  
+    Finalmente, aplicamos o \textit{Counting Sort} sobre o dígito das centenas, obtendo o vetor final ordenado:
+    \[
+    [2, 24, 45, 66, 75, 90, 170, 802].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{radixSort(values: array of int, n: integer)}
+
+$m \gets$ max(values)\;
+$exp \gets 1$\;
+\While{$m / exp > 0$}{
+    countingSort(values, n, exp)\;
+    $exp \gets exp \times 10$\;
+}
+\caption{LSD Radix sort}
+\label{lab:alg-radixSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Radix sort em Python},captionpos=t]
+def counting_sort_radix(arr, exp):
+    n = len(arr)
+    output = [0] * n
+    count = [0] * 10
+    for num in arr:
+        index = (num // exp) % 10
+        count[index] += 1
+    for i in range(1, 10):
+        count[i] += count[i-1]
+    for num in reversed(arr):
+        index = (num // exp) % 10
+        output[count[index]-1] = num
+        count[index] -= 1
+    return output
+
+def radix_sort(arr):
+    m = max(arr)
+    exp = 1
+    while m // exp > 0:
+        arr = counting_sort_radix(arr, exp)
+        exp *= 10
+    return arr
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Radix sort em C},captionpos=t]
+void countingSortRadix(int arr[], int n, int exp) {
+    int output[n], count[10] = {0};
+    for(int i=0; i<n; i++)
+        count[(arr[i]/exp)%10]++;
+    for(int i=1; i<10; i++)
+        count[i] += count[i-1];
+    for(int i=n-1; i>=0; i--) {
+        output[count[(arr[i]/exp)%10]-1] = arr[i];
+        count[(arr[i]/exp)%10]--;
+    }
+    for(int i=0; i<n; i++) arr[i] = output[i];
+}
+
+void radixSort(int arr[], int n) {
+    int m = arr[0];
+    for(int i=1; i<n; i++)
+        if(arr[i] > m) m = arr[i];
+    int exp = 1;
+    while(m/exp > 0) {
+        countingSort(arr, n, exp);
+        exp *= 10;
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Radix sort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void countingSortRadix(vector<int>& arr, int exp) {
+    int n = arr.size();
+    vector<int> output(n);
+    int count[10] = {0};
+
+    for (int num : arr)
+        count[(num / exp) % 10]++;
+
+    for (int i = 1; i < 10; i++)
+        count[i] += count[i - 1];
+
+    for (int i = n - 1; i >= 0; i--) {
+        int idx = (arr[i] / exp) % 10;
+        output[count[idx] - 1] = arr[i];
+        count[idx]--;
+    }
+
+    arr = output;
+}
+
+void radixSort(vector<int>& arr) {
+    int m = *max_element(arr.begin(), arr.end());
+    for (int exp = 1; m / exp > 0; exp *= 10)
+        countingSortRadix(arr, exp);
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do \textit{LSD Radix Sort}. 
+O algoritmo realiza $d$ iterações do \textit{Counting Sort}, uma para cada dígito do número mais longo, onde $d$ representa o número de dígitos e $k$ o tamanho do domínio dos dígitos (no caso decimal, $k = 10$).
+
+\subsubsection{Complexidade de Tempo}
+
+Cada chamada do \textit{Counting Sort} consome tempo $O(n + k)$, e o algoritmo o executa $d$ vezes.  
+Assim, o tempo total de execução é dado por:
+
+\[
+T(n, d, k) = d \cdot O(n + k) = O(d \cdot (n + k)).
+\]
+
+\noindent{\textbf{Prova:}}
+
+Seja $T_{CS}(n, k) = a_1n + a_2k + b$ o tempo de uma chamada do \textit{Counting Sort}.  
+O \textit{LSD Radix Sort} realiza $d$ dessas chamadas, logo:
+
+\[
+T(n, d, k) = d \cdot (a_1n + a_2k + b) = a_1d n + a_2d k + d b.
+\]
+
+Portanto, existem constantes positivas $c_1, c_2$ tais que:
+
+\[
+T(n, d, k) \leq c_1 d (n + k),
+\]
+o que implica:
+
+\[
+T(n, d, k) \in O(d (n + k)).
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Para números decimais, $k = 10$ é constante, e portanto a complexidade se reduz a:
+
+\[
+T(n, d) = O(d \cdot n).
+\]
+Se o número máximo de dígitos $d$ for proporcional a $\log_{10} M$ (onde $M$ é o maior valor da entrada), temos:
+
+\[
+T(n) = O(n \log M),
+\]
+o que torna o \textit{Radix Sort} mais eficiente que algoritmos de comparação ($O(n \log n)$) quando $d$ é pequeno.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo requer:
+
+\begin{itemize}
+    \item Um vetor de contagem $C[0 \ldots k-1]$ — espaço $O(k)$;
+    \item Um vetor de saída $B[1 \ldots n]$ — espaço $O(n)$;
+    \item O vetor de entrada $A[1 \ldots n]$ — espaço $O(n)$.
+\end{itemize}
+
+Assim, o espaço total utilizado é:
+
+\[
+S(n, k) = c_1n + c_2k + c_3,
+\]
+portanto:
+
+\begin{equation}
+S(n, k) \in O(n + k).
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Para constantes positivas $c_1, c_2, c_3$, temos:
+
+\[
+S(n, k) = c_1n + c_2k + c_3 \leq c(n + k),
+\]
+onde $c = \max(c_1, c_2) + c_3$.  
+Logo, $S(n, k) \in O(n + k)$.
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{LSD Radix Sort} não é um algoritmo \textit{in-place}, pois utiliza vetores auxiliares.  
+Entretanto, mantém a estabilidade e eficiência linear para domínios pequenos de dígitos, sendo amplamente empregado em aplicações numéricas e de processamento de grandes volumes de dados inteiros.
+
+\section{Bucket sort (uniform keys)}
+\subsection{Descrição e Funcionamento}
+O \textit{Bucket Sort} é um algoritmo de ordenação baseado na distribuição dos elementos de entrada em vários \textit{baldes} (\textit{buckets}). 
+Cada balde representa um intervalo do domínio das chaves, e os elementos são distribuídos entre eles de acordo com o valor de suas chaves. 
+Posteriormente, cada balde é ordenado individualmente utilizando um algoritmo de ordenação simples — comumente o \textit{Insertion Sort} — e, finalmente, os baldes são concatenados para formar o vetor ordenado final.
+
+\medskip
+O \textit{Bucket Sort} é particularmente eficiente quando os dados de entrada são \textbf{uniformemente distribuídos} sobre um intervalo contínuo, como $[0, 1)$, e o número de baldes é proporcional ao número de elementos. 
+Nessas condições, o tempo médio de execução é linear.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68]$. 
+Deseja-se ordená-lo utilizando o \textit{Bucket Sort} com chaves uniformes em $[0,1)$ e $n = 10$ baldes.
+
+\begin{enumerate}
+    \item \textbf{Distribuição em baldes:}  
+    Cada elemento $A[i]$ é colocado no balde correspondente ao índice $\lfloor n \cdot A[i] \rfloor$.
+    Assim, temos:
+    \[
+    \begin{aligned}
+    B_0 &= [0.12, 0.17, 0.21, 0.23, 0.26, 0.39],\\
+    B_6 &= [0.68],\\
+    B_7 &= [0.72, 0.78],\\
+    B_9 &= [0.94].
+    \end{aligned}
+    \]
+    Os demais baldes estão vazios.
+
+    \item \textbf{Ordenação individual dos baldes:}  
+    Cada balde é ordenado utilizando o \textit{Insertion Sort}.  
+    Após a ordenação, os baldes ficam:
+    \[
+    B_0 = [0.12, 0.17, 0.21, 0.23, 0.26, 0.39], \quad
+    B_6 = [0.68], \quad
+    B_7 = [0.72, 0.78], \quad
+    B_9 = [0.94].
+    \]
+
+    \item \textbf{Concatenação dos baldes:}  
+    Finalmente, os baldes são concatenados em ordem crescente de índice, resultando no vetor ordenado:
+    \[
+    A = [0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{bucketSort(values: array of float, n: integer)}
+
+\For{$i \gets 0$ \KwTo $n-1$}{
+    place values[i] into the corresponding bucket\;
+}
+\For{each bucket $b$}{
+    sort $b$ using insertionSort\;
+}
+concatenate all buckets in order\;
+
+\caption{Bucket sort (uniform keys)}
+\label{lab:alg-bucketSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Bucket sort em Python},captionpos=t]
+def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i-1
+        while j >=0 and arr[j] > key:
+            arr[j+1] = arr[j]
+            j -= 1
+        arr[j+1] = key
+    return arr
+
+def bucket_sort(arr):
+    n = len(arr)
+    buckets = [[] for _ in range(n)]
+    for num in arr:
+        index = int(n*num)
+        buckets[index].append(num)
+    for i in range(n):
+        buckets[i] = insertion_sort(buckets[i])
+    sorted_arr = []
+    for bucket in buckets:
+        sorted_arr.extend(bucket)
+    return sorted_arr
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Bucket sort em C},captionpos=t]
+void insertionSort(float arr[], int n) {
+    for(int i=1;i<n;i++){
+        float key=arr[i];
+        int j=i-1;
+        while(j>=0 && arr[j]>key){
+            arr[j+1]=arr[j];
+            j--;
+        }
+        arr[j+1]=key;
+    }
+}
+
+void bucketSort(float arr[], int n){
+    float buckets[n][n]; int count[n]={0};
+    for(int i=0;i<n;i++){
+        int index = n*arr[i];
+        buckets[index][count[index]++] = arr[i];
+    }
+    for(int i=0;i<n;i++)
+        insertionSort(buckets[i], count[i]);
+    int idx=0;
+    for(int i=0;i<n;i++)
+        for(int j=0;j<count[i];j++)
+            arr[idx++] = buckets[i][j];
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Bucket sort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void insertionSort(vector<float>& arr) {
+    for (int i = 1; i < arr.size(); i++) {
+        float key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void bucketSort(vector<float>& arr) {
+    int n = arr.size();
+    vector<vector<float>> buckets(n);
+
+    for (float num : arr) {
+        int idx = n * num;
+        buckets[idx].push_back(num);
+    }
+
+    for (auto& b : buckets)
+        insertionSort(b);
+
+    arr.clear();
+    for (auto& b : buckets)
+        arr.insert(arr.end(), b.begin(), b.end());
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Bucket Sort} para o caso de chaves uniformemente distribuídas.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada e $B[0 \ldots n-1]$ os baldes criados.  
+O algoritmo executa as seguintes etapas principais:
+
+\begin{enumerate}
+    \item Distribuição dos $n$ elementos entre os $n$ baldes — custo de $O(n)$.
+    \item Ordenação individual dos elementos em cada balde usando \textit{Insertion Sort}.
+    \item Concatenação dos baldes — custo de $O(n)$.
+\end{enumerate}
+
+\medskip
+No caso médio, assumindo que as chaves são \textbf{uniformemente distribuídas} em $[0,1)$, o número esperado de elementos em cada balde é $1$.  
+Assim, o custo esperado para ordenar cada balde é constante, e o custo total esperado é linear.
+
+\begin{equation}
+T_{\text{médio}}(n) = O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Seja $n_i$ o número de elementos no balde $i$, com $\sum_{i=0}^{n-1} n_i = n$.  
+O custo do \textit{Insertion Sort} em cada balde é proporcional a $O(n_i^2)$.  
+Logo, o tempo total é dado por:
+\[
+T(n) = O(n) + \sum_{i=0}^{n-1} O(n_i^2)
+\]
+
+Como os elementos são distribuídos uniformemente, o valor esperado de $n_i$ é $1$, e pela linearidade da expectativa:
+
+\[
+E[T(n)] = O(n) + n \cdot O(1^2) = O(n)
+\]
+
+Portanto,
+\[
+T_{\text{médio}}(n) \in O(n).
+\]
+$\hfill\Box$
+
+\medskip
+No \textbf{pior caso}, todos os elementos podem cair em um único balde, resultando na execução do \textit{Insertion Sort} sobre todos os elementos.
+
+\begin{equation}
+T_{pior}(n) = O(n^2)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Se todos os elementos caírem no mesmo balde, teremos $n_0 = n$ e os demais $n_i = 0$.  
+Assim,
+\[
+T(n) = O(n) + O(n_0^2) = O(n^2)
+\]
+$\hfill\Box$
+
+\medskip
+\noindent{\textbf{Discussão:}}  
+O desempenho do \textit{Bucket Sort} depende fortemente da distribuição dos dados.  
+Para distribuições uniformes, a complexidade é linear; para distribuições não uniformes, pode degradar para quadrática.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo utiliza as seguintes estruturas:
+
+\begin{itemize}
+    \item O vetor de entrada $A[1 \ldots n]$ — espaço $O(n)$.
+    \item $n$ baldes, cada um armazenando parte dos elementos — espaço total $O(n)$.
+\end{itemize}
+
+Assim, o espaço total $S(n)$ é:
+
+\[
+S(n) = c_1\cdot n + c_2\cdot n + c_3
+\]
+
+para constantes positivas $c_1, c_2, c_3$.
+
+\begin{equation}
+S(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Como cada elemento é copiado exatamente uma vez para um balde, o espaço adicional é linear no tamanho da entrada:
+\[
+S(n) = O(n) + O(n) = O(n)
+\]
+$\hfill\Box$
+
+\medskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Bucket Sort} não é um algoritmo \textit{in-place}, pois requer espaço adicional para os baldes.  
+Entretanto, para dados uniformemente distribuídos, oferece uma excelente relação entre tempo e espaço, tornando-se um método eficiente e estável quando combinado com um algoritmo de ordenação estável, como o \textit{Insertion Sort}.
+
+\section{Spreadsort}
+\subsection{Descrição e Funcionamento}
+O \textit{Spreadsort} é um algoritmo híbrido de ordenação que combina técnicas de ordenação por distribuição (como o \textit{Bucket Sort} e o \textit{Radix Sort}) com métodos de ordenação por comparação (como o \textit{Quicksort}). Seu objetivo é aproveitar o melhor dos dois mundos: a eficiência de algoritmos lineares em casos bem distribuídos e a robustez dos métodos baseados em comparação para casos adversos.
+
+\medskip
+A ideia central do \textit{Spreadsort} é dividir o conjunto de dados em múltiplos intervalos (\textit{buckets}) de acordo com os bits ou dígitos mais significativos das chaves. Dentro de cada \textit{bucket}, o algoritmo decide recursivamente se deve continuar subdividindo os dados (espalhando-os mais) ou aplicar diretamente um algoritmo de ordenação local (como o \textit{Insertion Sort} ou o \textit{std::sort} do C++). Essa decisão é baseada no tamanho e na dispersão dos elementos em cada intervalo.
+
+\medskip
+O \textit{Spreadsort} é especialmente eficiente para ordenar números de ponto flutuante (\texttt{float}) ou inteiros grandes, sendo capaz de atingir desempenho sublinear em relação a algoritmos puramente baseados em comparação.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo do funcionamento do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [0.42, 0.32, 0.23, 0.52, 0.25, 0.47, 0.51]$.  
+O objetivo é ordená-lo utilizando o \textit{Spreadsort}.
+
+\begin{enumerate}
+    \item \textbf{Espalhamento inicial:}  
+    O algoritmo determina o intervalo mínimo e máximo de $A$:  
+    \[
+    \text{min} = 0.23, \quad \text{max} = 0.52.
+    \]  
+    Divide o intervalo em $b = 3$ \textit{buckets}, cada um cobrindo uma faixa de valores:
+    \[
+    B_1: [0.23, 0.33), \quad B_2: [0.33, 0.43), \quad B_3: [0.43, 0.53).
+    \]
+    
+    \item \textbf{Distribuição dos elementos:}  
+    Cada elemento de $A$ é colocado no \textit{bucket} correspondente:
+    \[
+    B_1 = [0.32, 0.23, 0.25], \quad B_2 = [0.42], \quad B_3 = [0.52, 0.47, 0.51].
+    \]
+    
+    \item \textbf{Ordenação local:}  
+    Cada \textit{bucket} é ordenado usando um método local (por exemplo, \textit{Insertion Sort}):
+    \[
+    B_1 = [0.23, 0.25, 0.32], \quad B_2 = [0.42], \quad B_3 = [0.47, 0.51, 0.52].
+    \]
+    
+    \item \textbf{Concatenação dos resultados:}  
+    Os \textit{buckets} ordenados são concatenados:
+    \[
+    A = [0.23, 0.25, 0.32, 0.42, 0.47, 0.51, 0.52].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{spreadsort(values: array of int, n: integer)}
+
+\If{$n \leq 1$}{
+    \Return
+}
+Distribute $values$ into intervals based on most significant bits\;
+\For{each interval $b$}{
+    \textbf{spreadsort}($b$)\;
+}
+Concatenate all sorted intervals\;
+\caption{Spreadsort}
+\label{lab:alg-spreadsort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\vspace{1em}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Spreadsort em Python},captionpos=t]
+def spreadsort(arr):
+    if len(arr) <= 1:
+        return arr
+    min_val, max_val = min(arr), max(arr)
+    if min_val == max_val:
+        return arr
+    pivot = (min_val + max_val) // 2
+    left = [x for x in arr if x <= pivot]
+    right = [x for x in arr if x > pivot]
+    return spreadsort(left) + spreadsort(right)
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Spreadsort em C},captionpos=t]
+#include <stdio.h>
+
+void spreadsort(int arr[], int left, int right) {
+    if(right - left <= 1) return;
+    int min = arr[left], max = arr[left];
+    for(int i = left+1; i < right; i++) {
+        if(arr[i] < min) min = arr[i];
+        if(arr[i] > max) max = arr[i];
+    }
+    if(min == max) return;
+
+    int pivot = (min + max) / 2;
+    int i = left, j = right-1;
+    while(i <= j) {
+        while(arr[i] <= pivot) i++;
+        while(arr[j] > pivot) j--;
+        if(i < j) { int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp; i++; j--; }
+    }
+    spreadsort(arr, left, i);
+    spreadsort(arr, i, right);
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Spreadsort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void spreadsort(vector<int>& arr, int left, int right) {
+    if(right - left <= 1) return;
+    int min_val = *min_element(arr.begin() + left, arr.begin() + right);
+    int max_val = *max_element(arr.begin() + left, arr.begin() + right);
+    if(min_val == max_val) return;
+
+    int pivot = (min_val + max_val)/2;
+    int i = left, j = right-1;
+    while(i <= j) {
+        while(arr[i] <= pivot) i++;
+        while(arr[j] > pivot) j--;
+        if(i < j) swap(arr[i++], arr[j--]);
+    }
+    spreadsort(arr, left, i);
+    spreadsort(arr, i, right);
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Spreadsort}.  
+Sua análise é mais complexa que a de algoritmos puramente comparativos, pois depende da distribuição dos dados e do número de subdivisões (\textit{spreads}) realizadas.
+
+\subsubsection{Complexidade de Tempo}
+Em condições ideais, em que os elementos estão uniformemente distribuídos e a profundidade de espalhamento é limitada, o custo total do \textit{Spreadsort} pode ser aproximado por:
+
+\begin{equation}
+T(n) = O(n \log n / k) + O(k \cdot n_b)
+\end{equation}
+
+onde $k$ é o número médio de \textit{buckets} por nível e $n_b$ é o tamanho médio de cada \textit{bucket}.  
+Assumindo que cada \textit{bucket} tem tamanho constante e que o espalhamento reduz adequadamente a dispersão, temos:
+
+\begin{equation}
+T(n) \approx O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Em cada nível de recursão, os elementos são distribuídos em $k$ \textit{buckets}, operação que custa $O(n)$.  
+Se cada \textit{bucket} contiver em média $n/k$ elementos, a ordenação local de todos os baldes tem custo $O(k \cdot (n/k) \log(n/k)) = O(n \log(n/k))$.  
+Como $k$ cresce aproximadamente com $\log n$, temos:
+
+\[
+T(n) = O(n \log(n / \log n)) = O(n \log n - n \log \log n)
+\]
+
+Ignorando termos de menor ordem, o tempo médio é $O(n \log n)$, e para distribuições uniformes (caso ideal), o espalhamento domina o custo, resultando em comportamento linear.
+
+\begin{equation}
+T_{\text{médio}}(n) \in O(n)
+\end{equation}
+
+No pior caso, quando todos os elementos caem em um único \textit{bucket}, a ordenação interna (por comparação) é utilizada, resultando em:
+
+\begin{equation}
+T_{\text{pior}}(n) \in O(n \log n)
+\end{equation}
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Spreadsort} combina as vantagens do \textit{Bucket Sort} (linearidade média) com a segurança do \textit{Quicksort} em casos adversos.  
+Assim, ele é linear na prática para dados bem distribuídos e possui limite superior $O(n \log n)$, tornando-o adequado para aplicações genéricas de alto desempenho.
+
+\subsubsection{Complexidade de Espaço}
+O \textit{Spreadsort} requer memória adicional para armazenar os \textit{buckets} e as listas temporárias de distribuição.  
+Seja $b$ o número de \textit{buckets}. Cada elemento pertence a exatamente um \textit{bucket}, logo o espaço total é:
+
+\[
+S(n, b) = O(n + b)
+\]
+
+\begin{equation}
+S(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Como cada elemento é copiado apenas uma vez durante o espalhamento, e cada \textit{bucket} requer um ponteiro e metadados constantes, temos:
+
+\[
+S(n,b) = c_1 n + c_2 b + c_3 \leq c(n + b)
+\]
+
+Para $b \leq n$, segue que $S(n,b) \leq 2cn = O(n)$.  
+Assim, o espaço adicional é linear no tamanho da entrada.
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+Apesar de não ser um algoritmo \textit{in-place}, o \textit{Spreadsort} mantém o uso de memória dentro de limites práticos e é estável quando aplicado sobre tipos numéricos.  
+Sua eficiência o torna particularmente útil para grandes volumes de dados de ponto flutuante distribuídos de forma quase uniforme.
+
+
+
+
+
+
+
+\section{Burstsort}
+\subsection{Descrição e Funcionamento}
+
+O \textit{Burstsort} é um algoritmo de ordenação baseado em \textit{tries} (árvores de prefixos) projetado para ordenar conjuntos de cadeias de caracteres de forma eficiente, especialmente quando o volume de dados é grande e os prefixos são compartilhados. Ele é uma variação otimizada de métodos de ordenação baseados em distribuição, como o \textit{Radix Sort}, e busca minimizar o custo de movimentação de strings longas durante o processo de ordenação.
+
+\medskip
+O funcionamento do \textit{Burstsort} pode ser resumido em três etapas principais:
+
+\begin{enumerate}
+    \item As cadeias de caracteres são inseridas em uma \textit{trie} (árvore prefixada). Cada nó interno da \textit{trie} contém ponteiros para nós filhos e, eventualmente, para um conjunto de \textit{baldes} (\textit{buckets}).
+    \item Quando o número de cadeias em um \textit{bucket} excede um limite pré-definido (um “limite de estouro”), esse \textit{bucket} é “explodido” (\textit{burst}) — ou seja, ele é expandido em novos nós filhos na \textit{trie}, de modo que as cadeias de caracteres armazenadas sejam redistribuídas de acordo com seus próximos caracteres.
+    \item Após a construção completa da \textit{trie}, cada \textit{bucket} é ordenado individualmente, geralmente usando um algoritmo simples como o \textit{Insertion Sort}. Por fim, as strings são concatenadas em ordem lexicográfica percorrendo a \textit{trie} em ordem pré-fixada.
+\end{enumerate}
+
+O \textit{Burstsort} apresenta excelente desempenho prático em conjuntos de dados reais contendo cadeias de caracteres longas e com prefixos compartilhados, pois explora a localidade de cache e reduz o custo de movimentação de dados.
+
+\medskip
+A seguir, é apresentado um exemplo ilustrativo de execução do algoritmo.
+
+\begin{exmp}
+Considere o conjunto de strings $S = [\texttt{bat}, \texttt{bar}, \texttt{barn}, \texttt{banana}, \texttt{bad}, \texttt{apple}]$. O objetivo é ordená-las utilizando o \textit{Burstsort}.
+
+\begin{enumerate}
+    \item \textbf{Construção da trie inicial:}  
+    As strings são inseridas caractere a caractere na \textit{trie}. Cada caminho de raiz a folha representa um prefixo comum.
+
+    \item \textbf{Distribuição em buckets:}  
+    Os nós terminais acumulam as strings correspondentes. Suponha que cada \textit{bucket} possa conter no máximo 2 elementos. Quando um \textit{bucket} excede essa capacidade, ele é “explodido” e redistribuído em novos nós.  
+    Por exemplo, o \textit{bucket} contendo \texttt{bat}, \texttt{bar}, e \texttt{barn} é dividido em subnós com base na próxima letra após o prefixo \texttt{ba}.
+
+    \item \textbf{Ordenação local e concatenação:}  
+    Cada \textit{bucket} é ordenado internamente usando \textit{Insertion Sort}. Em seguida, percorremos a \textit{trie} em ordem lexicográfica e concatenamos os resultados:
+    \[
+    [\texttt{apple}, \texttt{bad}, \texttt{banana}, \texttt{bar}, \texttt{barn}, \texttt{bat}]
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{burstsort(words: array of string)}
+
+\If{$|words| \leq 1$}{\Return}
+Build a prefix trie\;
+\For{each bucket $b$ in trie}{
+    sort $b$ internally (e.g., insertion sort)\;
+}
+Concatenate buckets in lexicographic order\;
+\caption{Burstsort}
+\label{lab:alg-burstsort}
+\end{algorithm}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Burstsort em Python},captionpos=t]
+def burstsort(arr):
+    buckets = [[] for _ in range(256)]
+    for s in arr:
+        buckets[ord(s[0])].append(s)
+    sorted_arr = []
+    for b in buckets:
+        sorted_arr.extend(b)
+    return sorted_arr
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Burstsort em C},captionpos=t]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_STR 100
+typedef struct Node {
+    char* str;
+    struct Node* next;
+} Node;
+
+void burstsort(char* arr[], int n) {
+    Node* buckets[256] = {NULL};
+    for(int i=0;i<n;i++){
+        unsigned char c = (unsigned char)arr[i][0];
+        Node* node = malloc(sizeof(Node));
+        node->str = arr[i];
+        node->next = buckets[c];
+        buckets[c] = node;
+    }
+    int index = 0;
+    for(int i=0;i<256;i++){
+        Node* current = buckets[i];
+        while(current){
+            arr[index++] = current->str;
+            Node* tmp = current;
+            current = current->next;
+            free(tmp);
+        }
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Burstsort em C++},captionpos=t]
+#include <vector>
+#include <string>
+#include <list>
+using namespace std;
+
+void burstsort(vector<string>& arr) {
+    list<string> buckets[256];
+    for(const auto& s : arr) buckets[(unsigned char)s[0]].push_back(s);
+    arr.clear();
+    for(int i=0;i<256;i++)
+        for(auto& s : buckets[i]) arr.push_back(s);
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+
+Nesta seção, analisamos as complexidades de tempo e espaço do algoritmo \textit{Burstsort}, levando em consideração a construção da \textit{trie}, as operações de estouro (\textit{burst}) e a ordenação local em cada \textit{bucket}.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de strings, $m$ o comprimento médio das strings e $b$ o número médio de elementos por \textit{bucket}.
+
+A complexidade do algoritmo pode ser decomposta em três componentes principais:
+
+\begin{enumerate}
+    \item \textbf{Construção da trie:}  
+    Cada caractere é processado uma única vez durante a inserção, com custo $O(nm)$.
+
+    \item \textbf{Operações de estouro (burst):}  
+    Cada \textit{burst} redistribui no máximo $b$ elementos em novos nós, e cada string participa de um número limitado de \textit{bursts}. Assim, o custo total permanece proporcional a $O(nm)$.
+
+    \item \textbf{Ordenação local dos buckets:}  
+    Cada \textit{bucket} é ordenado usando \textit{Insertion Sort}, com custo $O(b^2)$ por \textit{bucket}. Considerando $\frac{n}{b}$ buckets em média, o custo total é $O(\frac{n}{b} \cdot b^2) = O(nb)$.
+\end{enumerate}
+
+Somando todas as etapas, temos:
+
+\[
+T(n, m, b) = O(nm) + O(nb)
+\]
+
+Como, na prática, $b$ é pequeno (e constante), o termo $O(nb)$ é dominado por $O(nm)$.
+
+\begin{equation}
+T(n, m, b) \in O(nm)
+\end{equation}
+
+\noindent{\textbf{Prova:}}
+
+Sejam $a_1, a_2 > 0$ constantes. Então:
+
+\[
+T(n,m,b) = a_1nm + a_2nb \leq (a_1 + a_2b)m n
+\]
+
+Como $b$ é limitado por uma constante, existe $c > 0$ tal que $T(n,m,b) \leq c\, n m$ para todo $n,m \geq 0$. Assim,
+
+\[
+T(n,m,b) \in O(nm)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+No caso médio, o \textit{Burstsort} apresenta desempenho superior a algoritmos baseados em comparação, atingindo tempos próximos de $O(n)$ para conjuntos de dados grandes com prefixos compartilhados. No pior caso (strings completamente distintas e longas), o tempo pode crescer até $O(nm)$.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo \textit{Burstsort} utiliza as seguintes estruturas:
+
+\begin{itemize}
+    \item A \textit{trie} de prefixos — ocupa $O(nm)$ no pior caso (quando não há prefixos compartilhados).
+    \item Os \textit{buckets} — total de $O(n)$, pois cada string é armazenada exatamente uma vez.
+    \item Estruturas auxiliares para ordenação local — $O(b)$ por \textit{bucket}, no total $O(n)$.
+\end{itemize}
+
+Assim, o espaço total $S(n,m)$ é dado por:
+
+\[
+S(n,m) = O(nm) + O(n)
+\]
+
+Como o termo $O(nm)$ domina o crescimento assintótico, temos:
+
+\begin{equation}
+S(n,m) \in O(nm)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Existe uma constante $c > 0$ tal que:
+
+\[
+S(n,m) = c_1nm + c_2n \leq c(nm)
+\]
+
+para todo $n,m \geq 0$. Logo,
+
+\[
+S(n,m) \in O(nm)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Burstsort} consome mais memória do que algoritmos baseados em comparação, pois precisa armazenar explicitamente a estrutura da \textit{trie}. No entanto, essa estrutura permite um desempenho significativamente melhor em dados com prefixos comuns e é altamente eficiente em arquiteturas com hierarquia de cache.
+
+
+
+
+
+
+
+\section{Flashsort}
+\subsection{Descrição e Funcionamento}
+O \textit{Flashsort} é um algoritmo de ordenação extremamente eficiente para dados que possuem distribuição aproximadamente uniforme. 
+Ele se baseia na ideia de classificar os elementos em \textit{classes} (ou \textit{buckets}) de acordo com a posição que cada elemento deveria ocupar na ordem final, e então aplicar uma fase de redistribuição e ordenação local dentro de cada classe.
+
+O algoritmo é composto por três fases principais:
+
+\begin{enumerate}
+    \item \textbf{Classificação em classes:}  
+    O vetor é dividido em $m$ classes, determinadas com base no valor mínimo ($A_{\min}$) e máximo ($A_{\max}$) dos elementos.  
+    Cada elemento $A[i]$ é atribuído a uma classe $L[k]$ segundo a fórmula:
+    \[
+    k = \left\lfloor (m-1) \cdot \frac{A[i] - A_{\min}}{A_{\max} - A_{\min}} \right\rfloor + 1
+    \]
+    Cada classe armazena o número de elementos que nela pertencem.
+
+    \item \textbf{Redistribuição (fase de permutação):}  
+    Os elementos são rearranjados de forma que cada classe ocupe uma região contígua do vetor. Isso é feito percorrendo o vetor e movendo cada elemento para sua classe correta, semelhante a uma etapa de distribuição.
+
+    \item \textbf{Ordenação local:}  
+    Após a redistribuição, cada classe é ordenada individualmente utilizando um algoritmo de ordenação simples, como o \textit{Insertion Sort}.
+\end{enumerate}
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo da execução do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [0.89, 0.12, 0.56, 0.34, 0.78, 0.15, 0.67, 0.43]$.  
+Deseja-se ordená-lo utilizando o \textit{Flashsort} com $m = 4$ classes.
+
+\begin{enumerate}
+    \item \textbf{Determinação dos limites e classes:}  
+    O valor mínimo é $A_{\min} = 0.12$ e o máximo é $A_{\max} = 0.89$.  
+    O coeficiente de classificação é:
+    \[
+    c = \frac{(m-1)}{A_{\max} - A_{\min}} = \frac{3}{0.77} \approx 3.896.
+    \]
+    Cada elemento é classificado conforme:
+    \[
+    k = \lfloor c \cdot (A[i] - A_{\min}) \rfloor + 1.
+    \]
+    Assim, as classes são:
+    \begin{align*}
+        0.12, 0.15 &\rightarrow L_1 \\
+        0.34, 0.43 &\rightarrow L_2 \\
+        0.56, 0.67 &\rightarrow L_3 \\
+        0.78, 0.89 &\rightarrow L_4
+    \end{align*}
+
+    \item \textbf{Redistribuição dos elementos:}  
+    O vetor é reorganizado de modo que os elementos de cada classe fiquem próximos:
+    \[
+    A = [0.12, 0.15, 0.34, 0.43, 0.56, 0.67, 0.78, 0.89].
+    \]
+
+    \item \textbf{Ordenação local:}  
+    Cada classe é ordenada individualmente (usando \textit{Insertion Sort}), mas neste caso já estão em ordem dentro de cada faixa.  
+    Logo, o vetor final ordenado é:
+    \[
+    A = [0.12, 0.15, 0.34, 0.43, 0.56, 0.67, 0.78, 0.89].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{flashsort(values: array of int, n: integer)}
+
+\If{$n \leq 1$}{\Return}
+Determine number of classes $m$\;
+Compute class positions for each element\;
+Distribute elements into their classes\;
+Sort each class locally\;
+Concatenate all classes\;
+\caption{Flashsort}
+\label{lab:alg-flashsort}
+\end{algorithm}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Flashsort em Python},captionpos=t]
+def flashsort(arr):
+    n = len(arr)
+    m = int(0.45*n)
+    L = [0]*m
+    min_val, max_val = min(arr), max(arr)
+    if min_val==max_val: return arr
+    c1 = (m-1)/(max_val-min_val)
+    for x in arr:
+        k = int(c1*(x-min_val))
+        L[k]+=1
+    for i in range(1,m):
+        L[i]+=L[i-1]
+    count, j = 0, 0
+    while count<n:
+        while j>=len(L): L.pop()
+        evicted = arr[j]
+        while True:
+            k = int(c1*(evicted-min_val))
+            arr[L[k]-1], evicted = evicted, arr[L[k]-1]
+            L[k]-=1
+            count+=1
+            if j==L[k]: break
+        j+=1
+    return arr
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Flashsort em C},captionpos=t]
+#include <stdio.h>
+
+void flashsort(int arr[], int n) {
+    int m = (int)(0.45*n);
+    int L[m];
+    for(int i=0;i<m;i++) L[i]=0;
+
+    int min=arr[0], max=arr[0];
+    for(int i=1;i<n;i++){
+        if(arr[i]<min) min=arr[i];
+        if(arr[i]>max) max=arr[i];
+    }
+    if(min==max) return;
+
+    double c1 = (double)(m-1)/(max-min);
+    for(int i=0;i<n;i++){
+        int k = (int)(c1*(arr[i]-min));
+        L[k]++;
+    }
+    for(int i=1;i<m;i++) L[i]+=L[i-1];
+
+    int count=0,j=0,k=m-1;
+    while(count<n){
+        while(j>=L[k]) k--;
+        int evicted=arr[j];
+        while(j!=L[k]-1){
+            k=(int)(c1*(evicted-min));
+            int tmp=arr[L[k]-1];
+            arr[L[k]-1]=evicted;
+            evicted=tmp;
+            L[k]--;
+            count++;
+        }
+        count++;
+        j++;
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Flashsort em C++},captionpos=t]
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void flashsort(vector<int>& arr) {
+    int n = arr.size();
+    int m = int(0.45*n);
+    vector<int> L(m,0);
+
+    int min_val = *min_element(arr.begin(), arr.end());
+    int max_val = *max_element(arr.begin(), arr.end());
+    if(min_val==max_val) return;
+
+    double c1 = (double)(m-1)/(max_val-min_val);
+    for(int i=0;i<n;i++){
+        int k=int(c1*(arr[i]-min_val));
+        L[k]++;
+    }
+    for(int i=1;i<m;i++) L[i]+=L[i-1];
+
+    int count=0, j=0, k=m-1;
+    while(count<n){
+        while(j>=L[k]) k--;
+        int evicted=arr[j];
+        while(j!=L[k]-1){
+            k=int(c1*(evicted-min_val));
+            swap(evicted, arr[L[k]-1]);
+            L[k]--;
+            count++;
+        }
+        count++;
+        j++;
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Flashsort}, considerando uma distribuição aproximadamente uniforme dos dados.
+
+\subsubsection{Complexidade de Tempo}
+
+O algoritmo realiza três fases principais:
+
+\begin{enumerate}
+    \item Classificação dos elementos em classes — $O(n)$.
+    \item Redistribuição e movimentação dos elementos — $O(n)$.
+    \item Ordenação local em cada classe — custo depende da distribuição, tipicamente $O(n)$ no caso médio (pois cada classe contém poucos elementos).
+\end{enumerate}
+
+Portanto, para uma distribuição uniforme, o tempo total é linear no número de elementos:
+
+\begin{equation}
+T(n) = O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}
+
+Seja $m = \alpha n$, com $0 < \alpha < 1$ constante.  
+O custo de classificar e redistribuir é linear:
+\[
+T_1(n) + T_2(n) = a_1 n + a_2 n = O(n)
+\]
+A etapa de ordenação local usa \textit{Insertion Sort}, que tem complexidade $O(n_i^2)$ para uma classe com $n_i$ elementos.  
+Somando para todas as classes:
+\[
+\sum_{i=1}^{m} O(n_i^2)
+\]
+Para dados uniformemente distribuídos, $n_i \approx \frac{n}{m}$, logo:
+\[
+\sum_{i=1}^{m} O\left(\frac{n^2}{m^2}\right) = m \cdot O\left(\frac{n^2}{m^2}\right) = O\left(\frac{n^2}{m}\right)
+\]
+Como $m = \alpha n$, temos:
+\[
+O\left(\frac{n^2}{m}\right) = O(n)
+\]
+Portanto, o custo total é linear.
+
+No entanto, em casos não uniformes, algumas classes podem conter muitos elementos, levando a uma complexidade quadrática no pior caso:
+\begin{equation}
+T_{\text{worst}}(n) = O(n^2)
+\end{equation}
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Flashsort} é extremamente rápido para dados bem distribuídos, podendo superar algoritmos baseados em comparação como \textit{QuickSort}. Contudo, sua eficiência depende fortemente da uniformidade da distribuição das chaves.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo requer estruturas auxiliares para armazenar as contagens e limites de classes.
+
+\begin{itemize}
+    \item Vetor de entrada $A[1 \ldots n]$ — $O(n)$.
+    \item Vetor de classes $L[1 \ldots m]$ — $O(m)$.
+\end{itemize}
+
+Logo, o espaço total é:
+
+\[
+S(n) = c_1 n + c_2 m + c_3
+\]
+
+Assumindo $m = \alpha n$, temos:
+
+\begin{equation}
+S(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Para constantes positivas $c_1, c_2, c_3$, temos:
+\[
+S(n) = c_1n + c_2m + c_3 \leq c(n + m)
+\]
+Com $m = \alpha n$, segue que $S(n) \leq c'(n)$, para alguma constante $c' > 0$.  
+Logo:
+\[
+S(n) \in O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Flashsort} requer espaço adicional proporcional ao tamanho da entrada, mas continua sendo eficiente em memória.  
+Ele não é \textit{in-place}, embora a maior parte das operações ocorra dentro do próprio vetor.
+
+\section{Postman Sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Postman Sort} é um algoritmo de ordenação baseado no princípio da distribuição e coleta de elementos em \textit{baldes} (\textit{buckets}), de forma semelhante ao \textit{Bucket Sort}. O nome “Postman” é uma analogia ao trabalho do carteiro que distribui cartas em caixas postais (baldes) de acordo com um critério de classificação (por exemplo, o endereço), e depois recolhe as cartas em ordem para formar a sequência final ordenada.
+
+\medskip
+O algoritmo é projetado para ordenar números reais uniformemente distribuídos no intervalo $[0,1)$. Ele divide o intervalo em um conjunto de $n$ baldes (ou caixas), distribui os elementos de entrada nesses baldes com base em seus valores e, em seguida, ordena individualmente os elementos de cada balde utilizando um algoritmo de ordenação simples, como o \textit{Insertion Sort}. Finalmente, os baldes são concatenados em ordem crescente para obter o vetor ordenado.
+
+\medskip
+O \textit{Postman Sort} explora o fato de que, para distribuições uniformes, é provável que os elementos fiquem bem distribuídos entre os baldes, permitindo que o custo total da ordenação de cada balde seja pequeno, resultando em uma ordenação linear no caso médio.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo do funcionamento do algoritmo.
+
+\begin{exmp}
+Considere o vetor $A = [0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68]$ com $n = 10$ elementos. O objetivo é ordená-lo utilizando o \textit{Postman Sort}.
+
+\begin{enumerate}
+    \item \textbf{Criação dos baldes:}  
+    Criamos $n = 10$ baldes vazios, correspondentes aos intervalos:
+    \[
+    [0, 0.1), [0.1, 0.2), [0.2, 0.3), \ldots, [0.9, 1.0)
+    \]
+
+    \item \textbf{Distribuição dos elementos:}  
+    Cada elemento $A[i]$ é colocado no balde correspondente ao intervalo que contém seu valor. Por exemplo:
+    \[
+    \begin{array}{ll}
+    0.78 \rightarrow \text{balde } 7, & 0.17 \rightarrow \text{balde } 1, \\
+    0.39 \rightarrow \text{balde } 3, & 0.26 \rightarrow \text{balde } 2, \\
+    0.72 \rightarrow \text{balde } 7, & 0.94 \rightarrow \text{balde } 9, \\
+    0.21 \rightarrow \text{balde } 2, & 0.12 \rightarrow \text{balde } 1, \\
+    0.23 \rightarrow \text{balde } 2, & 0.68 \rightarrow \text{balde } 6. \\
+    \end{array}
+    \]
+
+    \item \textbf{Ordenação individual dos baldes:}  
+    Cada balde é ordenado individualmente usando o \textit{Insertion Sort}. Por exemplo:
+    \[
+    \text{balde } 1 = [0.17, 0.12] \rightarrow [0.12, 0.17]
+    \]
+    \[
+    \text{balde } 2 = [0.26, 0.21, 0.23] \rightarrow [0.21, 0.23, 0.26]
+    \]
+
+    \item \textbf{Concatenação:}  
+    Finalmente, os baldes são concatenados em ordem crescente, produzindo o vetor final:
+    \[
+    A = [0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{postmanSort(values: array of int, n: integer, d: integer)}
+
+\For{$i \gets 0$ \KwTo $d-1$}{
+    Apply \textbf{Counting Sort} based on the $i$-th digit\;
+}
+\caption{Postman sort}
+\label{lab:alg-postmansort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Postman Sort em Python},captionpos=t]
+def postman_sort(arr, base=10):
+    max_val = max(arr)
+    exp = 1
+    n = len(arr)
+    output = [0]*n
+    while max_val//exp > 0:
+        count = [0]*base
+        for num in arr:
+            count[(num//exp)%base] += 1
+        for i in range(1, base):
+            count[i] += count[i-1]
+        for i in reversed(range(n)):
+            idx = (arr[i]//exp)%base
+            output[count[idx]-1] = arr[i]
+            count[idx] -= 1
+        arr = output[:]
+        exp *= base
+    return arr
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Postman Sort em C},captionpos=t]
+#include <stdio.h>
+#include <string.h>
+
+void postmanSort(int arr[], int n, int base) {
+    int max=arr[0]; for(int i=1;i<n;i++) if(arr[i]>max) max=arr[i];
+    int exp=1;
+    int output[n];
+    while(max/exp>0){
+        int count[base]; for(int i=0;i<base;i++) count[i]=0;
+        for(int i=0;i<n;i++) count[(arr[i]/exp)%base]++;
+        for(int i=1;i<base;i++) count[i]+=count[i-1];
+        for(int i=n-1;i>=0;i--){
+            output[count[(arr[i]/exp)%base]-1]=arr[i];
+            count[(arr[i]/exp)%base]--;
+        }
+        for(int i=0;i<n;i++) arr[i]=output[i];
+        exp*=base;
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Postman Sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void postmanSort(vector<int>& arr, int base) {
+    int n=arr.size();
+    int max_val=*max_element(arr.begin(), arr.end());
+    int exp=1;
+    vector<int> output(n);
+    while(max_val/exp>0){
+        vector<int> count(base,0);
+        for(int num: arr) count[(num/exp)%base]++;
+        for(int i=1;i<base;i++) count[i]+=count[i-1];
+        for(int i=n-1;i>=0;i--){
+            output[count[(arr[i]/exp)%base]-1]=arr[i];
+            count[(arr[i]/exp)%base]--;
+        }
+        arr=output;
+        exp*=base;
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos as complexidades de tempo e espaço do algoritmo \textit{Postman Sort}. Assim como o \textit{Bucket Sort}, seu desempenho depende fortemente da distribuição dos dados de entrada.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos de entrada. O algoritmo realiza as seguintes etapas:
+
+\begin{enumerate}
+    \item Distribuição dos $n$ elementos nos $n$ baldes — custo $O(n)$.
+    \item Ordenação de cada balde com \textit{Insertion Sort}.  
+    Supondo uma distribuição uniforme, o tamanho esperado de cada balde é $1$, e o custo médio de ordenação de um balde é constante. Assim, o custo total esperado é $O(n)$.
+    \item Concatenação dos baldes — custo $O(n)$.
+\end{enumerate}
+
+Portanto, no caso médio:
+
+\[
+T_{\text{médio}}(n) = c_1n + c_2n + c_3n = O(n)
+\]
+
+\begin{equation}
+T_{\text{médio}}(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Assumindo distribuição uniforme dos valores no intervalo $[0,1)$, a probabilidade de um elemento pertencer a um balde específico é $1/n$. Logo, o número esperado de elementos por balde é $1$, e o custo esperado de ordenação de cada balde é constante. Assim,
+\[
+E[T(n)] = O(n)
+\]
+$\hfill\Box$
+
+\bigskip
+No entanto, no pior caso (por exemplo, se todos os elementos caem no mesmo balde), o algoritmo reduz-se a um \textit{Insertion Sort}, com custo de $O(n^2)$.
+
+\begin{equation}
+T_{pior}(n) \in O(n^2)
+\end{equation}
+
+\noindent{\textbf{Discussão:}}  
+Portanto, o desempenho do \textit{Postman Sort} é altamente dependente da distribuição dos dados. Para dados uniformemente distribuídos, ele é linear. Caso contrário, aproxima-se de algoritmos quadráticos.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo utiliza as seguintes estruturas:
+
+\begin{itemize}
+    \item O vetor de entrada $A[1 \ldots n]$ — espaço $O(n)$.
+    \item $n$ baldes, representados como listas — espaço total $O(n)$.
+\end{itemize}
+
+O espaço total $S(n)$ pode ser expresso como:
+
+\[
+S(n) = c_1n + c_2n + c_3
+\]
+
+\begin{equation}
+S(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Para constantes positivas $c_1, c_2, c_3$, existe $c = c_1 + c_2 + c_3$ tal que:
+\[
+S(n) \leq c \cdot n
+\]
+Logo, $S(n) \in O(n)$.
+$\hfill\Box$
+
+\bigskip
+
+\noindent{\textbf{Discussão:}}  
+O \textit{Postman Sort} requer espaço adicional linear, pois utiliza um número de baldes proporcional ao tamanho da entrada. Assim, ele não é um algoritmo \textit{in-place}, mas pode ser eficiente e estável para dados contínuos e bem distribuídos.
+
+\section{Bead Sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Bead Sort}, também conhecido como \textit{Gravity Sort}, é um algoritmo de ordenação inspirado no comportamento físico de contas (ou esferas) deslizando sob a ação da gravidade. Ele é especialmente interessante por sua natureza não-comparativa e pelo fato de explorar uma analogia física: assim como contas em hastes verticais se reorganizam naturalmente por gravidade, os números em um conjunto podem ser ordenados conforme o mesmo princípio.
+
+\medskip
+O algoritmo é aplicável apenas a números inteiros não negativos, e sua lógica baseia-se em representar cada número como uma sequência de contas colocadas em hastes verticais. A “queda” das contas simula o processo de ordenação: as contas mais pesadas (ou em maior quantidade) acabam descendo mais, resultando na sequência ordenada.
+
+\medskip
+O procedimento pode ser resumido em três etapas:
+\begin{enumerate}
+    \item Representar cada número como um conjunto de contas em colunas.
+    \item Deixar as contas “caírem”, ou seja, simular a ação da gravidade.
+    \item Contar novamente as contas em cada linha para reconstruir o vetor ordenado.
+\end{enumerate}
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução.
+
+\begin{exmp}
+Considere o vetor $A = [5, 3, 1, 7, 4]$. O objetivo é ordená-lo utilizando o \textit{Bead Sort}.
+
+\begin{enumerate}
+    \item \textbf{Representação inicial:}  
+    Cada número é representado como uma sequência de contas (1s) em uma matriz binária, onde cada linha corresponde a um número e cada coluna a uma posição de conta:
+    \[
+    \begin{matrix}
+    1 & 1 & 1 & 1 & 1 & 0 & 0 \\
+    1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 \\
+    \end{matrix}
+    \]
+
+    \item \textbf{Simulação da gravidade:}  
+    As contas “caem” verticalmente para a posição mais baixa disponível em cada coluna, redistribuindo-se conforme a força da gravidade:
+    \[
+    \begin{matrix}
+    0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+    \end{matrix}
+    \]
+
+    \item \textbf{Leitura do resultado:}  
+    Contamos o número de contas (1s) em cada linha, de baixo para cima:
+    \[
+    B = [7, 5, 4, 3, 1].
+    \]
+    Assim, obtemos o vetor ordenado em ordem crescente.
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{beadSort(values: array of int, n: integer)}
+
+Create bead matrix (n rows, max columns)\;
+Let beads fall by summing each column\;
+Reconstruct sorted values from bead heights\;
+\caption{Bead sort}
+\label{lab:alg-beadsort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python,caption={Bead Sort em Python},captionpos=t]
+def bead_sort(arr):
+    if any(x<0 for x in arr): raise ValueError("Apenas inteiros n\~ao-negativos")
+    n = len(arr)
+    max_val = max(arr)
+    beads = [[0]*max_val for _ in range(n)]
+    for i, num in enumerate(arr):
+        for j in range(num):
+            beads[i][j] = 1
+    for j in range(max_val):
+        sum_col = sum(beads[i][j] for i in range(n))
+        for i in range(n):
+            beads[i][j] = 1 if i >= n - sum_col else 0
+    for i in range(n):
+        arr[i] = sum(beads[i])
+    return arr
+\end{lstlisting}
+\begin{lstlisting}[language=C,caption={Bead Sort em C},captionpos=t]
+#include <stdio.h>
+#include <stdlib.h>
+
+void bead_sort(int arr[], int n) {
+    int max=arr[0];
+    for(int i=1;i<n;i++) if(arr[i]>max) max=arr[i];
+    int **beads = malloc(n*sizeof(int*));
+    for(int i=0;i<n;i++){
+        beads[i] = calloc(max,sizeof(int));
+        for(int j=0;j<arr[i];j++) beads[i][j]=1;
+    }
+    for(int j=0;j<max;j++){
+        int sum=0;
+        for(int i=0;i<n;i++) { sum+=beads[i][j]; beads[i][j]=0; }
+        for(int i=n-sum;i<n;i++) beads[i][j]=1;
+    }
+    for(int i=0;i<n;i++){
+        int count=0;
+        for(int j=0;j<max;j++) if(beads[i][j]) count++;
+        arr[i]=count;
+        free(beads[i]);
+    }
+    free(beads);
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++,caption={Bead Sort em C++},captionpos=t]
+#include <vector>
+using namespace std;
+
+void bead_sort(vector<int>& arr) {
+    int n = arr.size();
+    int max_val = *max_element(arr.begin(), arr.end());
+    vector<vector<int>> beads(n, vector<int>(max_val,0));
+
+    for(int i=0;i<n;i++)
+        for(int j=0;j<arr[i];j++)
+            beads[i][j]=1;
+
+    for(int j=0;j<max_val;j++){
+        int sum=0;
+        for(int i=0;i<n;i++){ sum+=beads[i][j]; beads[i][j]=0; }
+        for(int i=n-sum;i<n;i++) beads[i][j]=1;
+    }
+
+    for(int i=0;i<n;i++){
+        int count=0;
+        for(int j=0;j<max_val;j++) if(beads[i][j]) count++;
+        arr[i]=count;
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+
+Nesta seção, analisamos as complexidades de tempo e espaço do algoritmo \textit{Bead Sort}.  
+Trata-se de um método não-comparativo que depende fortemente da magnitude dos valores dos elementos, pois a representação física exige uma matriz de tamanho proporcional ao maior valor da entrada.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos e $m$ o maior valor no vetor de entrada.  
+O algoritmo realiza as seguintes operações principais:
+
+\begin{enumerate}
+    \item Construção da matriz de contas — custo de $O(nm)$.
+    \item Simulação da “queda” das contas — para cada coluna, realiza $O(n)$ operações, totalizando $O(nm)$.
+    \item Reconstrução do vetor ordenado — novamente $O(nm)$ no pior caso.
+\end{enumerate}
+
+Assim, o tempo total de execução pode ser expresso como:
+
+\[
+T(n, m) = a_1nm + a_2nm + a_3nm + b
+\]
+
+onde $a_1$, $a_2$, $a_3$ e $b$ são constantes positivas.
+
+\begin{equation}
+T(n, m) \in O(nm)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Sabemos que:
+\[
+T(n, m) = (a_1 + a_2 + a_3)nm + b \leq c \cdot nm
+\]
+para alguma constante $c = a_1 + a_2 + a_3 + b$.  
+Portanto, existe $c > 0$ e $n_0 \geq 0$ tais que $T(n, m) \leq c \cdot nm$ para todo $n, m \geq n_0$.  
+Logo,
+\[
+T(n, m) \in O(nm).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+No melhor caso — quando os valores são pequenos e próximos entre si — o custo efetivo pode se aproximar de $O(n)$, mas em geral o algoritmo é ineficiente para entradas com grandes números, devido ao crescimento linear com o valor máximo $m$.  
+Portanto, o \textit{Bead Sort} é eficiente apenas quando $m$ é pequeno e comparável a $n$.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo utiliza as seguintes estruturas principais:
+
+\begin{itemize}
+    \item O vetor de entrada $A[1 \ldots n]$ — espaço $O(n)$.
+    \item A matriz de contas $beads[n][m]$ — espaço $O(nm)$.
+\end{itemize}
+
+O espaço total utilizado é, portanto:
+\[
+S(n, m) = c_1n + c_2nm + c_3
+\]
+onde $c_1$, $c_2$, e $c_3$ são constantes positivas.
+
+\begin{equation}
+S(n, m) \in O(nm)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Temos:
+\[
+S(n, m) = c_1n + c_2nm + c_3 \leq c(nm)
+\]
+onde $c = c_1 + c_2 + c_3$.  
+Logo, existe $c > 0$ e $n_0 \geq 0$ tais que $S(n, m) \leq c(nm)$ para $n, m \geq n_0$, implicando que
+\[
+S(n, m) \in O(nm).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Bead Sort} consome grande quantidade de memória, proporcional ao produto do tamanho da entrada e do valor máximo presente.  
+Portanto, apesar de conceitualmente interessante e visualmente intuitivo, é impraticável para grandes valores ou números não inteiros.  
+Na prática, seu uso é limitado a contextos educacionais ou demonstrativos de analogias físicas de ordenação.
+
+\section{Pigeonhole Sort}
+\subsection{Descrição e Funcionamento}
+O \textit{Pigeonhole Sort} é um algoritmo de ordenação não comparativo baseado no princípio do "princípio das gavetas" (\textit{pigeonhole principle}).  
+Ele é especialmente eficiente quando os elementos de entrada estão distribuídos em um intervalo relativamente pequeno. O algoritmo funciona alocando um conjunto de “gavetas” (\textit{pigeonholes}) suficientes para cobrir o intervalo de valores dos elementos, colocando cada elemento na gaveta correspondente ao seu valor, e depois reconstruindo o vetor ordenado percorrendo as gavetas na ordem natural.
+
+\medskip
+O funcionamento pode ser descrito em três etapas principais:
+\begin{enumerate}
+    \item Determinar o valor mínimo e máximo do vetor de entrada.
+    \item Criar uma série de gavetas para cada valor inteiro no intervalo e inserir cada elemento na gaveta correspondente.
+    \item Percorrer as gavetas na ordem crescente, coletando os elementos para formar o vetor ordenado.
+\end{enumerate}
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução.
+
+\begin{exmp}
+Considere o vetor $A = [8, 3, 2, 7, 4]$. O objetivo é ordená-lo utilizando o \textit{Pigeonhole Sort}.
+
+\begin{enumerate}
+    \item \textbf{Determinação do intervalo:}  
+    O menor valor é $2$ e o maior valor é $8$. Portanto, precisamos de $8 - 2 + 1 = 7$ gavetas, uma para cada inteiro de $2$ a $8$.
+
+    \item \textbf{Distribuição nas gavetas:}  
+    Cada elemento é colocado na gaveta correspondente ao seu valor:
+    \[
+    \begin{array}{c|c}
+    Gaveta & Elementos \\
+    \hline
+    2 & 2 \\
+    3 & 3 \\
+    4 & 4 \\
+    5 & - \\
+    6 & - \\
+    7 & 7 \\
+    8 & 8 \\
+    \end{array}
+    \]
+
+    \item \textbf{Reconstrução do vetor ordenado:}  
+    Percorremos as gavetas em ordem crescente e coletamos os elementos:
+    \[
+    B = [2, 3, 4, 7, 8].
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{pigeonholeSort(values: array of integer, n: integer)}
+
+$min \gets$ minimum value in $values$\;
+$max \gets$ maximum value in $values$\;
+$range \gets max - min + 1$\;
+\For{$i \gets 0$ \KwTo $range-1$}{
+    $hole[i] \gets$ empty list\;
+}
+\For{$i \gets 0$ \KwTo $n-1$}{
+    $hole[values[i] - min].append(values[i])$\;
+}
+$k \gets 0$\;
+\For{$i \gets 0$ \KwTo $range-1$}{
+    \For{each element $v$ in $hole[i]$}{
+        $values[k] \gets v$\;
+        $k \gets k + 1$\;
+    }
+}
+\caption{Pigeonhole Sort}
+\label{lab:alg-pigeonholeSort}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python, caption={Pigeonhole Sort em Python},captionpos=t, label=code:pigeonholesortPy]
+def pigeonhole_sort(arr):
+    if not arr: return []
+    mi, ma = min(arr), max(arr)
+    size = ma - mi + 1
+    holes = [[] for _ in range(size)]
+    for x in arr:
+        holes[x - mi].append(x)
+    i = 0
+    for hole in holes:
+        for x in hole:
+            arr[i] = x
+            i += 1
+    return arr
+\end{lstlisting}
+\begin{lstlisting}[language=C, caption={Pigeonhole Sort em C},captionpos=t,label=code:pigeonholesortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+void pigeonholeSort(int arr[], int n) {
+    int min = arr[0], max = arr[0];
+    for (int i = 1; i < n; i++) {
+        if (arr[i] < min) min = arr[i];
+        if (arr[i] > max) max = arr[i];
+    }
+    int size = max - min + 1;
+    int *holes = calloc(size, sizeof(int));
+    for (int i = 0; i < n; i++)
+        holes[arr[i] - min]++;
+    int index = 0;
+    for (int i = 0; i < size; i++) {
+        while (holes[i]-- > 0)
+            arr[index++] = i + min;
+    }
+    free(holes);
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++, caption={Pigeonhole Sort em C++}, captionpos=t, label=code:pigeonholesortCPP]
+#include <iostream>
+#include <vector>
+
+void pigeonholeSort(std::vector<int> &arr) {
+    if (arr.empty()) return;
+    
+    int min = arr[0], max = arr[0];
+    for (int x : arr) {
+        if (x < min) min = x;
+        if (x > max) max = x;
+    }
+    
+    int range = max - min + 1;
+    std::vector<std::vector<int>> holes(range);
+    
+    for (int x : arr) {
+        holes[x - min].push_back(x);
+    }
+    
+    int k = 0;
+    for (auto &hole : holes) {
+        for (int x : hole) {
+            arr[k++] = x;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+
+O \textit{Pigeonhole Sort} utiliza uma abordagem não comparativa baseada na contagem de elementos por gaveta, similar ao \textit{Counting Sort}. A eficiência depende do tamanho do intervalo de valores dos elementos.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos e $k$ o tamanho do intervalo ($k = maxVal - minVal + 1$).
+
+As etapas do algoritmo têm os seguintes custos:
+
+\begin{enumerate}
+    \item Determinar $minVal$ e $maxVal$ — $O(n)$.
+    \item Inicializar as gavetas — $O(k)$.
+    \item Distribuir os elementos nas gavetas — $O(n)$.
+    \item Reconstruir o vetor ordenado percorrendo as gavetas — $O(n + k)$.
+\end{enumerate}
+
+O tempo total de execução $T(n,k)$ pode ser expresso como:
+
+\[
+T(n,k) = a_1 n + a_2 k + a_3 n + a_4 (n+k) + b
+\]
+
+onde $a_1, a_2, a_3, a_4, b$ são constantes positivas.
+
+\begin{equation}
+T(n,k) \in O(n + k)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Com $c = a_1 + a_2 + a_3 + a_4 + b$, temos:
+\[
+T(n,k) \leq c(n+k)
+\]
+para todo $n,k \geq 0$.  
+Portanto,
+\[
+T(n,k) \in O(n+k).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+Quando $k = O(n)$, o algoritmo é linear, $O(n)$.  
+Se $k \gg n$, a complexidade torna-se dominada por $k$, tornando o algoritmo ineficiente para intervalos grandes em relação ao número de elementos.
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo utiliza:
+
+\begin{itemize}
+    \item Vetor de entrada $A[1 \dots n]$ — $O(n)$.
+    \item Gavetas $holes[0 \dots k-1]$ — $O(n+k)$, pois cada gaveta pode armazenar múltiplos elementos.
+\end{itemize}
+
+O espaço total $S(n,k)$ é:
+
+\[
+S(n,k) = c_1 n + c_2 k + c_3
+\]
+
+para constantes positivas $c_1, c_2, c_3$.
+
+\begin{equation}
+S(n,k) \in O(n + k)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Temos:
+\[
+S(n,k) \leq c (n+k)
+\]
+para $c = c_1 + c_2 + c_3$, portanto:
+\[
+S(n,k) \in O(n+k).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+\textit{Pigeonhole Sort} não é \textit{in-place}, pois requer memória adicional proporcional ao número de elementos e ao intervalo de valores.  
+É adequado apenas quando o intervalo de valores é relativamente pequeno.
+
+\section{Bucket Sort (whole keys)}
+\subsection{Descrição e Funcionamento}
+O \textit{Bucket Sort} para chaves inteiras (\textit{whole keys}) é um algoritmo de ordenação não comparativo que distribui os elementos de um vetor em diversos "baldes" (\textit{buckets}), cada um responsável por um intervalo específico de valores. Depois, cada balde é ordenado individualmente utilizando um algoritmo simples, como o \textit{Insertion Sort}, e os resultados são concatenados para formar o vetor final ordenado.
+
+\medskip
+Este método é particularmente eficiente quando os valores estão uniformemente distribuídos e o número de baldes é proporcional ao tamanho do vetor, garantindo que cada balde contenha poucos elementos em média. O \textit{Bucket Sort} é estável se o algoritmo utilizado para ordenar cada balde for estável.
+
+\medskip
+A seguir, apresenta-se um exemplo ilustrativo de execução.
+
+\begin{exmp}
+Considere o vetor $A = [0.78, 0.17, 0.39, 0.26, 0.72, 0.94, 0.21, 0.12, 0.23, 0.68]$ no intervalo $[0,1)$. O objetivo é ordená-lo utilizando o \textit{Bucket Sort}.
+
+\begin{enumerate}
+    \item \textbf{Criação dos baldes:}  
+    Dividimos o intervalo $[0,1)$ em 10 baldes correspondentes a intervalos $[0.0,0.1), [0.1,0.2), \dots, [0.9,1.0)$. Inicialmente, todos os baldes estão vazios.
+
+    \item \textbf{Distribuição dos elementos:}  
+    Cada elemento de $A$ é colocado no balde correspondente:
+    \[
+    \text{buckets} = [[\,], [0.12, 0.17], [0.21, 0.23, 0.26], [0.39], [\,], [\,], [0.68, 0.72, 0.78], [0.94], [\,], [\,]]
+    \]
+
+    \item \textbf{Ordenação interna dos baldes:}  
+    Cada balde é ordenado individualmente com \textit{Insertion Sort}:
+    \[
+    \text{buckets} = [[\,], [0.12, 0.17], [0.21, 0.23, 0.26], [0.39], [\,], [\,], [0.68, 0.72, 0.78], [0.94], [\,], [\,]]
+    \]
+    (neste exemplo, alguns baldes já estão ordenados)
+
+    \item \textbf{Concatenação dos baldes:}  
+    Finalmente, os elementos dos baldes são concatenados para formar o vetor ordenado:
+    \[
+    B = [0.12, 0.17, 0.21, 0.23, 0.26, 0.39, 0.68, 0.72, 0.78, 0.94]
+    \]
+\end{enumerate}
+\end{exmp}
+
+\medskip
+O pseudocódigo correspondente é apresentado a seguir.
+
+\begin{center}
+\begin{minipage}{.9\linewidth}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\hspace{-0.25cm}\textbf{bucketSort(values: array of integer, n: integer, b: integer)}
+
+$min \gets$ minimum value in $values$\;
+$max \gets$ maximum value in $values$\;
+$range \gets max - min + 1$\;
+$size \gets \lceil range / b \rceil$\;
+\For{$i \gets 0$ \KwTo $b-1$}{
+    $bucket[i] \gets$ empty list\;
+}
+\For{$i \gets 0$ \KwTo $n-1$}{
+    $index \gets \lfloor (values[i] - min) / size \rfloor$\;
+    \If{$index \ge b$}{
+        $index \gets b-1$\;
+    }
+    $bucket[index].append(values[i])$\;
+}
+\For{$i \gets 0$ \KwTo $b-1$}{
+    \text{insertionSort(bucket[i])}\;
+}
+$k \gets 0$\;
+\For{$i \gets 0$ \KwTo $b-1$}{
+    \For{each element $v$ in $bucket[i]$}{
+        $values[k] \gets v$\;
+        $k \gets k + 1$\;
+    }
+}
+\caption{Bucket Sort (whole keys)}
+\label{lab:alg-bucketSortWholeKeys}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\subsection{Implementações}
+\begin{lstlisting}[language=Python, caption={Bucket Sort (inteiros) em Python},,captionpos=t, label=code:bucketsortPy]
+def bucket_sort_whole_keys(arr, b=10):
+    if not arr:
+        return []
+    mi, ma = min(arr), max(arr)
+    if mi == ma:
+        return arr[:]
+    size = (ma - mi + 1) / b
+    buckets = [[] for _ in range(b)]
+    for x in arr:
+        idx = int((x - mi) / size)
+        if idx == b:  # Caso extremo (maior valor)
+            idx -= 1
+        buckets[idx].append(x)
+    # Ordena cada bucket (Insertion Sort)
+    for bucket in buckets:
+        for i in range(1, len(bucket)):
+            key = bucket[i]
+            j = i - 1
+            while j >= 0 and bucket[j] > key:
+                bucket[j + 1] = bucket[j]
+                j -= 1
+            bucket[j + 1] = key
+    # Concatena todos os buckets
+    out = []
+    for bucket in buckets:
+        out.extend(bucket)
+    return out
+\end{lstlisting}
+\begin{lstlisting}[language=C, caption={Bucket Sort (inteiros) em C},,captionpos=t, label=code:bucketsortC]
+#include <stdio.h>
+#include <stdlib.h>
+
+// Insertion Sort utilizado nos buckets
+void insertionSort(int *arr, int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i], j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void bucketSortWholeKeys(int *arr, int n, int b) {
+    int min = arr[0], max = arr[0];
+    for (int i = 1; i < n; i++) {
+        if (arr[i] < min) min = arr[i];
+        if (arr[i] > max) max = arr[i];
+    }
+    if (min == max) return;
+    int range = max - min + 1;
+    int size = (range + b - 1) / b;
+    int **buckets = malloc(b * sizeof(int*));
+    int *counts = calloc(b, sizeof(int));
+    for (int i = 0; i < b; i++)
+        buckets[i] = malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) {
+        int idx = (arr[i] - min) / size;
+        if (idx >= b) idx = b - 1;
+        buckets[idx][counts[idx]++] = arr[i];
+    }
+    int idx = 0;
+    for (int i = 0; i < b; i++) {
+        if (counts[i] > 0) {
+            insertionSort(buckets[i], counts[i]);
+            for (int j = 0; j < counts[i]; j++)
+                arr[idx++] = buckets[i][j];
+        }
+        free(buckets[i]);
+    }
+    free(buckets);
+    free(counts);
+}
+\end{lstlisting}
+\begin{lstlisting}[language=C++, caption={Bucket Sort (inteiros) em C++}, captionpos=t, label=code:bucketsortCPP]
+#include <iostream>
+#include <vector>
+#include <algorithm> // para std::sort
+
+void bucketSortWholeKeys(std::vector<int> &arr, int b) {
+    if (arr.empty()) return;
+    
+    int min = arr[0], max = arr[0];
+    for (int x : arr) {
+        if (x < min) min = x;
+        if (x > max) max = x;
+    }
+    if (min == max) return;
+    
+    int range = max - min + 1;
+    int size = (range + b - 1) / b; // tamanho de cada bucket
+    std::vector<std::vector<int>> buckets(b);
+    
+    for (int x : arr) {
+        int idx = (x - min) / size;
+        if (idx >= b) idx = b - 1;
+        buckets[idx].push_back(x);
+    }
+    
+    int k = 0;
+    for (auto &bucket : buckets) {
+        std::sort(bucket.begin(), bucket.end()); // ordena cada bucket
+        for (int x : bucket) {
+            arr[k++] = x;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Análise de complexidade}
+Nesta seção, analisamos formalmente as complexidades de tempo e espaço do algoritmo \textit{Bucket Sort} para chaves inteiras ou números em ponto flutuante uniformemente distribuídos.
+
+\subsubsection{Complexidade de Tempo}
+
+Seja $n$ o número de elementos do vetor de entrada.
+
+\begin{enumerate}
+    \item Distribuição dos elementos nos baldes — custo $O(n)$.
+    \item Ordenação interna de cada balde com \textit{Insertion Sort} — no caso médio, cada balde contém $O(1)$ elementos, resultando em custo $O(n)$.
+    \item Concatenação dos baldes — custo $O(n)$.
+\end{enumerate}
+
+Portanto, o tempo total de execução $T(n)$ no caso médio é:
+
+\begin{equation}
+T(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Se os elementos estão uniformemente distribuídos, cada balde contém aproximadamente $n/m$ elementos, onde $m = n$ é o número de baldes. A ordenação interna de cada balde via \textit{Insertion Sort} custa $O((n/m)^2)$ por balde. Somando todos os baldes:
+\[
+\sum_{i=1}^{m} O((n/m)^2) = m \cdot O((n/m)^2) = O(n^2/m) = O(n)
+\]
+para $m = n$ baldes. As demais operações lineares não alteram a complexidade.
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+No pior caso, se todos os elementos caírem em um único balde, a ordenação interna é $O(n^2)$, e o algoritmo perde eficiência em relação a métodos baseados em comparação ($O(n \log n)$).
+
+\subsubsection{Complexidade de Espaço}
+
+O algoritmo utiliza:
+
+\begin{itemize}
+    \item O vetor de entrada $A[1 \ldots n]$ — espaço $O(n)$.
+    \item Estruturas de baldes, cada uma armazenando até $O(n)$ elementos no pior caso — espaço $O(n)$.
+\end{itemize}
+
+O espaço total $S(n)$ é:
+
+\begin{equation}
+S(n) \in O(n)
+\end{equation}
+
+\noindent{\textbf{Prova:}}  
+Cada elemento é armazenado em exatamente um balde, portanto a memória auxiliar é proporcional a $n$. Logo, existe $c>0$ tal que
+\[
+S(n) \leq c \cdot n \implies S(n) \in O(n).
+\]
+$\hfill\Box$
+
+\bigskip
+\noindent{\textbf{Discussão:}}  
+O \textit{Bucket Sort} não é \textit{in-place}, mas o espaço adicional é linear em relação ao número de elementos.  
+O algoritmo é eficiente para dados uniformemente distribuídos e se torna impraticável caso os elementos se concentrem em poucos baldes.
+
+
+\section{Leituras Complementares}
+Para aprofundamento dos algoritmos lineares, recomendamos a leitura dos seguintes materiais:
+
+\begin{itemize}
+    \item \href{https://www.ic.unicamp.br/~ra063658/disciplinas/stco02_2025s1/sort_linear.pdf}{Sorting in Linear Time — Material de curso da UNICAMP.}
+
+    \item \href{https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/bf7d79105762bf79bbc0925438e1468a_MIT6_006F11_lec07.pdf}{Linear-time sorting — Apostila do MIT OpenCourseWare.}
+
+    \item \href{https://iudatastructurescourse.github.io/course-web-page-fall-2024/lectures/sort-linear.html}{Sorting in linear time — Página de curso de estruturas de dados do IU Data Structures Course.}
+
+    \item \href{http://personal.kent.edu/~amohamm4/daa-f2019/slides/ch4-2%20LinearTime%20Sorting.pdf}{Linear-time sorting — Slides do curso de Design e Análise de Algoritmos da Kent State University.}
+
+    \item \href{https://www.dcc.fc.up.pt/~pribeiro/aulas/aed2425/slides/4_sorting.pdf}{Sorting Algorithms — Material da Faculdade de Ciências da Universidade do Porto.}
+\end{itemize}
